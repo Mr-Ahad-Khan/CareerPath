@@ -18,10 +18,8 @@
     "express-rate-limit": "^7.4.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "sequelize": "^6.37.3"
-  },
-  "devDependencies": {
-    "sqlite3": "^5.1.7"
+    "sequelize": "^6.37.3",
+    "sqlite3": "^6.0.1"
   },
   "description": "",
   "keywords": [],
