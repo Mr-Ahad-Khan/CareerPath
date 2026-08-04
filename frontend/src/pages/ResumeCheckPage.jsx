@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FileCheck, Upload, ClipboardPaste, Check, X, AlertTriangle, TrendingUp } from 'lucide-react';
+import { FileCheck, Upload, ClipboardPaste, Check, X, AlertTriangle, TrendingUp, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api.js';
 import { useToast } from '@/lib/toast.jsx';
 import { LoadingOverlay } from '@/components/Spinner.jsx';
@@ -9,17 +9,27 @@ import { pct } from '@/lib/format.js';
 export function ResumeCheckPage() {
   const toast = useToast();
   const [sims, setSims] = useState(null);
+  const [simError, setSimError] = useState(null);
   const [selectedSim, setSelectedSim] = useState(null);
   const [selectedPath, setSelectedPath] = useState(0);
   const [resumeText, setResumeText] = useState('');
   const [result, setResult] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
 
-  useEffect(() => {
-    api.get('/simulations').then((data) => {
+  const loadSimulations = async () => {
+    setSimError(null);
+    try {
+      const data = await api.get('/simulations');
       setSims(data.simulations);
       if (data.simulations.length > 0) setSelectedSim(data.simulations[0].id);
-    }).catch(() => setSims([]));
+    } catch (err) {
+      setSims(null);
+      setSimError(err.message);
+    }
+  };
+
+  useEffect(() => {
+    loadSimulations();
   }, []);
 
   const [simDetail, setSimDetail] = useState(null);
@@ -67,7 +77,7 @@ export function ResumeCheckPage() {
     }
   };
 
-  if (!sims) return <LoadingOverlay />;
+  if (!sims && !simError) return <LoadingOverlay />;
 
   const path = simDetail?.paths[selectedPath];
 
@@ -79,10 +89,17 @@ export function ResumeCheckPage() {
         <p className="mt-1 text-muted">Paste your resume or upload a text file. We parse the skills you mention and cross-reference them against the gaps your simulation identified.</p>
       </div>
 
-      {sims.length === 0 ? (
-        <EmptyState icon={FileCheck} title="Run a simulation first" description="The reality-check compares your resume against a saved simulation's skill gaps." />
-      ) : (
-        <>
+      {simError && (
+        <EmptyState
+          icon={AlertTriangle}
+          title="Could not load simulations"
+          description={`${simError} Check the API deployment, then try again.`}
+          action={<button onClick={loadSimulations} className="btn-primary"><RefreshCw className="h-4 w-4" /> Retry</button>}
+        />
+      )}
+
+      <>
+          {sims?.length > 0 ? (
           <div className="mb-4 grid gap-3 sm:grid-cols-2">
             <div>
               <label className="field-label">Compare against simulation</label>
@@ -97,6 +114,9 @@ export function ResumeCheckPage() {
               </select>
             </div>
           </div>
+          ) : (
+            <EmptyState icon={FileCheck} title="Run a simulation to compare results" description="You can paste or upload your resume now. Create a simulation before running the reality-check." />
+          )}
 
           <div className="mb-4 surface-card p-5">
             <div className="mb-3 flex items-center justify-between">
@@ -181,8 +201,7 @@ export function ResumeCheckPage() {
               )}
             </div>
           )}
-        </>
-      )}
+      </>
     </div>
   );
 }
