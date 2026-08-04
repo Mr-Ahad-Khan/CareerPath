@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 
-import { sequelize } from './db/sequelize.js';
+import { connectDatabase } from './db/mongodb.js';
 import authRoutes from './routes/auth.js';
 import profileRoutes from './routes/profiles.js';
 import simulationRoutes from './routes/simulations.js';
@@ -17,7 +17,7 @@ import resumeRoutes from './routes/resume.js';
 import adminRoutes from './routes/admin.js';
 import { seedIfEmpty } from './scripts/seed.js';
 
-dotenv.config();
+dotenv.config({ path: new URL('./.env', import.meta.url) });
 
 const app = express();
 const PORT = process.env.API_PORT || 5050;
@@ -68,9 +68,7 @@ app.use((err, _req, res, _next) => {
 
 async function start() {
   try {
-    await sequelize.authenticate();
-    await sequelize.sync({ alter: process.env.DB_FORCE === 'true' });
-    console.log('[db] synced');
+    await connectDatabase();
     await seedIfEmpty();
     app.listen(PORT, () => console.log(`[api] CareerPath API on :${PORT}`));
   } catch (err) {

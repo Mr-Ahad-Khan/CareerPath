@@ -7,10 +7,7 @@ const router = Router();
 router.use(authRequired);
 
 async function serializeSimulation(sim) {
-  const paths = await SimulationPath.findAll({
-    where: { simulationId: sim.id },
-    order: [['id', 'ASC']],
-  });
+  const paths = await SimulationPath.find({ simulationId: sim.id }).sort({ _id: 1 });
   return {
     id: sim.id,
     name: sim.name,
@@ -37,16 +34,10 @@ async function serializeSimulation(sim) {
 
 router.get('/', async (req, res, next) => {
   try {
-    const sims = await Simulation.findAll({
-      where: { userId: req.user.id },
-      order: [['created_at', 'DESC']],
-    });
+    const sims = await Simulation.find({ userId: req.user.id }).sort({ createdAt: -1 });
     const out = [];
     for (const s of sims) {
-      const paths = await SimulationPath.findAll({
-        where: { simulationId: s.id },
-        order: [['id', 'ASC']],
-      });
+      const paths = await SimulationPath.find({ simulationId: s.id }).sort({ _id: 1 });
       out.push({
         id: s.id,
         name: s.name,
@@ -67,13 +58,11 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const sim = await Simulation.findOne({
-      where: { id: req.params.id, userId: req.user.id },
-    });
+    const sim = await Simulation.findOne({ _id: req.params.id, userId: req.user.id });
     if (!sim) return res.status(404).json({ error: 'Simulation not found.' });
     const serialized = await serializeSimulation(sim);
     if (sim.profileId) {
-      const profile = await SkillProfile.findByPk(sim.profileId);
+      const profile = await SkillProfile.findById(sim.profileId);
       serialized.profile = profile;
     }
     res.json({ simulation: serialized });
@@ -87,9 +76,7 @@ router.post('/', async (req, res, next) => {
     const { profileId, whatIf, name } = req.body;
     let profile;
     if (profileId) {
-      profile = await SkillProfile.findOne({
-        where: { id: profileId, userId: req.user.id },
-      });
+      profile = await SkillProfile.findOne({ _id: profileId, userId: req.user.id });
     }
     if (!profile) {
       return res.status(404).json({ error: 'Profile not found.' });
@@ -121,7 +108,7 @@ router.post('/', async (req, res, next) => {
       });
 
       const milestones = buildMilestones(path, req.user.id, created.id);
-      await Milestone.bulkCreate(milestones);
+      await Milestone.insertMany(milestones);
     }
 
     res.status(201).json({ simulation: await serializeSimulation(sim) });
@@ -145,11 +132,10 @@ router.post('/preview', async (req, res, next) => {
 
 router.patch('/:id/star', async (req, res, next) => {
   try {
-    const sim = await Simulation.findOne({
-      where: { id: req.params.id, userId: req.user.id },
-    });
+    const sim = await Simulation.findOne({ _id: req.params.id, userId: req.user.id });
     if (!sim) return res.status(404).json({ error: 'Simulation not found.' });
-    await sim.update({ isStarred: !sim.isStarred });
+    sim.isStarred = !sim.isStarred;
+    await sim.save();
     res.json({ isStarred: sim.isStarred });
   } catch (err) {
     next(err);
@@ -158,13 +144,12 @@ router.patch('/:id/star', async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
   try {
-    const sim = await Simulation.findOne({
-      where: { id: req.params.id, userId: req.user.id },
-    });
+    const sim = await Simulation.findOne({ _id: req.params.id, userId: req.user.id });
     if (!sim) return res.status(404).json({ error: 'Simulation not found.' });
-    await Milestone.destroy({ where: { userId: req.user.id } });
-    await SimulationPath.destroy({ where: { simulationId: sim.id } });
-    await sim.destroy();
+    const pathIds = (await SimulationPath.find({ simulationId: sim.id }).select('_id')).map((path) => path._id);
+    await Milestone.deleteMany({ userId: req.user.id, pathId: { $in: pathIds } });
+    await SimulationPath.deleteMany({ simulationId: sim.id });
+    await sim.deleteOne();
     res.json({ ok: true });
   } catch (err) {
     next(err);

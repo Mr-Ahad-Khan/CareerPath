@@ -1,4 +1,3 @@
-import { sequelize } from '../db/sequelize.js';
 import { User, SkillProfile, Mentor } from '../models/index.js';
 import bcrypt from 'bcryptjs';
 
@@ -177,10 +176,8 @@ export async function seedIfEmpty() {
   }
 
   console.log('[seed] seeding database...');
-  await sequelize.transaction(async (t) => {
-    for (const m of MENTORS) {
-      await Mentor.create(m, { transaction: t });
-    }
+  {
+    await Mentor.insertMany(MENTORS);
 
     const demoUser = await User.create(
       {
@@ -191,11 +188,9 @@ export async function seedIfEmpty() {
         headline: DEMO_PROFILE.headline,
         avatarColor: DEMO_PROFILE.avatarColor,
       },
-      { transaction: t }
     );
     await SkillProfile.create(
-      { ...DEMO_PROFILE.profile, userId: demoUser.id },
-      { transaction: t }
+      { ...DEMO_PROFILE.profile, userId: demoUser.id }
     );
 
     await User.create(
@@ -207,9 +202,8 @@ export async function seedIfEmpty() {
         headline: ADMIN.headline,
         avatarColor: ADMIN.avatarColor,
       },
-      { transaction: t }
     );
-  });
+  }
 
   console.log('[seed] done — mentors, demo student, and admin created');
 }

@@ -8,22 +8,15 @@ router.use(authRequired);
 router.get('/', async (req, res, next) => {
   try {
     const { industry, specialty, q } = req.query;
-    const where = {};
-    if (industry && industry !== 'all') where.industry = industry;
-    if (specialty && specialty !== 'all') where.specialty = specialty;
+    const filter = {};
+    if (industry && industry !== 'all') filter.industry = industry;
+    if (specialty && specialty !== 'all') filter.specialty = specialty;
     if (q) {
-      const { Op } = await import('sequelize');
-      where[Op.or] = [
-        { name: { [Op.like]: `%${q}%` } },
-        { specialty: { [Op.like]: `%${q}%` } },
-        { company: { [Op.like]: `%${q}%` } },
-        { bio: { [Op.like]: `%${q}%` } },
-      ];
+      const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const pattern = new RegExp(escaped, 'i');
+      filter.$or = [{ name: pattern }, { specialty: pattern }, { company: pattern }, { bio: pattern }];
     }
-    const mentors = await Mentor.findAll({
-      where,
-      order: [['rating', 'DESC'], ['mentee_count', 'DESC']],
-    });
+    const mentors = await Mentor.find(filter).sort({ rating: -1, menteeCount: -1 });
     res.json({ mentors });
   } catch (err) {
     next(err);
@@ -32,7 +25,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/industries', async (_req, res, next) => {
   try {
-    const mentors = await Mentor.findAll();
+    const mentors = await Mentor.find();
     const industries = [...new Set(mentors.map((m) => m.industry))].sort();
     const specialties = [...new Set(mentors.map((m) => m.specialty))].sort();
     res.json({ industries, specialties });
@@ -43,7 +36,7 @@ router.get('/industries', async (_req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const mentor = await Mentor.findByPk(req.params.id);
+    const mentor = await Mentor.findById(req.params.id);
     if (!mentor) return res.status(404).json({ error: 'Mentor not found.' });
     res.json({ mentor });
   } catch (err) {

@@ -7,10 +7,7 @@ router.use(authRequired);
 
 router.get('/', async (req, res, next) => {
   try {
-    const entries = await JournalEntry.findAll({
-      where: { userId: req.user.id },
-      order: [['date', 'DESC'], ['id', 'DESC']],
-    });
+    const entries = await JournalEntry.find({ userId: req.user.id }).sort({ date: -1, _id: -1 });
     res.json({ entries });
   } catch (err) {
     next(err);
@@ -37,10 +34,8 @@ router.post('/', async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
   try {
-    const deleted = await JournalEntry.destroy({
-      where: { id: req.params.id, userId: req.user.id },
-    });
-    if (!deleted) return res.status(404).json({ error: 'Entry not found.' });
+    const deleted = await JournalEntry.deleteOne({ _id: req.params.id, userId: req.user.id });
+    if (!deleted.deletedCount) return res.status(404).json({ error: 'Entry not found.' });
     res.json({ ok: true });
   } catch (err) {
     next(err);
@@ -49,10 +44,7 @@ router.delete('/:id', async (req, res, next) => {
 
 router.get('/stats', async (req, res, next) => {
   try {
-    const entries = await JournalEntry.findAll({
-      where: { userId: req.user.id },
-      order: [['date', 'DESC']],
-    });
+    const entries = await JournalEntry.find({ userId: req.user.id }).sort({ date: -1 });
     const dates = [...new Set(entries.map((e) => e.date))];
     let streak = 0;
     const today = new Date().toISOString().slice(0, 10);

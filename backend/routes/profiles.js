@@ -7,10 +7,7 @@ router.use(authRequired);
 
 router.get('/', async (req, res, next) => {
   try {
-    const profiles = await SkillProfile.findAll({
-      where: { userId: req.user.id },
-      order: [['created_at', 'DESC']],
-    });
+    const profiles = await SkillProfile.find({ userId: req.user.id }).sort({ createdAt: -1 });
     res.json({ profiles });
   } catch (err) {
     next(err);
@@ -19,9 +16,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const profile = await SkillProfile.findOne({
-      where: { id: req.params.id, userId: req.user.id },
-    });
+    const profile = await SkillProfile.findOne({ _id: req.params.id, userId: req.user.id });
     if (!profile) return res.status(404).json({ error: 'Profile not found.' });
     res.json({ profile });
   } catch (err) {
@@ -57,11 +52,10 @@ router.post('/', async (req, res, next) => {
 
 router.put('/:id', async (req, res, next) => {
   try {
-    const profile = await SkillProfile.findOne({
-      where: { id: req.params.id, userId: req.user.id },
-    });
+    const profile = await SkillProfile.findOne({ _id: req.params.id, userId: req.user.id });
     if (!profile) return res.status(404).json({ error: 'Profile not found.' });
-    await profile.update(req.body);
+    Object.assign(profile, req.body);
+    await profile.save();
     res.json({ profile });
   } catch (err) {
     next(err);
@@ -70,10 +64,8 @@ router.put('/:id', async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
   try {
-    const deleted = await SkillProfile.destroy({
-      where: { id: req.params.id, userId: req.user.id },
-    });
-    if (!deleted) return res.status(404).json({ error: 'Profile not found.' });
+    const deleted = await SkillProfile.deleteOne({ _id: req.params.id, userId: req.user.id });
+    if (!deleted.deletedCount) return res.status(404).json({ error: 'Profile not found.' });
     res.json({ ok: true });
   } catch (err) {
     next(err);

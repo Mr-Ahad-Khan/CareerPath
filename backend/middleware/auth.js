@@ -20,7 +20,7 @@ export async function authRequired(req, _res, next) {
   }
   try {
     const payload = jwt.verify(token, SECRET);
-    const user = await User.findByPk(payload.id);
+    const user = await User.findById(payload.id);
     if (!user) return next({ status: 401, message: 'Session invalid.' });
     req.user = user;
     next();

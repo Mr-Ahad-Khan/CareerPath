@@ -8,15 +8,9 @@ router.use(authRequired);
 router.get('/', async (req, res, next) => {
   try {
     const { pathId } = req.query;
-    const where = { userId: req.user.id };
-    if (pathId) where.pathId = pathId;
-    const milestones = await Milestone.findAll({
-      where,
-      order: [
-        ['year', 'ASC'],
-        ['order_index', 'ASC'],
-      ],
-    });
+    const filter = { userId: req.user.id };
+    if (pathId) filter.pathId = pathId;
+    const milestones = await Milestone.find(filter).sort({ year: 1, orderIndex: 1 });
     res.json({ milestones });
   } catch (err) {
     next(err);
@@ -25,14 +19,13 @@ router.get('/', async (req, res, next) => {
 
 router.patch('/:id', async (req, res, next) => {
   try {
-    const milestone = await Milestone.findOne({
-      where: { id: req.params.id, userId: req.user.id },
-    });
+    const milestone = await Milestone.findOne({ _id: req.params.id, userId: req.user.id });
     if (!milestone) return res.status(404).json({ error: 'Milestone not found.' });
     const allowed = ['status', 'title', 'description'];
     const updates = {};
     for (const k of allowed) if (req.body[k] !== undefined) updates[k] = req.body[k];
-    await milestone.update(updates);
+    Object.assign(milestone, updates);
+    await milestone.save();
     res.json({ milestone });
   } catch (err) {
     next(err);
@@ -64,10 +57,8 @@ router.post('/', async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
   try {
-    const deleted = await Milestone.destroy({
-      where: { id: req.params.id, userId: req.user.id },
-    });
-    if (!deleted) return res.status(404).json({ error: 'Milestone not found.' });
+    const deleted = await Milestone.deleteOne({ _id: req.params.id, userId: req.user.id });
+    if (!deleted.deletedCount) return res.status(404).json({ error: 'Milestone not found.' });
     res.json({ ok: true });
   } catch (err) {
     next(err);

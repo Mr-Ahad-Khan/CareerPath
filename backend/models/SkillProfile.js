@@ -1,28 +1,12 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../db/sequelize.js';
-import User from './User.js';
+import mongoose from 'mongoose';
 
-const SkillProfile = sequelize.define(
-  'skill_profile',
-  {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    userId: { type: DataTypes.INTEGER, allowNull: false, field: 'user_id' },
-    educationLevel: { type: DataTypes.STRING, allowNull: false, field: 'education_level' },
-    educationField: { type: DataTypes.STRING, allowNull: false, field: 'education_field' },
-    graduationYear: { type: DataTypes.INTEGER, allowNull: true, field: 'graduation_year' },
-    currentRole: { type: DataTypes.STRING, allowNull: true, field: 'current_role' },
-    experienceYears: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0, field: 'experience_years' },
-    skills: { type: DataTypes.JSON, allowNull: false },
-    interests: { type: DataTypes.JSON, allowNull: false },
-    constraints: { type: DataTypes.JSON, allowNull: false },
-    location: { type: DataTypes.STRING, allowNull: true },
-    targetRole: { type: DataTypes.STRING, allowNull: true, field: 'target_role' },
-    currency: { type: DataTypes.STRING, allowNull: false, defaultValue: 'INR' },
-  },
-  { tableName: 'skill_profiles' }
-);
+const skillProfileSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  educationLevel: { type: String, required: true }, educationField: { type: String, required: true },
+  graduationYear: Number, currentRole: String, experienceYears: { type: Number, default: 0 },
+  skills: { type: [mongoose.Schema.Types.Mixed], default: [] }, interests: { type: [String], default: [] },
+  constraints: { type: mongoose.Schema.Types.Mixed, default: {} }, location: String, targetRole: String,
+  currency: { type: String, default: 'INR' },
+}, { timestamps: true, versionKey: false });
 
-SkillProfile.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-User.hasMany(SkillProfile, { foreignKey: 'userId', as: 'profiles' });
-
-export default SkillProfile;
+export default mongoose.model('SkillProfile', skillProfileSchema);

@@ -1,47 +1,17 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../db/sequelize.js';
-import User from './User.js';
-import SkillProfile from './SkillProfile.js';
-
-const Simulation = sequelize.define(
-  'simulation',
-  {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    userId: { type: DataTypes.INTEGER, allowNull: false, field: 'user_id' },
-    profileId: { type: DataTypes.INTEGER, allowNull: true, field: 'profile_id' },
-    name: { type: DataTypes.STRING, allowNull: false, defaultValue: 'Untitled simulation' },
-    whatIf: { type: DataTypes.JSON, allowNull: true },
-    summary: { type: DataTypes.JSON, allowNull: true },
-    isStarred: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false, field: 'is_starred' },
-  },
-  { tableName: 'simulations' }
-);
-
-Simulation.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-User.hasMany(Simulation, { foreignKey: 'userId', as: 'simulations' });
-Simulation.belongsTo(SkillProfile, { foreignKey: 'profileId', as: 'profile' });
-
-const SimulationPath = sequelize.define(
-  'simulation_path',
-  {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    simulationId: { type: DataTypes.INTEGER, allowNull: false, field: 'simulation_id' },
-    code: { type: DataTypes.STRING, allowNull: false },
-    title: { type: DataTypes.STRING, allowNull: false },
-    description: { type: DataTypes.TEXT, allowNull: false },
-    riskLevel: { type: DataTypes.INTEGER, allowNull: false, field: 'risk_level' },
-    satisfactionScore: { type: DataTypes.FLOAT, allowNull: false, field: 'satisfaction_score' },
-    confidenceScore: { type: DataTypes.FLOAT, allowNull: false, field: 'confidence_score' },
-    trajectory: { type: DataTypes.JSON, allowNull: false },
-    skillGaps: { type: DataTypes.JSON, allowNull: false, field: 'skill_gaps' },
-    finalSalary: { type: DataTypes.FLOAT, allowNull: false, field: 'final_salary' },
-    startSalary: { type: DataTypes.FLOAT, allowNull: false, field: 'start_salary' },
-  },
-  { tableName: 'simulation_paths' }
-);
-
-SimulationPath.belongsTo(Simulation, { foreignKey: 'simulationId', as: 'simulation' });
-Simulation.hasMany(SimulationPath, { foreignKey: 'simulationId', as: 'paths' });
-
-export { Simulation, SimulationPath };
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
+const simulationSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  profileId: { type: Schema.Types.ObjectId, ref: 'SkillProfile' }, name: { type: String, default: 'Untitled simulation' },
+  whatIf: Schema.Types.Mixed, summary: Schema.Types.Mixed, isStarred: { type: Boolean, default: false },
+}, { timestamps: true, versionKey: false });
+const simulationPathSchema = new Schema({
+  simulationId: { type: Schema.Types.ObjectId, ref: 'Simulation', required: true, index: true },
+  code: { type: String, required: true }, title: { type: String, required: true }, description: { type: String, required: true },
+  riskLevel: { type: Number, required: true }, satisfactionScore: { type: Number, required: true }, confidenceScore: { type: Number, required: true },
+  trajectory: { type: [Schema.Types.Mixed], default: [] }, skillGaps: { type: [Schema.Types.Mixed], default: [] },
+  finalSalary: { type: Number, required: true }, startSalary: { type: Number, required: true },
+}, { timestamps: true, versionKey: false });
+export const Simulation = mongoose.model('Simulation', simulationSchema);
+export const SimulationPath = mongoose.model('SimulationPath', simulationPathSchema);
 export default Simulation;

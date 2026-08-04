@@ -12,7 +12,7 @@ router.get('/overview', async (_req, res, next) => {
       SkillProfile.count(),
       Simulation.count(),
       Mentor.count(),
-      ConnectionRequest.count({ where: { status: 'pending' } }),
+      ConnectionRequest.countDocuments({ status: 'pending' }),
     ]);
     res.json({ userCount, profileCount, simCount, mentorCount, pendingCount });
   } catch (err) {
@@ -22,8 +22,8 @@ router.get('/overview', async (_req, res, next) => {
 
 router.get('/trends', async (_req, res, next) => {
   try {
-    const sims = await Simulation.findAll({ include: [{ model: SimulationPath, as: 'paths' }] });
-    const profiles = await SkillProfile.findAll();
+    const sims = await Simulation.find();
+    const profiles = await SkillProfile.find();
 
     const roleCount = {};
     const skillCount = {};
@@ -31,7 +31,8 @@ router.get('/trends', async (_req, res, next) => {
     let salaryGrowthCount = 0;
 
     for (const sim of sims) {
-      for (const path of sim.paths) {
+      const paths = await SimulationPath.find({ simulationId: sim.id });
+      for (const path of paths) {
         const finalRole = path.trajectory?.[path.trajectory.length - 1]?.role;
         if (finalRole) roleCount[finalRole] = (roleCount[finalRole] || 0) + 1;
         if (path.startSalary && path.finalSalary) {
@@ -83,10 +84,7 @@ router.get('/trends', async (_req, res, next) => {
 
 router.get('/users', async (_req, res, next) => {
   try {
-    const users = await User.findAll({
-      attributes: ['id', 'name', 'email', 'role', 'headline', 'created_at'],
-      order: [['created_at', 'DESC']],
-    });
+    const users = await User.find().select('name email role headline createdAt').sort({ createdAt: -1 });
     res.json({ users });
   } catch (err) {
     next(err);
