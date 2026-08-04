@@ -29,7 +29,7 @@ Most career guidance tools give static advice. CareerPath simulates the future â
 |---|---|
 | Frontend | React (Vite), JavaScript, React Router |
 | Backend | Node.js, Express.js |
-| Database | MySQL with Sequelize ORM |
+| Database | MongoDB Atlas |
 | Auth | JWT (httpOnly cookies), role-based access |
 | Charts | Recharts |
 
@@ -49,7 +49,7 @@ Each of `frontend/` and `backend/` contains its own README with setup and run in
 Clone the repository, then set up each side of the stack:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Mr-Ahad-Khan/CareerPath.git
 cd careerpath
 ```
 
