@@ -1,4 +1,9 @@
-const API_BASE = '/api';
+// In development Vite proxies /api to localhost. On Vercel, set VITE_API_URL
+// to the Render service origin, for example https://careerpath-api.onrender.com.
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '');
+const API_BASE = configuredApiUrl
+  ? `${configuredApiUrl.replace(/\/api$/, '')}/api`
+  : '/api';
 
 function getToken() {
   return localStorage.getItem('cp-token');

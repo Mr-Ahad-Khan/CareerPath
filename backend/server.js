@@ -21,11 +21,17 @@ dotenv.config({ path: new URL('./.env', import.meta.url) });
 
 const app = express();
 const PORT = process.env.API_PORT || 5050;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+const CLIENT_ORIGINS = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: CLIENT_ORIGIN,
+    origin(origin, callback) {
+      if (!origin || CLIENT_ORIGINS.includes(origin)) return callback(null, true);
+      return callback(new Error('Origin not allowed by CORS.'));
+    },
     credentials: true,
   })
 );
