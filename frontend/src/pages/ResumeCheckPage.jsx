@@ -6,6 +6,47 @@ import { LoadingOverlay } from '@/components/Spinner.jsx';
 import { EmptyState } from '@/components/EmptyState.jsx';
 import { pct } from '@/lib/format.js';
 
+const MAX_RESUME_FILE_SIZE = 5 * 1024 * 1024;
+
+function isPdf(file) {
+  return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+}
+
+function isImage(file) {
+  return ['image/jpeg', 'image/png'].includes(file.type)
+    || /\.(jpe?g|png)$/i.test(file.name);
+}
+
+async function extractPdfText(file) {
+  const { getDocument, GlobalWorkerOptions } = await import('pdfjs-dist');
+  GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+
+  const document = await getDocument({ data: await file.arrayBuffer() }).promise;
+  try {
+    const pages = await Promise.all(
+      Array.from({ length: document.numPages }, async (_, index) => {
+        const page = await document.getPage(index + 1);
+        const content = await page.getTextContent();
+        return content.items.map((item) => item.str).join(' ');
+      })
+    );
+    return pages.join('\n\n');
+  } finally {
+    await document.destroy();
+  }
+}
+
+async function extractImageText(file) {
+  const { createWorker } = await import('tesseract.js');
+  const worker = await createWorker('eng');
+  try {
+    const { data } = await worker.recognize(file);
+    return data.text;
+  } finally {
+    await worker.terminate();
+  }
+}
+
 export function ResumeCheckPage() {
   const toast = useToast();
   const [sims, setSims] = useState(null);
@@ -15,6 +56,7 @@ export function ResumeCheckPage() {
   const [resumeText, setResumeText] = useState('');
   const [result, setResult] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [extracting, setExtracting] = useState(false);
 
   const loadSimulations = async () => {
     setSimError(null);
@@ -43,13 +85,30 @@ export function ResumeCheckPage() {
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 500000) {
-      toast.error('File is too large. Keep it under 500KB.');
+    if (file.size > MAX_RESUME_FILE_SIZE) {
+      toast.error('File is too large. Keep it under 5MB.');
       return;
     }
-    const text = await file.text();
-    setResumeText(text);
-    toast.info(`Loaded ${file.name}.`);
+    setExtracting(true);
+    try {
+      const text = isPdf(file)
+        ? await extractPdfText(file)
+        : isImage(file)
+          ? await extractImageText(file)
+          : await file.text();
+      if (!text.trim()) {
+        toast.error('No readable text was found in that file.');
+        return;
+      }
+      setResumeText(text.trim());
+      setResult(null);
+      toast.success(`Loaded ${file.name}.`);
+    } catch {
+      toast.error('Could not read that file. Try a clearer image or a text-based PDF.');
+    } finally {
+      setExtracting(false);
+      e.target.value = '';
+    }
   };
 
   const analyze = async () => {
@@ -86,7 +145,7 @@ export function ResumeCheckPage() {
       <div className="mb-6">
         <span className="section-eyebrow">Resume Reality-Check</span>
         <h1 className="mt-2 font-display text-3xl font-semibold text-foreground">Does your resume match your target path?</h1>
-        <p className="mt-1 text-muted">Paste your resume or upload a text file. We parse the skills you mention and cross-reference them against the gaps your simulation identified.</p>
+        <p className="mt-1 text-muted">Paste your resume or upload a TXT, PDF, JPG, or PNG file. We parse the skills you mention and cross-reference them against the gaps your simulation identified.</p>
       </div>
 
       {simError && (
@@ -123,8 +182,8 @@ export function ResumeCheckPage() {
               <label className="field-label mb-0">Your resume</label>
               <div className="flex gap-2">
                 <label className="btn-ghost cursor-pointer text-xs">
-                  <Upload className="h-3.5 w-3.5" /> Upload .txt
-                  <input type="file" accept=".txt,.text,.md" onChange={handleFile} className="hidden" />
+                  <Upload className="h-3.5 w-3.5" /> {extracting ? 'Reading file...' : 'Upload resume'}
+                  <input type="file" accept=".txt,.text,.md,.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" onChange={handleFile} className="hidden" disabled={extracting} />
                 </label>
                 <button onClick={() => { setResumeText(''); setResult(null); }} className="btn-ghost text-xs"><X className="h-3.5 w-3.5" /> Clear</button>
               </div>
