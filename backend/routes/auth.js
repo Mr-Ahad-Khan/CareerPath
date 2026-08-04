@@ -4,13 +4,18 @@ import { signToken, authRequired } from '../middleware/auth.js';
 
 const router = Router();
 
-function setCookie(res, token) {
-  res.cookie('cp_token', token, {
+function cookieOptions() {
+  const isProduction = process.env.NODE_ENV === 'production';
+  return {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    sameSite: isProduction ? 'none' : 'lax',
+    secure: isProduction,
     maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+  };
+}
+
+function setCookie(res, token) {
+  res.cookie('cp_token', token, cookieOptions());
 }
 
 function publicUser(user) {
@@ -73,7 +78,7 @@ router.post('/login', async (req, res, next) => {
 });
 
 router.post('/logout', (_req, res) => {
-  res.clearCookie('cp_token');
+  res.clearCookie('cp_token', cookieOptions());
   res.json({ ok: true });
 });
 
