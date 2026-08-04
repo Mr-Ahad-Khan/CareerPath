@@ -21,10 +21,17 @@ dotenv.config({ path: new URL('./.env', import.meta.url) });
 
 const app = express();
 const PORT = process.env.API_PORT || 5050;
-const CLIENT_ORIGINS = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const DEFAULT_CLIENT_ORIGINS = [
+  'http://localhost:5173',
+  'https://career-path-five-ruby.vercel.app',
+];
+const CLIENT_ORIGINS = [
+  ...DEFAULT_CLIENT_ORIGINS,
+  ...(process.env.CLIENT_ORIGIN || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+];
 
 // Render terminates TLS at one reverse-proxy hop and sends X-Forwarded-For.
 // This lets express-rate-limit use the actual visitor IP in production.
