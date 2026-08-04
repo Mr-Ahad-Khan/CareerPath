@@ -10,7 +10,7 @@ Part career counselor, part financial projection tool, part game. Built as an MC
 |---|---|
 | Frontend | React (Vite, plain JavaScript), React Router, Recharts, Tailwind CSS |
 | Backend | Node.js, Express.js, REST API, plain JavaScript |
-| Database | Sequelize ORM — MySQL by default, SQLite fallback (zero setup) |
+| Database | Sequelize ORM — MySQL (`CareerPath` schema) |
 | Auth | JWT in httpOnly cookies, role-based access (Student / Mentor / Admin) |
 | Charts | Recharts (salary trajectory, skill-gap radar, admin analytics) |
 | Simulation | Weighted-scoring rule engine (optional LLM layer) |
@@ -53,7 +53,7 @@ npm install
 npm start
 ```
 
-The API runs on `http://localhost:5050`. On first start it auto-creates the SQLite database, syncs the schema, and seeds mentors, a demo student account, and an admin account.
+The API runs on `http://localhost:5050`. On first start it connects to the MySQL `CareerPath` database, syncs the schema, and seeds mentors, a demo student account, and an admin account.
 
 ### Frontend
 
@@ -64,20 +64,19 @@ npm run dev
 
 The dev server runs on `http://localhost:5173` and proxies `/api` requests to the backend.
 
-### Using MySQL instead of SQLite
+### MySQL Workbench connection
 
 Edit `backend/.env`:
 
 ```
-DB_DIALECT=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=careerpath
-DB_USER=your_user
-DB_PASSWORD=your_password
+DB_NAME=CareerPath
+DB_USER=root
+DB_PASSWORD=your_mysql_password
 ```
 
-The Sequelize models and migrations are identical — only the connection config changes.
+Create the `CareerPath` schema in MySQL Workbench first, then save these values as `backend/.env`. The API no longer supports SQLite.
 
 ## Demo accounts
 
