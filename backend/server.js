@@ -26,6 +26,12 @@ const CLIENT_ORIGINS = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+// Render terminates TLS at one reverse-proxy hop and sends X-Forwarded-For.
+// This lets express-rate-limit use the actual visitor IP in production.
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 app.use(
   cors({
     origin(origin, callback) {
@@ -50,6 +56,10 @@ app.use('/api', apiLimiter);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', service: 'careerpath-api', time: new Date().toISOString() });
+});
+
+app.get('/', (_req, res) => {
+  res.json({ status: 'ok', service: 'careerpath-api', health: '/api/health' });
 });
 
 app.use('/api/auth', authRoutes);
