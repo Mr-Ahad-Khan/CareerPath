@@ -6,7 +6,7 @@ import { LoadingOverlay } from '@/components/Spinner.jsx';
 import { EmptyState } from '@/components/EmptyState.jsx';
 import { pct } from '@/lib/format.js';
 
-const MAX_RESUME_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_RESUME_FILE_SIZE = 100 * 1024;
 
 function isPdf(file) {
   return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
@@ -91,7 +91,7 @@ export function ResumeCheckPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > MAX_RESUME_FILE_SIZE) {
-      toast.error('File is too large. Keep it under 5MB.');
+      toast.error('File is too large. Keep it under 100 KB.');
       return;
     }
     setExtracting(true);

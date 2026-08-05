@@ -5,7 +5,7 @@ const API_BASE = configuredApiUrl
   ? `${configuredApiUrl.replace(/\/api$/, '')}/api`
   : '/api';
 
-function getToken() {
+export function getToken() {
   return localStorage.getItem('cp-token');
 }
 

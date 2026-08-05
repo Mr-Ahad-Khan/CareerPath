@@ -27,7 +27,10 @@ router.post('/', async (req, res, next) => {
 
     const existing = await ConnectionRequest.findOne({ studentId: req.user.id, mentorId, status: 'pending' });
     if (existing) {
-      return res.status(409).json({ error: 'You already have a pending request with this mentor.' });
+      // Sending the same request twice can happen when a user double-clicks or
+      // opens another tab. Treat it as a successful no-op instead of producing
+      // a noisy client-side 409 response.
+      return res.json({ request: existing, alreadyExists: true });
     }
 
     const request = await ConnectionRequest.create({

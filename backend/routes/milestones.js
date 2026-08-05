@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import Milestone from '../models/Milestone.js';
 import { authRequired } from '../middleware/auth.js';
 
@@ -34,20 +35,34 @@ router.patch('/:id', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    const m = req.body;
-    if (!m.title || !m.quarter) {
+    const m = req.body || {};
+    const title = typeof m.title === 'string' ? m.title.trim() : '';
+    const quarter = typeof m.quarter === 'string' ? m.quarter.trim() : '';
+    const year = Number(m.year);
+
+    if (!title || !quarter) {
       return res.status(400).json({ error: 'Title and quarter are required.' });
     }
+    if (!['Q1', 'Q2', 'Q3', 'Q4'].includes(quarter)) {
+      return res.status(400).json({ error: 'Quarter must be Q1, Q2, Q3, or Q4.' });
+    }
+    if (!Number.isInteger(year) || year < 0 || year > 5) {
+      return res.status(400).json({ error: 'Year must be a whole number from 0 to 5.' });
+    }
+    if (m.pathId && !mongoose.isObjectIdOrHexString(m.pathId)) {
+      return res.status(400).json({ error: 'Path ID is invalid.' });
+    }
+
     const milestone = await Milestone.create({
       userId: req.user.id,
       pathId: m.pathId || null,
-      quarter: m.quarter,
-      year: m.year || 0,
-      category: m.category || 'Learning',
-      title: m.title,
-      description: m.description || '',
+      quarter,
+      year,
+      category: typeof m.category === 'string' && m.category.trim() ? m.category.trim() : 'Learning',
+      title,
+      description: typeof m.description === 'string' ? m.description.trim() : '',
       status: 'todo',
-      orderIndex: m.orderIndex || 0,
+      orderIndex: Number.isInteger(Number(m.orderIndex)) ? Number(m.orderIndex) : 0,
     });
     res.status(201).json({ milestone });
   } catch (err) {

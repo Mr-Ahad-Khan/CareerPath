@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { api, setToken } from './api.js';
+import { api, getToken, setToken } from './api.js';
 
 const AuthContext = createContext(null);
 
@@ -8,10 +8,22 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const fetchMe = useCallback(async () => {
+    // Authentication is token-backed. Avoid calling the protected endpoint
+    // for visitors who have not signed in, which would otherwise produce an
+    // expected-but-noisy 401 on every initial page load.
+    if (!getToken()) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await api.get('/auth/me');
       setUser(data.user);
-    } catch {
+    } catch (error) {
+      // A JWT can expire or become invalid after a backend secret change.
+      // Remove it so subsequent loads remain cleanly signed out.
+      if (error.status === 401) setToken(null);
       setUser(null);
     } finally {
       setLoading(false);

@@ -14,6 +14,7 @@ export function MentorsPage() {
   const [selected, setSelected] = useState(null);
   const [requests, setRequests] = useState([]);
   const [message, setMessage] = useState('');
+  const [sendingRequest, setSendingRequest] = useState(false);
 
   const loadMentors = async () => {
     const params = new URLSearchParams();
@@ -40,15 +41,22 @@ export function MentorsPage() {
       toast.error('Write a short message to the mentor first.');
       return;
     }
+    if (sendingRequest) return;
+
+    setSendingRequest(true);
     try {
-      await api.post('/connections', { mentorId: selected.id, message });
-      toast.success(`Connection request sent to ${selected.name}.`);
+      const result = await api.post('/connections', { mentorId: selected.id, message });
+      toast.success(result.alreadyExists
+        ? `You already have a pending request with ${selected.name}.`
+        : `Connection request sent to ${selected.name}.`);
       setSelected(null);
       setMessage('');
       const d = await api.get('/connections');
       setRequests(d.requests);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setSendingRequest(false);
     }
   };
 
@@ -150,7 +158,9 @@ export function MentorsPage() {
               <label className="field-label"><MessageSquare className="mr-1 inline h-3.5 w-3.5" /> Your message</label>
               <textarea className="field-input min-h-[100px] resize-none" value={message} onChange={(e) => setMessage(e.target.value)} placeholder={`Hi ${selected.name.split(' ')[0]}, I am exploring the ${selected.specialty.toLowerCase()} path and would value your perspective on...`} />
             </div>
-            <button onClick={sendRequest} className="btn-primary mt-4 w-full">Send request <Send className="h-4 w-4" /></button>
+            <button onClick={sendRequest} disabled={sendingRequest} className="btn-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-60">
+              {sendingRequest ? 'Sending…' : 'Send request'} <Send className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}
