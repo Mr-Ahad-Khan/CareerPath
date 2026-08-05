@@ -31,7 +31,7 @@ router.get('/trends', async (_req, res, next) => {
     let salaryGrowthCount = 0;
 
     for (const sim of sims) {
-      const paths = await SimulationPath.find({ simulationId: sim.id });
+      const paths = await SimulationPath.find({ simulationId: sim._id });
       for (const path of paths) {
         const finalRole = path.trajectory?.[path.trajectory.length - 1]?.role;
         if (finalRole) roleCount[finalRole] = (roleCount[finalRole] || 0) + 1;

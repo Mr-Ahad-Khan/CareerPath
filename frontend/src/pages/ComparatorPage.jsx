@@ -56,8 +56,8 @@ export function ComparatorPage() {
     );
   }
 
-  const leftPath = selected.left?.sim.paths[selected.left?.pathIdx];
-  const rightPath = selected.right?.sim.paths[selected.right?.pathIdx];
+  const leftPath = (selected.left?.sim?.paths || [])[selected.left?.pathIdx];
+  const rightPath = (selected.right?.sim?.paths || [])[selected.right?.pathIdx];
 
   const salaryDiff = leftPath && rightPath ? leftPath.finalSalary - rightPath.finalSalary : 0;
   const satisfactionDiff = leftPath && rightPath ? leftPath.satisfactionScore - rightPath.satisfactionScore : 0;
@@ -87,7 +87,7 @@ export function ComparatorPage() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             {[['left', selected.left], ['right', selected.right]].map(([side, data]) => {
-              const paths = data.sim.paths;
+              const paths = data.sim?.paths || [];
               const current = paths[data.pathIdx];
               return (
                 <div key={side} className="surface-card p-6">
@@ -106,7 +106,7 @@ export function ComparatorPage() {
                     ))}
                   </div>
                   <div className="mt-4 space-y-3">
-                    {current.trajectory.map((node, i) => (
+                    {(current?.trajectory || []).map((node, i) => (
                       <div key={i} className="flex items-center justify-between rounded-lg border border-border bg-surface-2 px-3 py-2">
                         <div>
                           <p className="text-sm font-medium text-foreground">{node.role}</p>

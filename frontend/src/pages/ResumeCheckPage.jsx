@@ -78,7 +78,12 @@ export function ResumeCheckPage() {
 
   useEffect(() => {
     if (selectedSim) {
-      api.get(`/simulations/${selectedSim}`).then((d) => setSimDetail(d.simulation)).catch(() => {});
+      api.get(`/simulations/${selectedSim}`)
+        .then((d) => {
+          setSimDetail(d.simulation);
+          setSelectedPath(0);
+        })
+        .catch(() => setSimDetail(null));
     }
   }, [selectedSim]);
 
@@ -120,7 +125,11 @@ export function ResumeCheckPage() {
       toast.error('Select a simulation to compare against.');
       return;
     }
-    const path = simDetail.paths[selectedPath];
+    const path = (simDetail.paths || [])[selectedPath];
+    if (!path) {
+      toast.error('Select a valid simulation path first.');
+      return;
+    }
     setAnalyzing(true);
     try {
       const data = await api.post('/resume/analyze', {
@@ -162,7 +171,7 @@ export function ResumeCheckPage() {
           <div className="mb-4 grid gap-3 sm:grid-cols-2">
             <div>
               <label className="field-label">Compare against simulation</label>
-              <select className="field-select" value={selectedSim || ''} onChange={(e) => { setSelectedSim(+e.target.value); setResult(null); }}>
+              <select className="field-select" value={selectedSim || ''} onChange={(e) => { setSelectedSim(e.target.value); setResult(null); }}>
                 {sims.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>

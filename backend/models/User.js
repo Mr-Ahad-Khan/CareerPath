@@ -8,7 +8,12 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['student', 'mentor', 'admin'], default: 'student' },
   headline: { type: String, default: null },
   avatarColor: { type: String, default: '#ffb340' },
-}, { timestamps: true, versionKey: false });
+}, {
+  timestamps: true,
+  versionKey: false,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+});
 
 userSchema.methods.verifyPassword = function (plain) {
   return bcrypt.compare(plain, this.passwordHash);

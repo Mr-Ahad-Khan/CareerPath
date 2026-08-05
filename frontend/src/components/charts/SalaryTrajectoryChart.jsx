@@ -34,11 +34,12 @@ function CustomTooltip({ active, payload, label, currency }) {
 export function SalaryTrajectoryChart({ paths, currency }) {
   const { currency: ctxCurrency } = useCurrency();
   const cur = currency || ctxCurrency;
+  const safePaths = Array.isArray(paths) ? paths.filter(Boolean) : [];
 
   const data = [];
   for (let y = 0; y <= 5; y++) {
     const row = { year: y };
-    paths.forEach((p) => {
+    safePaths.forEach((p) => {
       const node = p.trajectory?.find((t) => t.year === y);
       row[p.title] = node ? node.salary : null;
     });
@@ -78,7 +79,7 @@ export function SalaryTrajectoryChart({ paths, currency }) {
           wrapperStyle={{ fontSize: '13px', paddingTop: '8px' }}
           iconType="circle"
         />
-        {paths.map((p, i) => (
+        {safePaths.map((p, i) => (
           <Area
             key={p.code}
             type="monotone"

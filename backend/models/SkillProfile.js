@@ -7,6 +7,11 @@ const skillProfileSchema = new mongoose.Schema({
   skills: { type: [mongoose.Schema.Types.Mixed], default: [] }, interests: { type: [String], default: [] },
   constraints: { type: mongoose.Schema.Types.Mixed, default: {} }, location: String, targetRole: String,
   currency: { type: String, default: 'INR' },
-}, { timestamps: true, versionKey: false });
+}, {
+  timestamps: true,
+  versionKey: false,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+});
 
 export default mongoose.model('SkillProfile', skillProfileSchema);
