@@ -76,6 +76,23 @@ Refer to `backend/README.md` and `frontend/README.md` for environment variables,
 - **Mentor** — appears in the directory, receives connection requests
 - **Admin** — views aggregated analytics across all users
 
+## Demo accounts
+
+Use the demo buttons on the sign-in page for one-click access, or sign in with the credentials below.
+
+| Role | Email | Password |
+|---|---|---|
+| Student | ishaan.verma@demo.careerpath.app | demo1234 |
+| Mentor — Ananya Iyer | ananya.iyer@demo.careerpath.app | mentor1234 |
+| Mentor — Rohan Mehta | rohan.mehta@demo.careerpath.app | mentor1234 |
+| Mentor — Sara Cherian | sara.cherian@demo.careerpath.app | mentor1234 |
+| Mentor — Dev Patel | dev.patel@demo.careerpath.app | mentor1234 |
+| Mentor — Meera Krishnan | meera.krishnan@demo.careerpath.app | mentor1234 |
+| Mentor — Arjun Nair | arjun.nair@demo.careerpath.app | mentor1234 |
+| Mentor — Priya Saxena | priya.saxena@demo.careerpath.app | mentor1234 |
+| Mentor — Kabir Anand | kabir.anand@demo.careerpath.app | mentor1234 |
+| Admin / Faculty | admin@careerpath.app | admin1234 |
+
 ## License
 
 This project was built as an academic capstone project.

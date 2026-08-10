@@ -83,6 +83,14 @@ Create the `CareerPath` schema in MySQL Workbench first, then save these values 
 | Role | Email | Password |
 |---|---|---|
 | Student | ishaan.verma@demo.careerpath.app | demo1234 |
+| Mentor — Ananya Iyer | ananya.iyer@demo.careerpath.app | mentor1234 |
+| Mentor — Rohan Mehta | rohan.mehta@demo.careerpath.app | mentor1234 |
+| Mentor — Sara Cherian | sara.cherian@demo.careerpath.app | mentor1234 |
+| Mentor — Dev Patel | dev.patel@demo.careerpath.app | mentor1234 |
+| Mentor — Meera Krishnan | meera.krishnan@demo.careerpath.app | mentor1234 |
+| Mentor — Arjun Nair | arjun.nair@demo.careerpath.app | mentor1234 |
+| Mentor — Priya Saxena | priya.saxena@demo.careerpath.app | mentor1234 |
+| Mentor — Kabir Anand | kabir.anand@demo.careerpath.app | mentor1234 |
 | Admin / Faculty | admin@careerpath.app | admin1234 |
 
 You can also click "Load demo profile" on the login page or the intake wizard for a one-click demo during presentations.

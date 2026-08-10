@@ -13,6 +13,11 @@ const mentorDemoAccounts = [
   email: `${username}@demo.careerpath.app`,
 }));
 const mentorDemoPassword = 'mentor1234';
+const studentDemoAccount = {
+  label: 'Student demo',
+  email: 'ishaan.verma@demo.careerpath.app',
+  password: 'demo1234',
+};
 const adminDemoAccount = {
   label: 'Faculty Reviewer (Admin)',
   email: 'admin@careerpath.app',
@@ -44,27 +49,17 @@ export function LoginPage() {
     }
   };
 
-  const loadDemo = async () => {
+  const loginDemo = async (account) => {
     setLoading(true);
     try {
-      await login('ishaan.verma@demo.careerpath.app', 'demo1234');
-      toast.success('Demo profile loaded. Take a look around.');
+      const user = await login(account.email, account.password);
+      toast.success(`${user.role[0].toUpperCase() + user.role.slice(1)} demo loaded. Take a look around.`);
       navigate('/dashboard');
     } catch (err) {
       toast.error(err.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillMentorDemo = (account) => {
-    setEmail(account.email);
-    setPassword(mentorDemoPassword);
-  };
-
-  const fillAdminDemo = () => {
-    setEmail(adminDemoAccount.email);
-    setPassword(adminDemoAccount.password);
   };
 
   return (
@@ -118,8 +113,8 @@ export function LoginPage() {
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <button onClick={loadDemo} disabled={loading} className="btn-secondary w-full py-3">
-          <Zap className="h-4 w-4 text-accent" /> Load demo profile
+        <button onClick={() => loginDemo(studentDemoAccount)} disabled={loading} className="btn-secondary w-full py-3">
+          <Zap className="h-4 w-4 text-accent" /> Open student demo
         </button>
         <p className="mt-3 text-center text-xs text-muted">
           Admin demo: <code>{adminDemoAccount.email}</code> · password: <code>{adminDemoAccount.password}</code>
@@ -132,7 +127,8 @@ export function LoginPage() {
               <button
                 key={account.email}
                 type="button"
-                onClick={() => fillMentorDemo(account)}
+                onClick={() => loginDemo({ ...account, password: mentorDemoPassword })}
+                disabled={loading}
                 className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-xs hover:bg-surface"
               >
                 <span className="font-medium text-foreground">{account.label}</span>
@@ -142,10 +138,11 @@ export function LoginPage() {
           </div>
           <button
             type="button"
-            onClick={fillAdminDemo}
+            onClick={() => loginDemo(adminDemoAccount)}
+            disabled={loading}
             className="mt-3 flex w-full items-center justify-between rounded border-t border-border px-2 pt-3 text-left text-xs hover:bg-surface"
           >
-            <span className="font-medium text-foreground">{adminDemoAccount.label}</span>
+            <span className="font-medium text-foreground">Open {adminDemoAccount.label} demo</span>
             <span className="ml-3 truncate text-muted">{adminDemoAccount.email} · {adminDemoAccount.password}</span>
           </button>
         </details>
