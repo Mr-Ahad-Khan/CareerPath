@@ -5,6 +5,20 @@ import { useAuth } from '@/lib/auth.jsx';
 import { useToast } from '@/lib/toast.jsx';
 import { Logo } from '@/components/Logo.jsx';
 
+const mentorDemoAccounts = [
+  'ananya.iyer', 'rohan.mehta', 'sara.cherian', 'dev.patel',
+  'meera.krishnan', 'arjun.nair', 'priya.saxena', 'kabir.anand',
+].map((username) => ({
+  label: username.split('.').map((part) => part[0].toUpperCase() + part.slice(1)).join(' '),
+  email: `${username}@demo.careerpath.app`,
+}));
+const mentorDemoPassword = 'mentor1234';
+const adminDemoAccount = {
+  label: 'Faculty Reviewer (Admin)',
+  email: 'admin@careerpath.app',
+  password: 'admin1234',
+};
+
 export function LoginPage() {
   const { login } = useAuth();
   const toast = useToast();
@@ -41,6 +55,16 @@ export function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fillMentorDemo = (account) => {
+    setEmail(account.email);
+    setPassword(mentorDemoPassword);
+  };
+
+  const fillAdminDemo = () => {
+    setEmail(adminDemoAccount.email);
+    setPassword(adminDemoAccount.password);
   };
 
   return (
@@ -97,6 +121,34 @@ export function LoginPage() {
         <button onClick={loadDemo} disabled={loading} className="btn-secondary w-full py-3">
           <Zap className="h-4 w-4 text-accent" /> Load demo profile
         </button>
+        <p className="mt-3 text-center text-xs text-muted">
+          Admin demo: <code>{adminDemoAccount.email}</code> · password: <code>{adminDemoAccount.password}</code>
+        </p>
+        <details className="mt-5 rounded-lg border border-border bg-surface/40 p-3">
+          <summary className="cursor-pointer text-sm font-medium text-foreground">Demo accounts</summary>
+          <p className="mt-2 text-xs text-muted">All mentor demos use password: <code>{mentorDemoPassword}</code></p>
+          <div className="mt-3 space-y-1.5">
+            {mentorDemoAccounts.map((account) => (
+              <button
+                key={account.email}
+                type="button"
+                onClick={() => fillMentorDemo(account)}
+                className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-xs hover:bg-surface"
+              >
+                <span className="font-medium text-foreground">{account.label}</span>
+                <span className="ml-3 truncate text-muted">{account.email}</span>
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={fillAdminDemo}
+            className="mt-3 flex w-full items-center justify-between rounded border-t border-border px-2 pt-3 text-left text-xs hover:bg-surface"
+          >
+            <span className="font-medium text-foreground">{adminDemoAccount.label}</span>
+            <span className="ml-3 truncate text-muted">{adminDemoAccount.email} · {adminDemoAccount.password}</span>
+          </button>
+        </details>
         <p className="mt-2 text-center text-xs text-muted">
           Jump straight into a pre-built simulation — no typing required.
         </p>

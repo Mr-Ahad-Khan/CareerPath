@@ -1,5 +1,4 @@
 import { User, SkillProfile, Mentor } from "../models/index.js";
-import bcrypt from "bcryptjs";
 
 const AVATAR_COLORS = [
   "#ffb340",
@@ -206,31 +205,51 @@ const ADMIN = {
   avatarColor: "#3ddc97",
 };
 
+const MENTOR_DEMO_PASSWORD = "mentor1234";
+const MENTOR_DEMO_ACCOUNTS = MENTORS.map((mentor) => ({
+  name: mentor.name,
+  email: `${mentor.name.toLowerCase().replace(/\s+/g, ".")}@demo.careerpath.app`,
+  headline: `${mentor.title} at ${mentor.company}`,
+  avatarColor: mentor.avatarColor,
+}));
+
 export async function seedIfEmpty() {
   const mentorCount = await Mentor.countDocuments();
-  if (mentorCount > 0) {
-    console.log("[seed] mentors already present, skipping");
-    return;
-  }
+  const mentors = mentorCount > 0
+    ? await Mentor.find({ name: { $in: MENTORS.map((mentor) => mentor.name) } })
+    : await Mentor.insertMany(MENTORS);
 
-  console.log("[seed] seeding database...");
-  {
-    await Mentor.insertMany(MENTORS);
+  await Promise.all(mentors.map(async (mentor) => {
+    const account = MENTOR_DEMO_ACCOUNTS.find((item) => item.name === mentor.name);
+    if (!account) return;
+    let user = await User.findOne({ email: account.email });
+    if (!user) {
+      user = await User.create({ ...account, passwordHash: MENTOR_DEMO_PASSWORD, role: "mentor" });
+    }
+    if (!mentor.userId) {
+      mentor.userId = user.id;
+      await mentor.save();
+    }
+  }));
 
-    const demoUser = await User.create({
+  const demoUser = await User.findOne({ email: DEMO_PROFILE.email });
+  if (!demoUser) {
+    const createdDemoUser = await User.create({
       name: DEMO_PROFILE.name,
       email: DEMO_PROFILE.email,
-      passwordHash: await bcrypt.hash(DEMO_PROFILE.password, 10),
+      passwordHash: DEMO_PROFILE.password,
       role: DEMO_PROFILE.role,
       headline: DEMO_PROFILE.headline,
       avatarColor: DEMO_PROFILE.avatarColor,
     });
-    await SkillProfile.create({ ...DEMO_PROFILE.profile, userId: demoUser.id });
+    await SkillProfile.create({ ...DEMO_PROFILE.profile, userId: createdDemoUser.id });
+  }
 
+  if (!await User.exists({ email: ADMIN.email })) {
     await User.create({
       name: ADMIN.name,
       email: ADMIN.email,
-      passwordHash: await bcrypt.hash(ADMIN.password, 10),
+      passwordHash: ADMIN.password,
       role: ADMIN.role,
       headline: ADMIN.headline,
       avatarColor: ADMIN.avatarColor,
@@ -240,4 +259,4 @@ export async function seedIfEmpty() {
   console.log("[seed] done — mentors, demo student, and admin created");
 }
 
-export { DEMO_PROFILE };
+export { DEMO_PROFILE, MENTOR_DEMO_ACCOUNTS, MENTOR_DEMO_PASSWORD };

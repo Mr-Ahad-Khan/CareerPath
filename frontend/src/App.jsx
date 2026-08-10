@@ -64,6 +64,7 @@ export default function App() {
             </Layout>
           }
         />
+
         <Route
           path="/simulate"
           element={
@@ -74,7 +75,10 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/simulations" element={<Navigate to="/simulate" replace />} />
+        <Route
+          path="/simulations"
+          element={<Navigate to="/simulate" replace />}
+        />
         <Route
           path="/dashboard"
           element={
@@ -135,6 +139,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/admin"
           element={
