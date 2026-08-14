@@ -8,10 +8,10 @@ router.use(authRequired, roleRequired('admin'));
 router.get('/overview', async (_req, res, next) => {
   try {
     const [userCount, profileCount, simCount, mentorCount, pendingCount] = await Promise.all([
-      User.count(),
-      SkillProfile.count(),
-      Simulation.count(),
-      Mentor.count(),
+      User.countDocuments(),
+      SkillProfile.countDocuments(),
+      Simulation.countDocuments(),
+      Mentor.countDocuments(),
       ConnectionRequest.countDocuments({ status: 'pending' }),
     ]);
     res.json({ userCount, profileCount, simCount, mentorCount, pendingCount });

@@ -91,7 +91,7 @@ export function AdminPage() {
               <span className="font-medium text-foreground">{u.name}</span>
               <span className="text-muted truncate">{u.email}</span>
               <span className={`chip text-xs ${u.role === 'admin' ? 'border-accent/40 bg-accent/10 text-accent' : ''}`}>{u.role}</span>
-              <span className="text-muted">{new Date(u.created_at).toLocaleDateString()}</span>
+              <span className="text-muted">{new Date(u.createdAt).toLocaleDateString()}</span>
             </div>
           ))}
         </div>
