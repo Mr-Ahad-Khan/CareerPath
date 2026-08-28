@@ -6,14 +6,14 @@ Part career counselor, part financial projection tool, part game. Built as an MC
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React (Vite, plain JavaScript), React Router, Recharts, Tailwind CSS |
-| Backend | Node.js, Express.js, REST API, plain JavaScript |
-| Database | Sequelize ORM — MySQL (`CareerPath` schema) |
-| Auth | JWT in httpOnly cookies, role-based access (Student / Mentor / Admin) |
-| Charts | Recharts (salary trajectory, skill-gap radar, admin analytics) |
-| Simulation | Weighted-scoring rule engine (optional LLM layer) |
+| Layer      | Technology                                                            |
+| ---------- | --------------------------------------------------------------------- |
+| Frontend   | React (Vite, plain JavaScript), React Router, Recharts, Tailwind CSS  |
+| Backend    | Node.js, Express.js, REST API, plain JavaScript                       |
+| Database   | MongoDB                                                               |
+| Auth       | JWT in httpOnly cookies, role-based access (Student / Mentor / Admin) |
+| Charts     | Recharts (salary trajectory, skill-gap radar, admin analytics)        |
+| Simulation | Weighted-scoring rule engine (optional LLM layer)                     |
 
 ## Project structure
 
@@ -27,8 +27,8 @@ careerpath/
 │   ├── index.html
 │   ├── tailwind.config.js
 │   └── vite.config.js
-├── backend/           # Express + Sequelize backend
-│   ├── db/                # Sequelize instance
+├── backend/           # Express + MongoDB backend
+│   ├── db/                # MongoDB Atlas
 │   ├── models/            # Normalized models with foreign keys
 │   ├── routes/            # REST API routes
 │   ├── middleware/        # JWT auth + role guards
@@ -69,29 +69,29 @@ The dev server runs on `http://localhost:5173` and proxies `/api` requests to th
 Edit `backend/.env`:
 
 ```
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=CareerPath
-DB_USER=root
-DB_PASSWORD=your_mysql_password
+MONGODB_URI=URL
+JWT_SECRET=Secret_Key
+API_PORT=Value
+CLIENT_ORIGIN=http://localhost:5173
+FRONTEND_URI=URL
 ```
 
 Create the `CareerPath` schema in MySQL Workbench first, then save these values as `backend/.env`. The API no longer supports SQLite.
 
 ## Demo accounts
 
-| Role | Email | Password |
-|---|---|---|
-| Student | ishaan.verma@demo.careerpath.app | demo1234 |
-| Mentor — Ananya Iyer | ananya.iyer@demo.careerpath.app | mentor1234 |
-| Mentor — Rohan Mehta | rohan.mehta@demo.careerpath.app | mentor1234 |
-| Mentor — Sara Cherian | sara.cherian@demo.careerpath.app | mentor1234 |
-| Mentor — Dev Patel | dev.patel@demo.careerpath.app | mentor1234 |
+| Role                    | Email                              | Password   |
+| ----------------------- | ---------------------------------- | ---------- |
+| Student                 | ishaan.verma@demo.careerpath.app   | demo1234   |
+| Mentor — Ananya Iyer    | ananya.iyer@demo.careerpath.app    | mentor1234 |
+| Mentor — Rohan Mehta    | rohan.mehta@demo.careerpath.app    | mentor1234 |
+| Mentor — Sara Cherian   | sara.cherian@demo.careerpath.app   | mentor1234 |
+| Mentor — Dev Patel      | dev.patel@demo.careerpath.app      | mentor1234 |
 | Mentor — Meera Krishnan | meera.krishnan@demo.careerpath.app | mentor1234 |
-| Mentor — Arjun Nair | arjun.nair@demo.careerpath.app | mentor1234 |
-| Mentor — Priya Saxena | priya.saxena@demo.careerpath.app | mentor1234 |
-| Mentor — Kabir Anand | kabir.anand@demo.careerpath.app | mentor1234 |
-| Admin / Faculty | admin@careerpath.app | admin1234 |
+| Mentor — Arjun Nair     | arjun.nair@demo.careerpath.app     | mentor1234 |
+| Mentor — Priya Saxena   | priya.saxena@demo.careerpath.app   | mentor1234 |
+| Mentor — Kabir Anand    | kabir.anand@demo.careerpath.app    | mentor1234 |
+| Admin / Faculty         | admin@careerpath.app               | admin1234  |
 
 You can also click "Load demo profile" on the login page or the intake wizard for a one-click demo during presentations.
 
