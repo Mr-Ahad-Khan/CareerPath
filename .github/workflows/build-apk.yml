@@ -51,10 +51,15 @@ jobs:
         </body>
         </html>' > dist/index.html
     
-    - name: Add Android platform
+    - name: Setup Android platform
       run: |
         cd careerpath-mobile
-        npx cap add android
+        if [ -d "android" ]; then
+          echo "✅ Android platform already exists, skipping add"
+        else
+          echo "📱 Adding Android platform..."
+          npx cap add android
+        fi
     
     - name: Copy assets
       run: |
