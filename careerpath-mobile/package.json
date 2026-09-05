@@ -1,0 +1,22 @@
+{
+  "name": "careerpath-mobile",
+  "version": "1.0.0",
+  "description": "CareerPath Mobile App",
+  "scripts": {
+    "build": "echo 'Building for Capacitor...'",
+    "sync": "npx cap sync",
+    "copy": "npx cap copy",
+    "build:android": "npm run build && npx cap copy android && cd android && ./gradlew assembleRelease",
+    "open:android": "npx cap open android",
+    "add:android": "npx cap add android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^5.0.0",
+    "@capacitor/core": "^5.0.0",
+    "@capacitor/splash-screen": "^5.0.0",
+    "@capacitor/status-bar": "^5.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.1"
+  }
+}

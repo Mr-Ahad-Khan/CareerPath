@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CareerPath</string>
+    <string name="title_activity_main">CareerPath</string>
+    <string name="package_name">com.careerpath.app</string>
+    <string name="custom_url_scheme">com.careerpath.app</string>
+</resources>
