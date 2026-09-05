@@ -184,7 +184,7 @@ export function WizardPage() {
           <div className="space-y-4">
             <div>
               <label className="field-label">Education level</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 {['Undergraduate', 'Postgraduate', 'Diploma'].map((l) => (
                   <button
                     key={l}

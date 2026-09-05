@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Star, Send, X, MessageSquare, Check, Clock } from 'lucide-react';
+import { Search, MapPin, Star, Send, X, MessageSquare, Check, Clock, Bell, UserRound } from 'lucide-react';
 import { api } from '@/lib/api.js';
 import { useToast } from '@/lib/toast.jsx';
 import { LoadingOverlay } from '@/components/Spinner.jsx';
 import { EmptyState } from '@/components/EmptyState.jsx';
 import { Avatar } from '@/components/Avatar.jsx';
+import { useAuth } from '@/lib/auth.jsx';
 
 export function MentorsPage() {
+  const { user } = useAuth();
   const toast = useToast();
   const [mentors, setMentors] = useState(null);
   const [filters, setFilters] = useState({ q: '', industry: 'all', specialty: 'all' });
@@ -15,6 +17,7 @@ export function MentorsPage() {
   const [requests, setRequests] = useState([]);
   const [message, setMessage] = useState('');
   const [sendingRequest, setSendingRequest] = useState(false);
+  const [updatingRequest, setUpdatingRequest] = useState(null);
 
   const loadMentors = async () => {
     const params = new URLSearchParams();
@@ -33,6 +36,20 @@ export function MentorsPage() {
     api.get('/mentors/industries').then(setMeta).catch(() => {});
     api.get('/connections').then((d) => setRequests(d.requests)).catch(() => {});
   }, []);
+
+  const updateRequest = async (requestId, action) => {
+    setUpdatingRequest(requestId);
+    try {
+      await api.patch(`/connections/${requestId}/${action}`);
+      const d = await api.get('/connections');
+      setRequests(d.requests);
+      toast.success(action === 'accept' ? 'Connection accepted.' : 'Request declined.');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setUpdatingRequest(null);
+    }
+  };
 
   useEffect(() => { loadMentors(); }, [filters]);
 
@@ -64,6 +81,9 @@ export function MentorsPage() {
 
   const pendingMentorIds = new Set(requests.filter((r) => r.status === 'pending').map((r) => r.mentorId));
   const acceptedMentorIds = new Set(requests.filter((r) => r.status === 'accepted').map((r) => r.mentorId));
+  const isMentor = user?.role === 'mentor';
+  const incomingPending = requests.filter((r) => r.status === 'pending');
+  const connectedMentors = requests.filter((r) => r.status === 'accepted');
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
@@ -88,14 +108,57 @@ export function MentorsPage() {
         </select>
       </div>
 
-      {requests.length > 0 && (
+      {isMentor && incomingPending.length > 0 && (
+        <div className="mb-6 surface-card border-accent/30 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <Bell className="h-4 w-4 text-accent" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">New connection requests</h3>
+          </div>
+          <div className="space-y-3">
+            {incomingPending.map((request) => (
+              <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface-2 p-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <Avatar name={request.student?.name || 'Student'} color={request.student?.avatarColor} size={36} />
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground">{request.student?.name || 'Student'}</p>
+                    <p className="truncate text-sm text-muted">{request.message}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => updateRequest(request.id, 'decline')} disabled={updatingRequest === request.id} className="btn-secondary px-3 py-2 text-sm">Decline</button>
+                  <button onClick={() => updateRequest(request.id, 'accept')} disabled={updatingRequest === request.id} className="btn-primary px-3 py-2 text-sm"><Check className="h-4 w-4" /> Accept</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!isMentor && requests.length > 0 && (
         <div className="mb-6 surface-card p-4">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">Your connection requests</h3>
+          <div className="mb-3 flex items-center gap-2">
+            <Bell className="h-4 w-4 text-accent" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Connection updates</h3>
+          </div>
           <div className="flex flex-wrap gap-2">
             {requests.map((r) => (
               <span key={r.id} className={`chip ${r.status === 'pending' ? 'border-warning/40 bg-warning/10 text-warning' : r.status === 'accepted' ? 'border-success/40 bg-success/10 text-success' : 'text-muted'}`}>
                 {r.mentor?.name} — {r.status}
               </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!isMentor && connectedMentors.length > 0 && (
+        <div className="mb-6 surface-card p-4">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted"><UserRound className="h-4 w-4 text-success" /> Your connected mentors</h3>
+          <div className="flex flex-wrap gap-3">
+            {connectedMentors.map((request) => (
+              <div key={request.id} className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-3 py-2">
+                <Avatar name={request.mentor?.name || 'Mentor'} color={request.mentor?.avatarColor} size={30} />
+                <div><p className="text-sm font-medium text-foreground">{request.mentor?.name}</p><p className="text-xs text-muted">Connected mentor</p></div>
+              </div>
             ))}
           </div>
         </div>
@@ -126,7 +189,7 @@ export function MentorsPage() {
                   <span>{m.menteeCount} mentees</span>
                 </div>
               </div>
-              <button
+              {!isMentor && <button
                 onClick={() => { setSelected(m); setMessage(''); }}
                 disabled={pendingMentorIds.has(m.id) || acceptedMentorIds.has(m.id)}
                 className={`mt-4 w-full ${pendingMentorIds.has(m.id) ? 'btn-secondary cursor-default' : acceptedMentorIds.has(m.id) ? 'btn-secondary cursor-default' : 'btn-primary'}`}
@@ -134,7 +197,7 @@ export function MentorsPage() {
                 {pendingMentorIds.has(m.id) ? <><Clock className="h-4 w-4" /> Request pending</> :
                  acceptedMentorIds.has(m.id) ? <><Check className="h-4 w-4 text-success" /> Connected</> :
                  <><Send className="h-4 w-4" /> Connect</>}
-              </button>
+              </button>}
             </div>
           ))}
         </div>
