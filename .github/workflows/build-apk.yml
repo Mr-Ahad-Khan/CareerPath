@@ -1,0 +1,74 @@
+﻿name: Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+    
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+    
+    - name: Install Capacitor
+      run: npm install -g @capacitor/cli
+    
+    - name: Build web assets
+      run: |
+        cd careerpath-mobile
+        mkdir -p dist
+        echo '<!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>CareerPath</title>
+          <style>
+            body { margin: 0; padding: 0; overflow: hidden; height: 100vh; }
+            iframe { width: 100%; height: 100%; border: none; }
+          </style>
+        </head>
+        <body>
+          <iframe src="https://career-path-five-ruby.vercel.app" allow="geolocation; microphone; camera; midi; encrypted-media"></iframe>
+        </body>
+        </html>' > dist/index.html
+    
+    - name: Add Android platform
+      run: |
+        cd careerpath-mobile
+        npx cap add android
+    
+    - name: Copy assets
+      run: |
+        cd careerpath-mobile
+        npx cap copy android
+    
+    - name: Build APK
+      run: |
+        cd careerpath-mobile/android
+        chmod +x gradlew
+        ./gradlew assembleRelease
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: CareerPath-APK
+        path: careerpath-mobile/android/app/build/outputs/apk/release/*.apk
