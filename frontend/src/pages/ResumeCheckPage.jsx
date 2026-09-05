@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api.js";
 import { useToast } from "@/lib/toast.jsx";
-import { LoadingOverlay } from "@/components/Spinner.jsx";
+import { LoadingOverlay, Spinner } from "@/components/Spinner.jsx";
 import { EmptyState } from "@/components/EmptyState.jsx";
 import { pct } from "@/lib/format.js";
 
@@ -37,27 +37,84 @@ async function extractPdfText(file) {
     import.meta.url,
   ).toString();
 
-  const document = await getDocument({ data: await file.arrayBuffer() })
+  const pdfDocument = await getDocument({ data: await file.arrayBuffer() })
     .promise;
   try {
     const pages = await Promise.all(
-      Array.from({ length: document.numPages }, async (_, index) => {
-        const page = await document.getPage(index + 1);
+      Array.from({ length: pdfDocument.numPages }, async (_, index) => {
+        const page = await pdfDocument.getPage(index + 1);
         const content = await page.getTextContent();
         return content.items.map((item) => item.str).join(" ");
       }),
     );
-    return pages.join("\n\n");
+    const text = pages
+      .join("\n\n")
+      .replace(/[ \t]+\n/g, "\n")
+      .trim();
+    if (text.length >= 40) return text;
+
+    // Scanned PDFs have no text layer, so render their pages for OCR.
+    const worker = await createOcrWorker();
+    try {
+      const ocrPages = await Promise.all(
+        Array.from({ length: pdfDocument.numPages }, async (_, index) => {
+          const page = await pdfDocument.getPage(index + 1);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.ceil(viewport.width);
+          canvas.height = Math.ceil(viewport.height);
+          await page.render({
+            canvasContext: canvas.getContext("2d"),
+            viewport,
+          }).promise;
+          return (await worker.recognize(canvas)).data.text;
+        }),
+      );
+      return ocrPages.join("\n\n").trim();
+    } finally {
+      await worker.terminate();
+    }
   } finally {
-    await document.destroy();
+    await pdfDocument.destroy();
   }
 }
 
-async function extractImageText(file) {
+async function createOcrWorker() {
   const { createWorker } = await import("tesseract.js");
-  const worker = await createWorker("eng");
+  return createWorker("eng");
+}
+
+async function prepareImage(file) {
+  const image = await createImageBitmap(file);
+  const scale = Math.min(2.5, 2400 / Math.max(image.width, image.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(image.width * scale));
+  canvas.height = Math.max(1, Math.round(image.height * scale));
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.fillStyle = "#fff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  image.close();
+
+  const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+  for (let index = 0; index < pixels.data.length; index += 4) {
+    const gray = Math.round(
+      pixels.data[index] * 0.299 +
+        pixels.data[index + 1] * 0.587 +
+        pixels.data[index + 2] * 0.114,
+    );
+    pixels.data[index] = gray;
+    pixels.data[index + 1] = gray;
+    pixels.data[index + 2] = gray;
+  }
+  context.putImageData(pixels, 0, 0);
+  return canvas;
+}
+
+async function extractImageText(file) {
+  const worker = await createOcrWorker();
   try {
-    const { data } = await worker.recognize(file);
+    const { data } = await worker.recognize(await prepareImage(file));
     return data.text;
   } finally {
     await worker.terminate();
@@ -350,6 +407,47 @@ export function ResumeCheckPage() {
                 </div>
               </div>
 
+              <div className="surface-card p-5">
+                <h3 className="mb-3 font-display text-base font-semibold text-foreground">
+                  Resume profile
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                      Skills found ({result.parsed.skills.length})
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {result.parsed.skills.map((skill) => (
+                        <span key={skill} className="chip text-xs">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                      Roles detected
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(result.parsed.roles || []).length > 0 ? (
+                        result.parsed.roles.map((role) => (
+                          <span
+                            key={role}
+                            className="chip border-info/40 bg-info/10 text-info text-xs"
+                          >
+                            {role}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-sm text-muted">
+                          No clear role title found.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="surface-card p-5">
                   <h3 className="mb-3 flex items-center gap-2 font-display text-base font-semibold text-success">
@@ -415,10 +513,46 @@ export function ResumeCheckPage() {
         </>
       </div>
 
+      {extracting && <ResumeReadingDialog />}
+
       {showFileSizeDialog && (
         <FileSizeDialog onClose={() => setShowFileSizeDialog(false)} />
       )}
     </>
+  );
+}
+
+function ResumeReadingDialog() {
+  return (
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm"
+      role="presentation"
+    >
+      <div
+        className="flex min-h-[280px] w-full max-w-xl flex-col items-center justify-center rounded-3xl border border-accent/30 bg-surface px-8 py-10 text-center shadow-lift animate-fade-in"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="resume-reading-title"
+        aria-describedby="resume-reading-description"
+      >
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-accent/10">
+          <Spinner size={56} />
+        </div>
+        <h2
+          id="resume-reading-title"
+          className="mt-6 font-display text-2xl font-semibold text-foreground"
+        >
+          Reading your resume
+        </h2>
+        <p
+          id="resume-reading-description"
+          className="mt-3 max-w-sm text-sm leading-6 text-muted"
+        >
+          We are extracting the text from your file. This can take a little
+          longer for scanned PDFs and images.
+        </p>
+      </div>
+    </div>
   );
 }
 
