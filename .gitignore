@@ -8,6 +8,7 @@ frontend/node_modules/
 .env.*
 !.env.example
 !backend/.env.example
+careerpath-mobile/*.keystore
 
 # Frontend build output and local tooling
 frontend/dist/

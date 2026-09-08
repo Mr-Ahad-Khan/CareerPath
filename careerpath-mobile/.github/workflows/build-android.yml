@@ -96,28 +96,16 @@ jobs:
       run: |
         cd android
         chmod +x gradlew
-        ./gradlew assembleRelease
-    
-    - name: Sign APK
-      run: |
-        cd android/app/build/outputs/apk/release
-        jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 \
-          -keystore ../../../../../release-key.keystore \
-          -storepass "${{ secrets.KEYSTORE_PASSWORD }}" \
-          -keypass "${{ secrets.KEY_PASSWORD }}" \
-          app-release-unsigned.apk careerpath
-        jarsigner -verify app-release-unsigned.apk
-    
-    - name: Align APK
-      run: |
-        cd android/app/build/outputs/apk/release
-        $ANDROID_HOME/build-tools/33.0.2/zipalign -v -p 4 \
-          app-release-unsigned.apk CareerPath.apk
+        ./gradlew assembleRelease \
+          -PRELEASE_STORE_FILE=../release-key.keystore \
+          -PRELEASE_STORE_PASSWORD="${{ secrets.KEYSTORE_PASSWORD }}" \
+          -PRELEASE_KEY_ALIAS=careerpath \
+          -PRELEASE_KEY_PASSWORD="${{ secrets.KEY_PASSWORD }}"
     
     - name: Rename APK
       run: |
         cd android/app/build/outputs/apk/release
-        mv CareerPath.apk CareerPath-${{ github.run_number }}.apk
+        mv app-release.apk CareerPath-${{ github.run_number }}.apk
     
     - name: Upload APK as Artifact
       uses: actions/upload-artifact@v4
