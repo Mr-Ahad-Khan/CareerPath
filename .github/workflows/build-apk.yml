@@ -94,6 +94,7 @@ jobs:
           test -n "$KEY_PASSWORD" || (echo "KEY_PASSWORD is not configured" && exit 1)
           keytool -genkeypair -v \
             -keystore careerpath-release.keystore \
+            -storetype JKS \
             -alias careerpath \
             -keyalg RSA \
             -keysize 2048 \

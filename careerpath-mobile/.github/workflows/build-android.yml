@@ -88,6 +88,7 @@ jobs:
       - name: Create keystore
         run: |
           keytool -genkey -v -keystore release-key.keystore -alias careerpath -keyalg RSA -keysize 2048 -validity 10000 \
+            -storetype JKS \
             -storepass "${{ secrets.KEYSTORE_PASSWORD }}" \
             -keypass "${{ secrets.KEY_PASSWORD }}" \
             -dname "CN=CareerPath, OU=Development, O=CareerPath Inc, L=City, S=State, C=US"
