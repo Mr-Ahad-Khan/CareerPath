@@ -67,7 +67,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
-  touch-action: manipulation;
+  touch-action: auto;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
