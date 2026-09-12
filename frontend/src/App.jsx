@@ -24,9 +24,11 @@ import { MobileBottomNav } from "@/components/MobileBottomNav.jsx";
 function Layout({ children }) {
   const { user } = useAuth();
   return (
-    <div className="flex min-h-screen min-h-[100dvh] flex-col w-full">
+    <div
+      className={`flex min-h-screen min-h-[100dvh] flex-col w-full ${user ? "pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0" : ""}`}
+    >
       <Navbar />
-      <main className={`flex-1 w-full ${user ? 'pb-20 lg:pb-0' : ''}`}>{children}</main>
+      <main className="flex-1 w-full">{children}</main>
       <Footer />
       <MobileBottomNav />
     </div>
