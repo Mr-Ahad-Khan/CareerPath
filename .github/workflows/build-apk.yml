@@ -22,9 +22,9 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          npm ci
+          npm ci || npm install
           cd ../careerpath-mobile
-          npm ci
+          npm ci || npm install
 
       - name: Setup Java
         uses: actions/setup-java@v4
