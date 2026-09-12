@@ -13,13 +13,19 @@
     "copy": "npx cap copy",
     "build:android": "npm run build && npx cap copy android && cd android && ./gradlew assembleRelease",
     "open:android": "npx cap open android",
-    "add:android": "npx cap add android"
+    "add:android": "npx cap add android",
+    "sync:android": "npx cap sync android",
+    "build:ios": "npm run build && npx cap copy ios",
+    "open:ios": "npx cap open ios",
+    "add:ios": "npx cap add ios",
+    "sync:ios": "npx cap sync ios"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",
     "@capacitor/core": "^6.0.0",
-    "@capacitor/status-bar": "^6.0.0",
-    "@capacitor/splash-screen": "^6.0.0"
+    "@capacitor/ios": "^6.2.2",
+    "@capacitor/splash-screen": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.0.0"

@@ -64,19 +64,18 @@ npm run dev
 
 The dev server runs on `http://localhost:5173` and proxies `/api` requests to the backend.
 
-### MySQL Workbench connection
+### Environment configuration
 
 Edit `backend/.env`:
 
-```
-MONGODB_URI=URL
-JWT_SECRET=Secret_Key
-API_PORT=Value
+```env
+API_PORT=5050
 CLIENT_ORIGIN=http://localhost:5173
-FRONTEND_URI=URL
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/careerpath?retryWrites=true&w=majority
+JWT_SECRET=your-jwt-secret
 ```
 
-Create the `CareerPath` schema in MySQL Workbench first, then save these values as `backend/.env`. The API no longer supports SQLite.
+Configure your MongoDB Atlas cluster connection string in `backend/.env`. On first boot, the backend automatically connects, seeds demo accounts, and prepares mentor directories.
 
 ## Demo accounts
 
@@ -109,6 +108,8 @@ You can also click "Load demo profile" on the login page or the intake wizard fo
 10. **Admin Analytics Dashboard** — Aggregate trends: target roles, requested skills, average salary growth.
 11. **Personal Dashboard** — Saved simulations, milestone completion, upskilling streak tracker.
 12. **Export & Share** — Generate a printable summary card of any career path.
+13. **100% Offline Mode** — Complete client-side weighted scoring simulation engine, LocalStorage persistence, offline milestone tracking, upskilling journal, and queued outbox with dynamic online/offline banners.
+14. **Cross-Platform Mobile Integration** — Optimized for Capacitor 6 mobile runtimes on Android & iOS with docked bottom navigation, slide-up drawers, safe-area support, and dark status bar styling.
 
 ## How the simulation engine works
 

@@ -205,7 +205,7 @@ export function WizardPage() {
               <label className="field-label">Field of study</label>
               <input className="field-input" value={form.educationField} onChange={set('educationField')} placeholder="e.g. Computer Applications, Electronics" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="field-label">Graduation year</label>
                 <input type="number" className="field-input" value={form.graduationYear} onChange={set('graduationYear')} placeholder="2026" />
@@ -215,7 +215,7 @@ export function WizardPage() {
                 <input type="number" step="0.5" min="0" className="field-input" value={form.experienceYears} onChange={set('experienceYears')} placeholder="0" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="field-label">Current role (optional)</label>
                 <input className="field-input" value={form.currentRole} onChange={set('currentRole')} placeholder="Intern, Junior Developer..." />

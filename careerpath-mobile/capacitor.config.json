@@ -2,7 +2,6 @@
   "appId": "com.careerpath.app",
   "appName": "CareerPath",
   "webDir": "dist",
-  "bundledWebRuntime": false,
   "server": {
     "androidScheme": "https",
     "iosScheme": "https",
@@ -24,5 +23,11 @@
       "keystorePassword": "$KEYSTORE_PASSWORD",
       "keyPassword": "$KEY_PASSWORD"
     }
+  },
+  "ios": {
+    "contentInset": "always",
+    "preferredContentMode": "mobile",
+    "scrollEnabled": true,
+    "scheme": "CareerPath"
   }
 }

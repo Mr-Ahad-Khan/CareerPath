@@ -48,7 +48,7 @@ export function SalaryTrajectoryChart({ paths, currency }) {
 
   return (
     <ResponsiveContainer width="100%" height={320}>
-      <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+      <AreaChart data={data} margin={{ top: 10, right: 8, left: -10, bottom: 0 }}>
         <defs>
           {PATH_COLORS.map((c, i) => (
             <linearGradient key={i} id={`grad-${i}`} x1="0" y1="0" x2="0" y2="1">
@@ -62,17 +62,17 @@ export function SalaryTrajectoryChart({ paths, currency }) {
           dataKey="year"
           tickFormatter={(v) => (v === 0 ? 'Now' : `Y${v}`)}
           stroke="rgb(var(--text-muted))"
-          fontSize={12}
+          fontSize={11}
           tickLine={false}
           axisLine={false}
         />
         <YAxis
           tickFormatter={(v) => formatMoney(v, cur)}
           stroke="rgb(var(--text-muted))"
-          fontSize={12}
+          fontSize={11}
           tickLine={false}
           axisLine={false}
-          width={70}
+          width={62}
         />
         <Tooltip content={<CustomTooltip currency={cur} />} />
         <Legend

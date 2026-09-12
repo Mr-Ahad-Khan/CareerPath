@@ -122,25 +122,29 @@ export function ComparatorPage() {
           </div>
 
           <div className="mt-8 surface-card overflow-hidden p-0">
-            <div className="grid grid-cols-3 border-b border-border bg-surface-2 px-6 py-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted">Metric</span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted">Left path</span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted">Right path</span>
-            </div>
-            {metrics.map((m, i) => (
-              <div key={i} className={`grid grid-cols-3 px-6 py-3 ${i % 2 ? 'bg-surface/40' : ''}`}>
-                <span className="text-sm text-muted">{m.label}</span>
-                <span className="text-sm font-medium tabular text-foreground">{m.left}</span>
-                <span className="text-sm font-medium tabular text-foreground">
-                  {m.right}
-                  {m.diff && (
-                    <span className={`ml-2 text-xs ${m.diffLabel === 'left higher' ? 'text-success' : m.diffLabel === 'right higher' ? 'text-info' : 'text-muted'}`}>
-                      ({m.diff} {m.diffLabel})
+            <div className="overflow-x-auto touch-scroll">
+              <div className="min-w-[480px]">
+                <div className="grid grid-cols-3 border-b border-border bg-surface-2 px-4 sm:px-6 py-3">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted">Metric</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted">Left path</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted">Right path</span>
+                </div>
+                {metrics.map((m, i) => (
+                  <div key={i} className={`grid grid-cols-3 px-4 sm:px-6 py-3 ${i % 2 ? 'bg-surface/40' : ''}`}>
+                    <span className="text-sm text-muted">{m.label}</span>
+                    <span className="text-sm font-medium tabular text-foreground">{m.left}</span>
+                    <span className="text-sm font-medium tabular text-foreground">
+                      {m.right}
+                      {m.diff && (
+                        <span className={`ml-2 text-xs ${m.diffLabel === 'left higher' ? 'text-success' : m.diffLabel === 'right higher' ? 'text-info' : 'text-muted'}`}>
+                          ({m.diff} {m.diffLabel})
+                        </span>
+                      )}
                     </span>
-                  )}
-                </span>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </>
       )}

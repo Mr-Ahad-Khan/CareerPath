@@ -93,19 +93,21 @@ export function MentorsPage() {
         <p className="mt-1 text-muted">Filter by industry, specialty, or search by name. Send a connection request to start a conversation.</p>
       </div>
 
-      <div className="mb-6 flex flex-wrap gap-3">
+      <div className="mb-6 flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <input className="field-input pl-9" placeholder="Search mentors, companies, specialties..." value={filters.q} onChange={(e) => setFilters({ ...filters, q: e.target.value })} />
         </div>
-        <select className="field-select w-auto" value={filters.industry} onChange={(e) => setFilters({ ...filters, industry: e.target.value })}>
-          <option value="all">All industries</option>
-          {meta.industries.map((i) => <option key={i} value={i}>{i}</option>)}
-        </select>
-        <select className="field-select w-auto" value={filters.specialty} onChange={(e) => setFilters({ ...filters, specialty: e.target.value })}>
-          <option value="all">All specialties</option>
-          {meta.specialties.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <select className="field-select flex-1 sm:w-auto" value={filters.industry} onChange={(e) => setFilters({ ...filters, industry: e.target.value })}>
+            <option value="all">All industries</option>
+            {meta.industries.map((i) => <option key={i} value={i}>{i}</option>)}
+          </select>
+          <select className="field-select flex-1 sm:w-auto" value={filters.specialty} onChange={(e) => setFilters({ ...filters, specialty: e.target.value })}>
+            <option value="all">All specialties</option>
+            {meta.specialties.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
       </div>
 
       {isMentor && incomingPending.length > 0 && (
@@ -205,7 +207,7 @@ export function MentorsPage() {
 
       {selected && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm animate-fade-in-flat" onClick={() => setSelected(null)}>
-          <div className="w-full max-w-md surface-card p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-md surface-card p-5 sm:p-6 max-h-[90dvh] overflow-y-auto touch-scroll shadow-2xl animate-fade-in" onClick={(e) => e.stopPropagation()}>
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Avatar name={selected.name} color={selected.avatarColor} size={44} />

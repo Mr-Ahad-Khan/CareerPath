@@ -139,30 +139,30 @@ export function MilestonesPage() {
         </div>
       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-4">
-        <div className="surface-card p-4">
-          <p className="text-xs uppercase tracking-wider text-muted">
+      <div className="mb-6 sm:mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <div className="surface-card p-4 min-w-0">
+          <p className="text-[11px] sm:text-xs uppercase tracking-wider text-muted truncate">
             Total milestones
           </p>
-          <p className="stat-number mt-1">{total}</p>
+          <p className="stat-number mt-1 text-2xl sm:text-3xl">{total}</p>
         </div>
-        <div className="surface-card p-4">
-          <p className="text-xs uppercase tracking-wider text-muted">
+        <div className="surface-card p-4 min-w-0">
+          <p className="text-[11px] sm:text-xs uppercase tracking-wider text-muted truncate">
             In progress
           </p>
-          <p className="stat-number mt-1 text-accent">{inProg}</p>
+          <p className="stat-number mt-1 text-2xl sm:text-3xl text-accent">{inProg}</p>
         </div>
-        <div className="surface-card p-4">
-          <p className="text-xs uppercase tracking-wider text-muted">
+        <div className="surface-card p-4 min-w-0">
+          <p className="text-[11px] sm:text-xs uppercase tracking-wider text-muted truncate">
             Complete
           </p>
-          <p className="stat-number mt-1 text-success">{done}</p>
+          <p className="stat-number mt-1 text-2xl sm:text-3xl text-success">{done}</p>
         </div>
-        <div className="surface-card p-4">
-          <p className="text-xs uppercase tracking-wider text-muted">
+        <div className="surface-card p-4 min-w-0">
+          <p className="text-[11px] sm:text-xs uppercase tracking-wider text-muted truncate">
             Completion
           </p>
-          <p className="stat-number mt-1">{pct(completion)}</p>
+          <p className="stat-number mt-1 text-2xl sm:text-3xl">{pct(completion)}</p>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
             <div
               className="h-full rounded-full bg-accent transition-all duration-500"
@@ -213,29 +213,32 @@ export function MilestonesPage() {
                     <p className="mt-1 text-xs text-muted line-clamp-2">
                       {m.description}
                     </p>
-                    <div className="mt-2 flex items-center justify-between">
+                    <div className="mt-2.5 flex items-center justify-between gap-2">
                       <span className="chip text-[10px]">{m.category}</span>
-                      <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                         {col.key !== "todo" && (
                           <button
+                            type="button"
                             onClick={() => updateStatus(m.id, "todo")}
-                            className="rounded px-1.5 py-0.5 text-[10px] text-muted hover:bg-surface hover:text-foreground"
+                            className="rounded-lg border border-border/70 bg-surface px-2 py-1 text-[11px] font-medium text-muted hover:bg-surface-2 hover:text-foreground active:scale-95 transition-all"
                           >
                             Todo
                           </button>
                         )}
                         {col.key !== "in_progress" && (
                           <button
+                            type="button"
                             onClick={() => updateStatus(m.id, "in_progress")}
-                            className="rounded px-1.5 py-0.5 text-[10px] text-accent hover:bg-accent/10"
+                            className="rounded-lg border border-accent/30 bg-accent/10 px-2 py-1 text-[11px] font-medium text-accent hover:bg-accent/20 active:scale-95 transition-all"
                           >
                             Start
                           </button>
                         )}
                         {col.key !== "complete" && (
                           <button
+                            type="button"
                             onClick={() => updateStatus(m.id, "complete")}
-                            className="rounded px-1.5 py-0.5 text-[10px] text-success hover:bg-success/10"
+                            className="rounded-lg border border-success/30 bg-success/10 px-2 py-1 text-[11px] font-medium text-success hover:bg-success/20 active:scale-95 transition-all"
                           >
                             Done
                           </button>
@@ -261,7 +264,7 @@ export function MilestonesPage() {
           onClick={() => setShowAdd(false)}
         >
           <div
-            className="w-full max-w-md surface-card p-6"
+            className="w-full max-w-md surface-card p-5 sm:p-6 max-h-[90dvh] overflow-y-auto touch-scroll shadow-2xl animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">

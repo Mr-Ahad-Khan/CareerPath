@@ -39,7 +39,7 @@ export function SkillGapRadar({ currentSkills, targetSkills }) {
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <RadarChart data={data} outerRadius="72%">
+      <RadarChart data={data} outerRadius="64%" margin={{ top: 10, right: 15, bottom: 10, left: 15 }}>
         <PolarGrid stroke="rgb(var(--border))" />
         <PolarAngleAxis
           dataKey="skill"

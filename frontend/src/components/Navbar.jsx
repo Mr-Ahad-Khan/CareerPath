@@ -48,14 +48,11 @@ export function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 border-b transition-all duration-300 ${
+      className={`sticky top-0 z-50 border-b pt-safe transition-all duration-300 ${
         scrolled
           ? 'border-border bg-background/85 backdrop-blur-xl'
           : 'border-transparent bg-background/40 backdrop-blur-sm'
       }`}
-      style={{
-        paddingTop: isNativeCapacitor ? '0px' : 'env(safe-area-inset-top, 0px)',
-      }}
     >
       <OfflineBanner />
       <nav className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
