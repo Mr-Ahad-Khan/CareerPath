@@ -3,8 +3,22 @@ import { api, getToken, setToken } from './api.js';
 
 const AuthContext = createContext(null);
 
+export function getCachedUser() {
+  try {
+    const raw = localStorage.getItem('cp-user');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setCachedUser(user) {
+  if (user) localStorage.setItem('cp-user', JSON.stringify(user));
+  else localStorage.removeItem('cp-user');
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => (getToken() ? getCachedUser() : null));
   const [loading, setLoading] = useState(true);
 
   const fetchMe = useCallback(async () => {
@@ -13,6 +27,7 @@ export function AuthProvider({ children }) {
     // expected-but-noisy 401 on every initial page load.
     if (!getToken()) {
       setUser(null);
+      setCachedUser(null);
       setLoading(false);
       return;
     }
@@ -20,11 +35,16 @@ export function AuthProvider({ children }) {
     try {
       const data = await api.get('/auth/me');
       setUser(data.user);
+      setCachedUser(data.user);
     } catch (error) {
       // A JWT can expire or become invalid after a backend secret change.
       // Remove it so subsequent loads remain cleanly signed out.
-      if (error.status === 401) setToken(null);
-      setUser(null);
+      if (error.status === 401) {
+        setToken(null);
+        setCachedUser(null);
+        setUser(null);
+      }
+      // If network error / offline (status 0), preserve cached user session
     } finally {
       setLoading(false);
     }
@@ -37,6 +57,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password) => {
     const data = await api.post('/auth/login', { email, password });
     setToken(data.token);
+    setCachedUser(data.user);
     setUser(data.user);
     return data.user;
   }, []);
@@ -44,6 +65,7 @@ export function AuthProvider({ children }) {
   const signup = useCallback(async (payload) => {
     const data = await api.post('/auth/register', payload);
     setToken(data.token);
+    setCachedUser(data.user);
     setUser(data.user);
     return data.user;
   }, []);
@@ -55,6 +77,7 @@ export function AuthProvider({ children }) {
       /* ignore */
     }
     setToken(null);
+    setCachedUser(null);
     setUser(null);
   }, []);
 

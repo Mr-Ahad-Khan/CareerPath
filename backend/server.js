@@ -24,6 +24,8 @@ const PORT = process.env.API_PORT || 5050;
 const DEFAULT_CLIENT_ORIGINS = [
   'http://localhost:5173',
   'https://career-path-five-ruby.vercel.app',
+  'https://localhost',
+  'capacitor://localhost',
 ];
 const CLIENT_ORIGINS = [
   ...DEFAULT_CLIENT_ORIGINS,

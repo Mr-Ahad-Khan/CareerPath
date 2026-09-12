@@ -1,9 +1,18 @@
 // In development Vite proxies /api to localhost. On Vercel, set VITE_API_URL
 // to the Render service origin, for example https://careerpath-api.onrender.com.
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '');
+const isMobileApp =
+  typeof window !== 'undefined' &&
+  (Boolean(window.Capacitor) ||
+    window.location.protocol === 'capacitor:' ||
+    (window.location.hostname === 'localhost' && window.location.port === ''));
+const defaultMobileApiUrl = 'https://careerpath-mew4.onrender.com';
+
 const API_BASE = configuredApiUrl
   ? `${configuredApiUrl.replace(/\/api$/, '')}/api`
-  : '/api';
+  : isMobileApp
+    ? `${defaultMobileApiUrl}/api`
+    : '/api';
 
 export function getToken() {
   return localStorage.getItem('cp-token');

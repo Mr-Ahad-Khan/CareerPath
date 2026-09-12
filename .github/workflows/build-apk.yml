@@ -1,4 +1,4 @@
-﻿name: Build APK
+name: Build APK
 
 on:
   push:
@@ -21,8 +21,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd careerpath-mobile
-          npm install
+          cd frontend
+          npm ci
+          cd ../careerpath-mobile
+          npm ci
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -36,49 +38,12 @@ jobs:
       - name: Install Capacitor
         run: npm install -g @capacitor/cli
 
-      - name: Create web assets
+      - name: Build frontend and copy assets
         run: |
-          cd careerpath-mobile
-          mkdir -p dist
-          cat > dist/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-            <title>CareerPath</title>
-            <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background: #f5f5f5; }
-              iframe { width: 100%; height: 100%; border: none; display: block; }
-              #loading {
-                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                display: flex; justify-content: center; align-items: center;
-                background: #ffffff; z-index: 9999; flex-direction: column;
-              }
-              #loading .logo { font-size: 48px; font-weight: bold; color: #4CAF50; }
-              #loading p { margin-top: 20px; font-family: sans-serif; color: #666; font-size: 16px; }
-              .loading-spinner {
-                width: 40px; height: 40px;
-                border: 4px solid #f3f3f3;
-                border-top: 4px solid #4CAF50;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-                margin-top: 20px;
-              }
-              @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-            </style>
-          </head>
-          <body>
-            <div id="loading">
-              <div class="logo">🚀 CareerPath</div>
-              <p>Loading your career journey...</p>
-              <div class="loading-spinner"></div>
-            </div>
-            <iframe src="https://career-path-five-ruby.vercel.app" allow="geolocation; microphone; camera; midi; encrypted-media" onload="document.getElementById('loading').style.display='none'"></iframe>
-          </body>
-          </html>
-          EOF
+          cd frontend
+          npm run build
+          cd ../careerpath-mobile
+          node scripts/copy-frontend.js
 
       - name: Sync Capacitor
         run: |

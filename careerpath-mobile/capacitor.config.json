@@ -8,8 +8,14 @@
     "iosScheme": "https",
     "allowNavigation": [
       "*"
-    ],
-    "url": "https://career-path-five-ruby.vercel.app"
+    ]
+  },
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DARK",
+      "backgroundColor": "#0e1014"
+    }
   },
   "android": {
     "buildOptions": {

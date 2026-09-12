@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "careerpath-mobile",
   "version": "1.0.0",
   "description": "CareerPath Mobile App",
@@ -6,7 +6,9 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "build": "echo 'Building for Capacitor...'",
+    "build:frontend": "npm --prefix ../frontend run build",
+    "copy:frontend": "node scripts/copy-frontend.js",
+    "build": "npm run build:frontend && npm run copy:frontend",
     "sync": "npx cap sync",
     "copy": "npx cap copy",
     "build:android": "npm run build && npx cap copy android && cd android && ./gradlew assembleRelease",

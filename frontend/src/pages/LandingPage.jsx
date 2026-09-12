@@ -19,7 +19,7 @@ export function LandingPage() {
         <div className="absolute inset-0 grid-bg grid-bg-fade" />
         <div className="absolute -top-40 left-1/2 h-96 w-[600px] -translate-x-1/2 rounded-full bg-accent/10 blur-[120px]" />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-20 sm:px-6 sm:pt-28 lg:pt-36">
+        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-24 sm:px-6 sm:pt-28 lg:pt-36">
           <div className="mx-auto max-w-3xl text-center">
             <span className="section-eyebrow">The 5-Year Simulator</span>
             <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl text-balance">
