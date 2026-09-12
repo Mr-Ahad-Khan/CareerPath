@@ -42,6 +42,10 @@ export function Navbar() {
     ? [...navItems, ...(user.role === 'admin' ? [adminItem] : [])]
     : [];
 
+  const isNativeCapacitor =
+    typeof window !== 'undefined' &&
+    Boolean(window.Capacitor?.isNativePlatform ? window.Capacitor.isNativePlatform() : window.Capacitor);
+
   return (
     <header
       className={`sticky top-0 z-50 border-b transition-all duration-300 ${
@@ -49,9 +53,12 @@ export function Navbar() {
           ? 'border-border bg-background/85 backdrop-blur-xl'
           : 'border-transparent bg-background/40 backdrop-blur-sm'
       }`}
+      style={{
+        paddingTop: isNativeCapacitor ? '0px' : 'env(safe-area-inset-top, 0px)',
+      }}
     >
       <OfflineBanner />
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+      <nav className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3.5 sm:px-6">
         <Link to={user ? '/dashboard' : '/'} className="transition-opacity hover:opacity-80">
           <Logo />
         </Link>
@@ -95,15 +102,15 @@ export function Navbar() {
               </button>
             </div>
           ) : (
-            <div className="hidden items-center gap-2 sm:flex">
-              <Link to="/login" className="btn-ghost">Sign in</Link>
-              <Link to="/register" className="btn-primary">Get started</Link>
+            <div className="flex items-center gap-2">
+              <Link to="/login" className="btn-ghost hidden sm:inline-flex">Sign in</Link>
+              <Link to="/register" className="btn-primary text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2.5">Get started</Link>
             </div>
           )}
 
           {user && (
             <button
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-2 text-muted lg:hidden"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg border border-border bg-surface-2 text-muted lg:hidden"
               onClick={() => setMobileOpen((v) => !v)}
               aria-label="Toggle menu"
             >
