@@ -20,9 +20,9 @@ import NotFoundPage from "@/pages/NotFoundPage.jsx";
 
 function Layout({ children }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col w-full overflow-x-hidden">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 w-full overflow-x-hidden">{children}</main>
       <Footer />
     </div>
   );
@@ -143,11 +143,21 @@ export default function App() {
         <Route
           path="/admin"
           element={
-            <AdminRoute>
+            <ProtectedRoute>
               <Layout>
                 <AdminPage />
               </Layout>
-            </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AdminPage />
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route

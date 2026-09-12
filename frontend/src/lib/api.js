@@ -9,12 +9,15 @@ const isMobileApp =
   (Boolean(window.Capacitor) ||
     window.location.protocol === 'capacitor:' ||
     (window.location.hostname === 'localhost' && window.location.port === ''));
-const defaultMobileApiUrl = 'https://careerpath-mew4.onrender.com';
+const isVercel =
+  typeof window !== 'undefined' &&
+  window.location.hostname.includes('vercel.app');
+const defaultRemoteApiUrl = 'https://careerpath-mew4.onrender.com';
 
 const API_BASE = configuredApiUrl
   ? `${configuredApiUrl.replace(/\/api$/, '')}/api`
-  : isMobileApp
-    ? `${defaultMobileApiUrl}/api`
+  : (isMobileApp || isVercel)
+    ? `${defaultRemoteApiUrl}/api`
     : '/api';
 
 export function getToken() {
@@ -190,9 +193,14 @@ function handleOfflineRequest(method, path, data = {}) {
     return offlineStore.analyzeResume(data);
   }
 
-  // 8. Admin fallbacks
-  if (cleanPath === '/admin/overview') {
+  // 8. Admin & Analytics fallbacks
+  if (cleanPath === '/admin/overview' || cleanPath === '/analytics/overview') {
     return {
+      userCount: 142,
+      profileCount: 88,
+      simCount: 384,
+      mentorCount: 8,
+      pendingCount: 5,
       overview: {
         totalUsers: 142,
         totalSimulations: 384,
@@ -201,8 +209,36 @@ function handleOfflineRequest(method, path, data = {}) {
       },
     };
   }
-  if (cleanPath === '/admin/trends') {
+  if (cleanPath === '/admin/trends' || cleanPath === '/analytics/trends') {
     return {
+      topRoles: [
+        { role: 'Staff Engineer', count: 48 },
+        { role: 'Senior Data Scientist', count: 36 },
+        { role: 'Director of Engineering', count: 28 },
+        { role: 'Cloud Architect', count: 24 },
+        { role: 'Product Manager (Tech)', count: 20 },
+        { role: 'Full Stack Tech Lead', count: 18 },
+      ],
+      topSkills: [
+        { skill: 'System Design', count: 72 },
+        { skill: 'Leadership', count: 64 },
+        { skill: 'Kubernetes', count: 52 },
+        { skill: 'Machine Learning', count: 45 },
+        { skill: 'Python', count: 42 },
+        { skill: 'Cloud Architecture', count: 38 },
+        { skill: 'Statistics', count: 34 },
+        { skill: 'Stakeholder Management', count: 30 },
+      ],
+      topInterests: [
+        { interest: 'coding', count: 94 },
+        { interest: 'systems', count: 88 },
+        { interest: 'data', count: 82 },
+        { interest: 'problem solving', count: 78 },
+        { interest: 'leadership', count: 46 },
+        { interest: 'design', count: 35 },
+      ],
+      avgSalaryGrowth: 185,
+      totalSimulations: 384,
       trends: [
         { branch: 'deep-specialist', count: 182 },
         { branch: 'product-track', count: 96 },
@@ -211,12 +247,28 @@ function handleOfflineRequest(method, path, data = {}) {
       ],
     };
   }
-  if (cleanPath === '/admin/users') {
+  if (cleanPath === '/admin/users' || cleanPath === '/analytics/users') {
     return {
       users: [
         DEMO_ACCOUNTS.student,
         DEMO_ACCOUNTS.mentor,
         DEMO_ACCOUNTS.admin,
+        {
+          id: 'usr-demo-4',
+          name: 'Priya Sharma',
+          email: 'priya.sharma@demo.careerpath.app',
+          role: 'student',
+          headline: 'Aspiring Cloud & DevOps Engineer',
+          createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+        },
+        {
+          id: 'usr-demo-5',
+          name: 'Arjun Patel',
+          email: 'arjun.patel@demo.careerpath.app',
+          role: 'student',
+          headline: 'Final-year MCA Data Analytics Major',
+          createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
+        },
       ],
     };
   }
@@ -265,11 +317,18 @@ async function request(path, options = {}) {
   }
 
   const isJson = res.headers.get('content-type')?.includes('application/json');
-  const body = isJson ? await res.json().catch(() => null) : null;
+  if (!isJson) {
+    // If an HTML SPA fallback was returned (e.g. Vercel SPA rewrite), serve offline fallback
+    console.warn(`[API] Expected JSON but received ${res.headers.get('content-type') || 'HTML'} for ${method} ${path}. Serving offline fallback.`);
+    return handleOfflineRequest(method, path, data);
+  }
+
+  const body = await res.json().catch(() => null);
 
   if (!res.ok) {
-    // If server responded with 502/503/504 (server down or gateway error), fall back to offline
-    if ([502, 503, 504].includes(res.status)) {
+    // If server responded with 500-504 (server down, gateway error, DB failure), fall back to offline
+    if (res.status >= 500) {
+      console.warn(`[API] Server error (${res.status}) for ${method} ${path}. Serving offline fallback.`);
       return handleOfflineRequest(method, path, data);
     }
     const message =

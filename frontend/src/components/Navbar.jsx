@@ -16,7 +16,7 @@ const navItems = [
   { to: '/how-it-works', label: 'How it works', icon: BookOpen },
 ];
 
-const adminItem = { to: '/admin', label: 'Analytics', icon: BarChart3 };
+const analyticsItem = { to: '/analytics', label: 'Analytics', icon: BarChart3 };
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -39,7 +39,7 @@ export function Navbar() {
   };
 
   const items = user
-    ? [...navItems, ...(user.role === 'admin' ? [adminItem] : [])]
+    ? [...navItems, analyticsItem]
     : [];
 
   const isNativeCapacitor =
@@ -58,7 +58,7 @@ export function Navbar() {
       }}
     >
       <OfflineBanner />
-      <nav className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3.5 sm:px-6">
+      <nav className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link to={user ? '/dashboard' : '/'} className="transition-opacity hover:opacity-80">
           <Logo />
         </Link>

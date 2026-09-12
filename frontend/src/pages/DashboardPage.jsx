@@ -43,54 +43,72 @@ export function DashboardPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-semibold text-foreground">
+    <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">
           Welcome back, {user.name.split(' ')[0]}.
         </h1>
-        <p className="mt-1 text-muted">{user.headline || 'Here is your career at a glance.'}</p>
+        <p className="mt-1 text-sm text-muted">{user.headline || 'Here is your career at a glance.'}</p>
       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="surface-card p-5">
-          <div className="flex items-center gap-2 text-muted"><Compass className="h-4 w-4" /><span className="text-xs uppercase tracking-wider">Simulations</span></div>
-          <p className="stat-number mt-2">{sims.length}</p>
+      <div className="mb-6 sm:mb-8 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
+        <div className="surface-card p-4 sm:p-5 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-muted">
+            <Compass className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="text-[11px] sm:text-xs uppercase tracking-wider truncate">Simulations</span>
+          </div>
+          <p className="stat-number mt-1.5 sm:mt-2 text-2xl sm:text-3xl">{sims.length}</p>
         </div>
-        <div className="surface-card p-5">
-          <div className="flex items-center gap-2 text-muted"><Target className="h-4 w-4" /><span className="text-xs uppercase tracking-wider">Milestones done</span></div>
-          <p className="stat-number mt-2">{completedMs}<span className="text-lg text-muted">/{totalMs}</span></p>
+        <div className="surface-card p-4 sm:p-5 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-muted">
+            <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="text-[11px] sm:text-xs uppercase tracking-wider truncate">Milestones</span>
+          </div>
+          <p className="stat-number mt-1.5 sm:mt-2 text-2xl sm:text-3xl">
+            {completedMs}<span className="text-base sm:text-lg text-muted">/{totalMs}</span>
+          </p>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
             <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${msPct}%` }} />
           </div>
         </div>
-        <div className="surface-card p-5">
-          <div className="flex items-center gap-2 text-muted"><Flame className="h-4 w-4" /><span className="text-xs uppercase tracking-wider">Upk. streak</span></div>
-          <p className="stat-number mt-2">{stats?.streak || 0}<span className="text-lg text-muted"> days</span></p>
+        <div className="surface-card p-4 sm:p-5 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-muted">
+            <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="text-[11px] sm:text-xs uppercase tracking-wider truncate">Streak</span>
+          </div>
+          <p className="stat-number mt-1.5 sm:mt-2 text-2xl sm:text-3xl">
+            {stats?.streak || 0}<span className="text-sm sm:text-base text-muted"> days</span>
+          </p>
         </div>
-        <div className="surface-card p-5">
-          <div className="flex items-center gap-2 text-muted"><Clock className="h-4 w-4" /><span className="text-xs uppercase tracking-wider">Practice hours</span></div>
-          <p className="stat-number mt-2">{Math.round((stats?.totalMinutes || 0) / 60)}<span className="text-lg text-muted">h</span></p>
+        <div className="surface-card p-4 sm:p-5 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-muted">
+            <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="text-[11px] sm:text-xs uppercase tracking-wider truncate">Practice</span>
+          </div>
+          <p className="stat-number mt-1.5 sm:mt-2 text-2xl sm:text-3xl">
+            {Math.round((stats?.totalMinutes || 0) / 60)}<span className="text-base sm:text-lg text-muted">h</span>
+          </p>
         </div>
       </div>
 
-      <div className="mb-8 grid gap-4 lg:grid-cols-3">
+      <div className="mb-6 sm:mb-8 grid gap-3 sm:gap-4 lg:grid-cols-3">
         {quickActions.map((a) => (
-          <Link key={a.to} to={a.to} className="group surface-card flex items-center gap-4 p-5 transition-all duration-300 hover:border-accent/40 hover:-translate-y-0.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
+          <Link key={a.to} to={a.to} className="group surface-card flex items-center gap-3.5 sm:gap-4 p-4 sm:p-5 transition-all duration-300 hover:border-accent/40 hover:-translate-y-0.5 min-w-0">
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
               <a.icon className="h-5 w-5" />
             </div>
-            <div className="flex-1">
-              <p className="font-display text-base font-semibold text-foreground">{a.label}</p>
-              <p className="text-xs text-muted">{a.desc}</p>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-sm sm:text-base font-semibold text-foreground truncate">{a.label}</p>
+              <p className="text-xs text-muted truncate">{a.desc}</p>
             </div>
-            <ArrowRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-1 group-hover:text-accent" />
+            <ArrowRight className="h-4 w-4 shrink-0 text-muted transition-transform group-hover:translate-x-1 group-hover:text-accent" />
           </Link>
         ))}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <h2 className="mb-4 font-display text-xl font-semibold text-foreground">Your simulations</h2>
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2 min-w-0">
+          <h2 className="mb-3 sm:mb-4 font-display text-lg sm:text-xl font-semibold text-foreground">Your simulations</h2>
           {sims.length === 0 ? (
             <EmptyState
               icon={Compass}
@@ -101,14 +119,14 @@ export function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {sims.map((s) => (
-                <Link key={s.id} to={`/simulation/${s.id}`} className="group surface-card flex items-center justify-between p-5 transition-all hover:border-accent/40">
+                <Link key={s.id} to={`/simulation/${s.id}`} className="group surface-card flex items-center justify-between p-4 sm:p-5 transition-all hover:border-accent/40 min-w-0">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="truncate font-display text-base font-semibold text-foreground">{s.name}</h3>
                       {s.isStarred && <Star className="h-4 w-4 shrink-0 text-accent" fill="currentColor" />}
                     </div>
-                    <p className="mt-0.5 text-xs text-muted">
-                      {s.pathCount} paths · {timeAgo(s.createdAt)} · Top salary: {formatMoney(s.topSalary, currency)}
+                    <p className="mt-0.5 text-xs text-muted truncate">
+                      {s.pathCount} paths · {timeAgo(s.createdAt)} · Top: {formatMoney(s.topSalary, currency)}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {s.pathTitles?.slice(0, 3).map((t) => (
@@ -116,24 +134,24 @@ export function DashboardPage() {
                       ))}
                     </div>
                   </div>
-                  <ArrowRight className="ml-4 h-5 w-5 shrink-0 text-muted transition-transform group-hover:translate-x-1 group-hover:text-accent" />
+                  <ArrowRight className="ml-3 sm:ml-4 h-5 w-5 shrink-0 text-muted transition-transform group-hover:translate-x-1 group-hover:text-accent" />
                 </Link>
               ))}
             </div>
           )}
         </div>
 
-        <div>
-          <h2 className="mb-4 font-display text-xl font-semibold text-foreground">Consistency</h2>
-          <div className="surface-card p-5">
+        <div className="min-w-0">
+          <h2 className="mb-3 sm:mb-4 font-display text-lg sm:text-xl font-semibold text-foreground">Consistency</h2>
+          <div className="surface-card p-4 sm:p-5">
             <div className="flex items-center gap-3">
-              <Flame className="h-8 w-8 text-accent" />
+              <Flame className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 text-accent" />
               <div>
-                <p className="stat-number">{stats?.streak || 0}</p>
+                <p className="stat-number text-2xl sm:text-3xl">{stats?.streak || 0}</p>
                 <p className="text-xs text-muted">day streak</p>
               </div>
             </div>
-            <div className="my-4 divider-fade" />
+            <div className="my-3 sm:my-4 divider-fade" />
             <div className="space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-muted">Sessions logged</span><span className="tabular text-foreground">{stats?.totalSessions || 0}</span></div>
               <div className="flex justify-between"><span className="text-muted">Active days (last 7)</span><span className="tabular text-foreground">{stats?.activeDaysLast7 || 0}</span></div>
@@ -142,16 +160,18 @@ export function DashboardPage() {
             <Link to="/milestones" className="btn-secondary mt-4 w-full">Log today's activity <ArrowRight className="h-4 w-4" /></Link>
           </div>
 
-          {user.role === 'admin' && (
-            <Link to="/admin" className="group surface-card mt-4 flex items-center gap-4 p-5 transition-all hover:border-accent/40">
-              <BarChart3 className="h-6 w-6 text-accent" />
-              <div className="flex-1">
-                <p className="font-display text-sm font-semibold text-foreground">Admin Analytics</p>
-                <p className="text-xs text-muted">Aggregate trends across all users</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted group-hover:translate-x-1 group-hover:text-accent" />
-            </Link>
-          )}
+          <Link to="/analytics" className="group surface-card mt-3 sm:mt-4 flex items-center gap-3.5 sm:gap-4 p-4 sm:p-5 transition-all hover:border-accent/40 min-w-0">
+            <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-accent shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-sm font-semibold text-foreground truncate">
+                {user.role === 'admin' ? 'Institutional Analytics' : 'Career & Market Trends'}
+              </p>
+              <p className="text-xs text-muted truncate">
+                {user.role === 'admin' ? 'Aggregate trends across all users' : 'In-demand skills, roles & salary data'}
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted group-hover:translate-x-1 group-hover:text-accent shrink-0" />
+          </Link>
         </div>
       </div>
     </div>
