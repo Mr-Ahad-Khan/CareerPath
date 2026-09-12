@@ -81,13 +81,17 @@ jobs:
             -PRELEASE_KEY_ALIAS=careerpath \
             -PRELEASE_KEY_PASSWORD="$KEY_PASSWORD"
 
-      - name: Verify APK signature
+      - name: Verify and name APK
         run: |
-          APK="careerpath-mobile/android/app/build/outputs/apk/release/app-release.apk"
+          cd careerpath-mobile/android/app/build/outputs/apk/release
+          if [ -f "app-release.apk" ]; then
+            mv app-release.apk CareerPath.apk
+          fi
+          APK=$(ls *.apk | head -n 1)
           $ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner verify --verbose "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: CareerPath-APK
+          name: CareerPath
           path: careerpath-mobile/android/app/build/outputs/apk/release/*.apk

@@ -48,7 +48,6 @@ export function Navbar() {
           ? 'border-border bg-background/85 backdrop-blur-xl'
           : 'border-transparent bg-background/40 backdrop-blur-sm'
       }`}
-      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link to={user ? '/dashboard' : '/'} className="transition-opacity hover:opacity-80">

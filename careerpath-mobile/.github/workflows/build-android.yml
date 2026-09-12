@@ -73,12 +73,14 @@ jobs:
       - name: Rename APK
         run: |
           cd careerpath-mobile/android/app/build/outputs/apk/release
-          mv app-release.apk CareerPath-${{ github.run_number }}.apk
+          if [ -f "app-release.apk" ]; then
+            mv app-release.apk CareerPath.apk
+          fi
 
       - name: Upload APK as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CareerPath-APK
+          name: CareerPath
           path: careerpath-mobile/android/app/build/outputs/apk/release/*.apk
           retention-days: 30
 
@@ -86,7 +88,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
         with:
-          files: android/app/build/outputs/apk/release/*.apk
+          files: careerpath-mobile/android/app/build/outputs/apk/release/*.apk
           tag_name: v1.0.${{ github.run_number }}
           name: Release v1.0.${{ github.run_number }}
           draft: false
