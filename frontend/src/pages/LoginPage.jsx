@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, Zap } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Zap, WifiOff } from 'lucide-react';
 import { useAuth } from '@/lib/auth.jsx';
 import { useToast } from '@/lib/toast.jsx';
 import { Logo } from '@/components/Logo.jsx';
@@ -19,7 +19,7 @@ const adminDemoAccount = {
 };
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, continueAsGuest } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,13 +47,19 @@ export function LoginPage() {
     setLoading(true);
     try {
       const user = await login(account.email, account.password);
-      toast.success(`${user.role[0].toUpperCase() + user.role.slice(1)} demo loaded. Take a look around.`);
+      toast.success(`${user.role[0].toUpperCase() + user.role.slice(1)} demo loaded.`);
       navigate('/dashboard');
     } catch (err) {
       toast.error(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGuestMode = () => {
+    continueAsGuest();
+    toast.info('Continuing in Offline / Guest mode. All features will save locally.');
+    navigate('/dashboard');
   };
 
   return (
@@ -103,21 +109,31 @@ export function LoginPage() {
 
         <div className="my-5 flex items-center gap-3">
           <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted">or</span>
+          <span className="text-xs text-muted">or explore offline</span>
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <button onClick={() => loginDemo(studentDemoAccount)} disabled={loading} className="btn-secondary w-full py-3">
-          <Zap className="h-4 w-4 text-accent" /> Open student demo
+        <button
+          type="button"
+          onClick={handleGuestMode}
+          className="btn-secondary w-full py-3 border-accent/40 bg-accent/5 hover:bg-accent/10 text-foreground font-medium"
+        >
+          <WifiOff className="h-4 w-4 text-accent" /> Continue in Offline Mode
         </button>
-        <button onClick={() => loginDemo(mentorDemoAccount)} disabled={loading} className="btn-secondary mt-3 w-full py-3">
-          <Zap className="h-4 w-4 text-accent" /> Open mentor demo
-        </button>
-        <button onClick={() => loginDemo(adminDemoAccount)} disabled={loading} className="btn-secondary mt-3 w-full py-3">
-          <Zap className="h-4 w-4 text-accent" /> Open admin demo
-        </button>
-        <p className="mt-5 text-center text-xs text-muted">
-          Jump straight into a pre-built simulation — no typing required.
+
+        <div className="mt-3 space-y-2">
+          <button onClick={() => loginDemo(studentDemoAccount)} disabled={loading} className="btn-secondary w-full py-2.5 text-xs">
+            <Zap className="h-3.5 w-3.5 text-accent" /> Open student demo
+          </button>
+          <button onClick={() => loginDemo(mentorDemoAccount)} disabled={loading} className="btn-secondary w-full py-2.5 text-xs">
+            <Zap className="h-3.5 w-3.5 text-accent" /> Open mentor demo
+          </button>
+          <button onClick={() => loginDemo(adminDemoAccount)} disabled={loading} className="btn-secondary w-full py-2.5 text-xs">
+            <Zap className="h-3.5 w-3.5 text-accent" /> Open admin demo
+          </button>
+        </div>
+        <p className="mt-4 text-center text-xs text-muted">
+          All demos and offline mode work with zero internet connection.
         </p>
       </div>
 

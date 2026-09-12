@@ -1,0 +1,23 @@
+{
+  "name": "CareerPath — The 5-Year Simulator",
+  "short_name": "CareerPath",
+  "description": "5-Year Career Trajectory Simulator, Skill Gap Analysis & Milestone Roadmap",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1014",
+  "theme_color": "#0e1014",
+  "icons": [
+    {
+      "src": "/careerpath-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

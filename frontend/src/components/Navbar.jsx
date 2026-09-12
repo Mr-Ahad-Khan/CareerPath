@@ -4,6 +4,7 @@ import { Menu, X, LogOut, LayoutDashboard, Compass, Users, Target, FileText, Bar
 import { Logo } from './Logo.jsx';
 import { ThemeToggle } from './ThemeToggle.jsx';
 import { Avatar } from './Avatar.jsx';
+import { OfflineBanner } from './OfflineBanner.jsx';
 import { useAuth } from '@/lib/auth.jsx';
 
 const navItems = [
@@ -49,6 +50,7 @@ export function Navbar() {
           : 'border-transparent bg-background/40 backdrop-blur-sm'
       }`}
     >
+      <OfflineBanner />
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link to={user ? '/dashboard' : '/'} className="transition-opacity hover:opacity-80">
           <Logo />
@@ -140,3 +142,5 @@ export function Navbar() {
     </header>
   );
 }
+
+export default Navbar;

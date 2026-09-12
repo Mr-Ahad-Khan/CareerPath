@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, ArrowRight, GraduationCap, Briefcase, Shield } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, GraduationCap, Briefcase, Shield, WifiOff } from 'lucide-react';
 import { useAuth } from '@/lib/auth.jsx';
 import { useToast } from '@/lib/toast.jsx';
 import { Logo } from '@/components/Logo.jsx';
@@ -12,7 +12,7 @@ const roles = [
 ];
 
 export function RegisterPage() {
-  const { signup } = useAuth();
+  const { signup, continueAsGuest } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'student' });
@@ -32,6 +32,12 @@ export function RegisterPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGuestMode = () => {
+    continueAsGuest();
+    toast.info('Continuing in Offline / Guest mode. All features will save locally.');
+    navigate('/dashboard');
   };
 
   return (
@@ -116,6 +122,20 @@ export function RegisterPage() {
             {loading ? 'Creating account...' : 'Create account'} <ArrowRight className="h-4 w-4" />
           </button>
         </form>
+
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted">or explore offline</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGuestMode}
+          className="btn-secondary w-full py-3 border-accent/40 bg-accent/5 hover:bg-accent/10 text-foreground font-medium"
+        >
+          <WifiOff className="h-4 w-4 text-accent" /> Continue in Offline Mode
+        </button>
       </div>
 
       <p className="mt-6 text-sm text-muted">
