@@ -7,7 +7,7 @@ on:
     paths:
       - "careerpath-ios/**"
       - "frontend/**"
-      - ".github/workflows/build-ipa.yml"
+      - ".github/workflows/ios-build.yml"
 
 jobs:
   build-ios:
@@ -151,6 +151,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-unsigned-ipa
-          path: $RUNNER_TEMP/CareerPath-unsigned.ipa
+          path: ${{ runner.temp }}/CareerPath-unsigned.ipa
           if-no-files-found: error
           retention-days: 30
