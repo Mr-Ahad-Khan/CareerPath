@@ -18,6 +18,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Select latest stable Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app
+          xcodebuild -version
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -26,7 +31,7 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: |
-          npm ci
+          npm install
           npm run build
 
       - name: Copy frontend dist into iOS project
@@ -36,7 +41,7 @@ jobs:
 
       - name: Install iOS project dependencies
         working-directory: careerpath-ios
-        run: npm ci
+        run: npm install
 
       - name: Add iOS platform (first run only)
         working-directory: careerpath-ios
@@ -49,11 +54,26 @@ jobs:
         working-directory: careerpath-ios
         run: npx cap sync ios
 
+      - name: Inspect iOS project layout
+        working-directory: careerpath-ios/ios/App
+        run: |
+          echo "=== Contents of ios/App ==="
+          ls -la
+          echo "=== Looking for project files ==="
+          find . -maxdepth 2 -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "Package.swift"
+
       - name: Build unsigned archive
         working-directory: careerpath-ios/ios/App
         run: |
+          # Capacitor 8 uses SPM — build the .xcodeproj, not .xcworkspace
+          if [ -d "App.xcworkspace" ]; then
+            PROJECT_FLAG="-workspace App.xcworkspace"
+          else
+            PROJECT_FLAG="-project App.xcodeproj"
+          fi
+
           xcodebuild clean archive \
-            -workspace App.xcworkspace \
+            $PROJECT_FLAG \
             -scheme App \
             -configuration Release \
             -archivePath $RUNNER_TEMP/App.xcarchive \
