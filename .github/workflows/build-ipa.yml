@@ -1,0 +1,77 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "careerpath-ios/**"
+      - "frontend/**"
+      - ".github/workflows/build-ipa.yml"
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Copy frontend dist into iOS project
+        run: |
+          mkdir -p careerpath-ios/dist
+          cp -R frontend/dist/. careerpath-ios/dist/
+
+      - name: Install iOS project dependencies
+        working-directory: careerpath-ios
+        run: npm ci
+
+      - name: Add iOS platform (first run only)
+        working-directory: careerpath-ios
+        run: |
+          if [ ! -d "ios" ]; then
+            npx cap add ios
+          fi
+
+      - name: Sync Capacitor
+        working-directory: careerpath-ios
+        run: npx cap sync ios
+
+      - name: Build unsigned archive
+        working-directory: careerpath-ios/ios/App
+        run: |
+          xcodebuild clean archive \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/App.xcarchive \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p $RUNNER_TEMP/Payload
+          cp -R $RUNNER_TEMP/App.xcarchive/Products/Applications/App.app $RUNNER_TEMP/Payload/
+          cd $RUNNER_TEMP
+          zip -r CareerPath-unsigned.ipa Payload
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-unsigned-ipa
+          path: $RUNNER_TEMP/CareerPath-unsigned.ipa
