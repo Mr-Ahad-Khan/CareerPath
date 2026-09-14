@@ -129,7 +129,10 @@ jobs:
       - name: Package unsigned IPA
         run: |
           set -e
-          mkdir -p $RUNNER_TEMP/Payload
+          IPA_PATH="$RUNNER_TEMP/CareerPath-unsigned.ipa"
+          rm -f "$IPA_PATH"
+          rm -rf "$RUNNER_TEMP/Payload"
+          mkdir -p "$RUNNER_TEMP/Payload"
 
           APP_PATH=$(find $RUNNER_TEMP/App.xcarchive/Products/Applications -maxdepth 1 -name "*.app" -print -quit 2>/dev/null || true)
 
@@ -140,12 +143,13 @@ jobs:
           fi
 
           echo "✅ Found app at: $APP_PATH"
-          cp -R "$APP_PATH" $RUNNER_TEMP/Payload/
-          cd $RUNNER_TEMP
-          zip -r CareerPath-unsigned.ipa Payload
+          cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -r "$IPA_PATH" Payload
           echo ""
           echo "=== IPA created ==="
-          ls -la CareerPath-unsigned.ipa
+          test -s "$IPA_PATH"
+          ls -la "$IPA_PATH"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
