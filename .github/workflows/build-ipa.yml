@@ -38,6 +38,8 @@ jobs:
         run: |
           mkdir -p careerpath-ios/dist
           cp -R frontend/dist/. careerpath-ios/dist/
+          echo "=== Files copied to careerpath-ios/dist ==="
+          ls -la careerpath-ios/dist
 
       - name: Install iOS project dependencies
         working-directory: careerpath-ios
@@ -59,17 +61,24 @@ jobs:
         run: |
           echo "=== Contents of ios/App ==="
           ls -la
+          echo ""
           echo "=== Looking for project files ==="
-          find . -maxdepth 2 -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "Package.swift"
+          find . -maxdepth 2 \( -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "Package.swift" \)
+          echo ""
+          echo "=== Xcode schemes available ==="
+          xcodebuild -list -project App.xcodeproj 2>&1 || xcodebuild -list -workspace App.xcworkspace 2>&1 || echo "Could not list schemes"
 
       - name: Build unsigned archive
         working-directory: careerpath-ios/ios/App
         run: |
-          # Capacitor 8 uses SPM — build the .xcodeproj, not .xcworkspace
+          set -e
+
           if [ -d "App.xcworkspace" ]; then
             PROJECT_FLAG="-workspace App.xcworkspace"
+            echo "Using workspace: App.xcworkspace"
           else
             PROJECT_FLAG="-project App.xcodeproj"
+            echo "Using project: App.xcodeproj"
           fi
 
           xcodebuild clean archive \
@@ -83,15 +92,41 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
 
+      - name: Inspect archive contents
+        run: |
+          echo "=== Archive root ==="
+          ls -la $RUNNER_TEMP/App.xcarchive/ || echo "❌ NO ARCHIVE AT ALL"
+          echo ""
+          echo "=== Products/Applications ==="
+          ls -la $RUNNER_TEMP/App.xcarchive/Products/Applications/ || echo "❌ NO PRODUCTS DIR"
+          echo ""
+          echo "=== Any .app anywhere in archive ==="
+          find $RUNNER_TEMP/App.xcarchive -name "*.app" -maxdepth 5 2>/dev/null || echo "❌ NO .app FOUND"
+
       - name: Package unsigned IPA
         run: |
+          set -e
           mkdir -p $RUNNER_TEMP/Payload
-          cp -R $RUNNER_TEMP/App.xcarchive/Products/Applications/App.app $RUNNER_TEMP/Payload/
+
+          APP_PATH=$(find $RUNNER_TEMP/App.xcarchive/Products/Applications -maxdepth 1 -name "*.app" -print -quit)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ No .app found in archive. Cannot package IPA."
+            exit 1
+          fi
+
+          echo "✅ Found app at: $APP_PATH"
+          cp -R "$APP_PATH" $RUNNER_TEMP/Payload/
           cd $RUNNER_TEMP
           zip -r CareerPath-unsigned.ipa Payload
+          echo ""
+          echo "=== IPA created ==="
+          ls -la CareerPath-unsigned.ipa
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-unsigned-ipa
           path: $RUNNER_TEMP/CareerPath-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
