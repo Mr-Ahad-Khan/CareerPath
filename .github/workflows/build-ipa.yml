@@ -49,7 +49,10 @@ jobs:
         working-directory: careerpath-ios
         run: |
           if [ ! -d "ios" ]; then
+            echo "ios/ folder not found — running npx cap add ios"
             npx cap add ios
+          else
+            echo "ios/ folder already exists — skipping add"
           fi
 
       - name: Sync Capacitor
@@ -59,14 +62,30 @@ jobs:
       - name: Inspect iOS project layout
         working-directory: careerpath-ios/ios/App
         run: |
+          echo "=========================================="
           echo "=== Contents of ios/App ==="
+          echo "=========================================="
           ls -la
           echo ""
-          echo "=== Looking for project files ==="
-          find . -maxdepth 2 \( -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "Package.swift" \)
+          echo "=========================================="
+          echo "=== Looking for project files (depth 3) ==="
+          echo "=========================================="
+          find . -maxdepth 3 \( -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "Package.swift" \) 2>/dev/null
           echo ""
-          echo "=== Xcode schemes available ==="
-          xcodebuild -list -project App.xcodeproj 2>&1 || xcodebuild -list -workspace App.xcworkspace 2>&1 || echo "Could not list schemes"
+          echo "=========================================="
+          echo "=== Xcode project info ==="
+          echo "=========================================="
+          if [ -d "App.xcodeproj" ]; then
+            echo "App.xcodeproj found. Listing schemes:"
+            xcodebuild -list -project App.xcodeproj 2>&1 | head -40
+          elif [ -d "App.xcworkspace" ]; then
+            echo "App.xcworkspace found. Listing schemes:"
+            xcodebuild -list -workspace App.xcworkspace 2>&1 | head -40
+          else
+            echo "❌ Neither App.xcodeproj nor App.xcworkspace exists here"
+            echo "Looking one level deeper..."
+            find . -maxdepth 3 -name "*.xcodeproj" -o -name "*.xcworkspace"
+          fi
 
       - name: Build unsigned archive
         working-directory: careerpath-ios/ios/App
@@ -76,11 +95,15 @@ jobs:
           if [ -d "App.xcworkspace" ]; then
             PROJECT_FLAG="-workspace App.xcworkspace"
             echo "Using workspace: App.xcworkspace"
-          else
+          elif [ -d "App.xcodeproj" ]; then
             PROJECT_FLAG="-project App.xcodeproj"
             echo "Using project: App.xcodeproj"
+          else
+            echo "❌ No Xcode project found!"
+            exit 1
           fi
 
+          echo "=== Running xcodebuild archive ==="
           xcodebuild clean archive \
             $PROJECT_FLAG \
             -scheme App \
@@ -90,28 +113,52 @@ jobs:
             -destination 'generic/platform=iOS' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee $RUNNER_TEMP/xcodebuild.log
+
+          echo ""
+          echo "=== Checking for ARCHIVE result ==="
+          if grep -q "ARCHIVE SUCCEEDED" $RUNNER_TEMP/xcodebuild.log; then
+            echo "✅ ARCHIVE SUCCEEDED"
+          else
+            echo "❌ ARCHIVE FAILED — dumping last 40 lines of log:"
+            tail -40 $RUNNER_TEMP/xcodebuild.log
+            exit 1
+          fi
 
       - name: Inspect archive contents
         run: |
+          echo "=========================================="
           echo "=== Archive root ==="
-          ls -la $RUNNER_TEMP/App.xcarchive/ || echo "❌ NO ARCHIVE AT ALL"
+          echo "=========================================="
+          ls -la $RUNNER_TEMP/App.xcarchive/ 2>&1 || echo "❌ NO ARCHIVE AT ALL"
           echo ""
+          echo "=========================================="
           echo "=== Products/Applications ==="
-          ls -la $RUNNER_TEMP/App.xcarchive/Products/Applications/ || echo "❌ NO PRODUCTS DIR"
+          echo "=========================================="
+          ls -la $RUNNER_TEMP/App.xcarchive/Products/Applications/ 2>&1 || echo "❌ NO PRODUCTS DIR"
           echo ""
+          echo "=========================================="
           echo "=== Any .app anywhere in archive ==="
-          find $RUNNER_TEMP/App.xcarchive -name "*.app" -maxdepth 5 2>/dev/null || echo "❌ NO .app FOUND"
+          echo "=========================================="
+          find $RUNNER_TEMP/App.xcarchive -name "*.app" 2>/dev/null || echo "❌ NO .app FOUND"
+          echo ""
+          echo "=========================================="
+          echo "=== Info.plist at archive root ==="
+          echo "=========================================="
+          cat $RUNNER_TEMP/App.xcarchive/Info.plist 2>&1 | head -30 || echo "❌ NO INFO.PLIST"
 
       - name: Package unsigned IPA
         run: |
           set -e
           mkdir -p $RUNNER_TEMP/Payload
 
-          APP_PATH=$(find $RUNNER_TEMP/App.xcarchive/Products/Applications -maxdepth 1 -name "*.app" -print -quit)
+          APP_PATH=$(find $RUNNER_TEMP/App.xcarchive/Products/Applications -maxdepth 1 -name "*.app" -print -quit 2>/dev/null || true)
 
           if [ -z "$APP_PATH" ]; then
             echo "❌ No .app found in archive. Cannot package IPA."
+            echo "Archive contents:"
+            find $RUNNER_TEMP/App.xcarchive -maxdepth 3 2>/dev/null || echo "Archive itself missing"
             exit 1
           fi
 
