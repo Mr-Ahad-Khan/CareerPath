@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Build frontend
         working-directory: frontend
@@ -70,8 +70,7 @@ jobs:
             archive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_IDENTITY="" \
-            | xcpretty || true
+            CODE_SIGNING_IDENTITY=""
 
       - name: Verify archive exists
         run: |
