@@ -11,12 +11,26 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 90
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: List available Xcode versions
+        run: ls /Applications/ | grep -i xcode || echo "no Xcode found"
+
+      - name: Select latest stable Xcode
+        run: |
+          if [ -d "/Applications/Xcode.app" ]; then
+            sudo xcode-select -s /Applications/Xcode.app
+          else
+            LATEST_XCODE=$(ls -d /Applications/Xcode*.app | sort -V | tail -n 1)
+            echo "Using $LATEST_XCODE"
+            sudo xcode-select -s "$LATEST_XCODE/Contents/Developer"
+          fi
+          xcodebuild -version
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -33,77 +47,110 @@ jobs:
         run: |
           mkdir -p careerpath-ios/dist
           cp -R frontend/dist/. careerpath-ios/dist/
+          echo "=== Files copied to careerpath-ios/dist ==="
           ls -la careerpath-ios/dist
 
-      - name: Install iOS project deps
+      - name: Install iOS project dependencies
         working-directory: careerpath-ios
         run: npm install
 
-      - name: Add iOS platform
+      - name: Add iOS platform (always regenerate fresh)
         working-directory: careerpath-ios
         run: |
-          if [ ! -d "ios" ]; then
-            npx cap add ios
-          fi
+          echo "Removing any existing ios/ folder to force fresh generation"
+          rm -rf ios
+          npx cap add ios
 
       - name: Sync Capacitor
         working-directory: careerpath-ios
         run: npx cap sync ios
 
-      - name: List iOS project
+      - name: Inspect iOS project layout
         working-directory: careerpath-ios/ios/App
         run: |
-          echo "== ios/App =="
+          echo "=== ios/App contents ==="
           ls -la
-          echo "== xcodeproj =="
-          ls -d *.xcodeproj 2>/dev/null || echo "no xcodeproj here"
+          echo ""
+          echo "=== Project files ==="
+          find . -maxdepth 3 \( -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "Package.swift" \) 2>/dev/null
+          echo ""
+          echo "=== AppDelegate.swift (first 60 lines) ==="
+          head -60 App/AppDelegate.swift || echo "AppDelegate not found at App/AppDelegate.swift"
 
-      - name: Build iOS archive
+      - name: Build unsigned archive
         working-directory: careerpath-ios/ios/App
         run: |
-          xcodebuild -project App.xcodeproj \
+          set -o pipefail
+
+          if [ -d "App.xcworkspace" ]; then
+            PROJECT_FLAG="-workspace App.xcworkspace"
+            echo "Using workspace: App.xcworkspace"
+          elif [ -d "App.xcodeproj" ]; then
+            PROJECT_FLAG="-project App.xcodeproj"
+            echo "Using project: App.xcodeproj"
+          else
+            echo "❌ No Xcode project found!"
+            exit 1
+          fi
+
+          xcodebuild clean archive \
+            $PROJECT_FLAG \
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -archivePath $RUNNER_TEMP/App.xcarchive \
-            archive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_IDENTITY=""
+            CODE_SIGNING_IDENTITY="" \
+            2>&1 | tee $RUNNER_TEMP/xcodebuild.log
 
-      - name: Verify archive exists
-        run: |
-          echo "== Checking archive =="
-          ls -la $RUNNER_TEMP/ || true
-          find $RUNNER_TEMP -name "*.xcarchive" -maxdepth 2 || true
-          find $RUNNER_TEMP -name "*.app" -maxdepth 5 || true
-
-      - name: Create IPA
-        run: |
-          ARCHIVE_PATH="$RUNNER_TEMP/App.xcarchive"
-          if [ ! -d "$ARCHIVE_PATH" ]; then
-            echo "❌ Archive not found at $ARCHIVE_PATH"
+          echo ""
+          echo "=== Checking archive result ==="
+          if grep -q "ARCHIVE SUCCEEDED" $RUNNER_TEMP/xcodebuild.log; then
+            echo "✅ ARCHIVE SUCCEEDED"
+          else
+            echo "❌ ARCHIVE FAILED — last 60 lines:"
+            tail -60 $RUNNER_TEMP/xcodebuild.log
             exit 1
           fi
 
-          APP_PATH=$(find "$ARCHIVE_PATH/Products/Applications" -maxdepth 1 -name "*.app" | head -n 1)
+      - name: Inspect archive contents
+        run: |
+          echo "=== Archive root ==="
+          ls -la $RUNNER_TEMP/App.xcarchive/ 2>&1 || echo "❌ NO ARCHIVE"
+          echo ""
+          echo "=== Products/Applications ==="
+          ls -la $RUNNER_TEMP/App.xcarchive/Products/Applications/ 2>&1 || echo "❌ NO PRODUCTS DIR"
+          echo ""
+          echo "=== Any .app in archive ==="
+          find $RUNNER_TEMP/App.xcarchive -name "*.app" 2>/dev/null || echo "❌ NO .app FOUND"
+
+      - name: Package unsigned IPA
+        run: |
+          set -e
+          mkdir -p $RUNNER_TEMP/Payload
+
+          APP_PATH=$(find $RUNNER_TEMP/App.xcarchive/Products/Applications -maxdepth 1 -name "*.app" -print -quit 2>/dev/null || true)
+
           if [ -z "$APP_PATH" ]; then
-            echo "❌ No .app inside archive"
-            ls -la "$ARCHIVE_PATH/Products/" || true
+            echo "❌ No .app found in archive"
+            find $RUNNER_TEMP/App.xcarchive -maxdepth 3 2>/dev/null
             exit 1
           fi
 
-          echo "✅ App found: $APP_PATH"
-          mkdir -p "$RUNNER_TEMP/Payload"
-          cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
-          cd "$RUNNER_TEMP"
-          zip -r CareerPath.ipa Payload
-          ls -la CareerPath.ipa
+          echo "✅ Found app at: $APP_PATH"
+          cp -R "$APP_PATH" $RUNNER_TEMP/Payload/
+          cd $RUNNER_TEMP
+          zip -r CareerPath-unsigned.ipa Payload
+          echo ""
+          echo "=== IPA created ==="
+          ls -la CareerPath-unsigned.ipa
 
-      - name: Upload IPA
+      - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CareerPath-ipa
-          path: $RUNNER_TEMP/CareerPath.ipa
+          name: ios-unsigned-ipa
+          path: $RUNNER_TEMP/CareerPath-unsigned.ipa
           if-no-files-found: error
+          retention-days: 30
