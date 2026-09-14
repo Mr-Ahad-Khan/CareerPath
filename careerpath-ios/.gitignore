@@ -1,0 +1,7 @@
+node_modules/
+dist/
+ios/App/App/public/
+ios/App/Pods/
+ios/App/App.xcworkspace/xcuserdata/
+.DS_Store
+*.log

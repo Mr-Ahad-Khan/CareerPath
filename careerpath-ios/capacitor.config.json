@@ -1,0 +1,23 @@
+{
+  "appId": "com.careerpath.app",
+  "appName": "CareerPath",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https",
+    "allowNavigation": ["*"]
+  },
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DARK",
+      "backgroundColor": "#0e1014"
+    }
+  },
+  "ios": {
+    "contentInset": "always",
+    "preferredContentMode": "mobile",
+    "scrollEnabled": true,
+    "scheme": "CareerPath"
+  }
+}
