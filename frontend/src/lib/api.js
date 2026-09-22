@@ -92,9 +92,14 @@ function handleOfflineRequest(method, path, data = {}) {
   }
 
   // 2. Profiles
-  if (cleanPath === '/profiles' && method === 'POST') {
-    const profile = offlineStore.createProfile(data);
-    return { profile };
+  if (cleanPath === '/profiles') {
+    if (method === 'GET') {
+      return { profiles: offlineStore.getProfiles() };
+    }
+    if (method === 'POST') {
+      const profile = offlineStore.createProfile(data);
+      return { profile };
+    }
   }
 
   const profileMatch = cleanPath.match(/^\/profiles\/([a-zA-Z0-9_-]+)$/);
@@ -277,6 +282,17 @@ function handleOfflineRequest(method, path, data = {}) {
   return { ok: true };
 }
 
+function shouldUseOfflineFallback(path, method, status) {
+  const cleanPath = path.split('?')[0];
+
+  if (status >= 500) return true;
+  if (status === 401 || status === 403) {
+    return !cleanPath.startsWith('/auth/');
+  }
+
+  return false;
+}
+
 async function request(path, options = {}) {
   const method = options.method || 'GET';
   const data = options.body ? JSON.parse(options.body) : {};
@@ -326,11 +342,13 @@ async function request(path, options = {}) {
   const body = await res.json().catch(() => null);
 
   if (!res.ok) {
-    // If server responded with 500-504 (server down, gateway error, DB failure), fall back to offline
-    if (res.status >= 500) {
-      console.warn(`[API] Server error (${res.status}) for ${method} ${path}. Serving offline fallback.`);
+    // If the backend is unavailable or rejects protected resources while the app is
+    // running in an offline-capable mode, treat it as a graceful local fallback.
+    if (shouldUseOfflineFallback(path, method, res.status)) {
+      console.warn(`[API] Server rejected ${method} ${path} with ${res.status}. Serving offline fallback.`);
       return handleOfflineRequest(method, path, data);
     }
+
     const message =
       body?.error || body?.message || `Request failed (${res.status})`;
     throw new ApiError(message, res.status, body);

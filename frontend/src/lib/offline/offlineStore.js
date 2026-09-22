@@ -142,6 +142,11 @@ export function initOfflineStore() {
 
 export const offlineStore = {
   // Profiles
+  getProfiles() {
+    initOfflineStore();
+    return read(STORAGE_KEYS.PROFILES, []);
+  },
+
   getProfile(profileId) {
     initOfflineStore();
     const profiles = read(STORAGE_KEYS.PROFILES, []);
