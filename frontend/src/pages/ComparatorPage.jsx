@@ -71,8 +71,8 @@ export function ComparatorPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div className="mb-8">
+    <div className="w-full px-0 py-4 sm:px-4 sm:py-8 md:mx-auto md:max-w-7xl md:px-6">
+      <div className="mb-8 px-4 sm:px-0">
         <span className="section-eyebrow">Fork the Path</span>
         <h1 className="mt-2 font-display text-3xl font-semibold text-foreground">Side-by-side comparison</h1>
         <p className="mt-1 text-muted">Pick two simulations and compare them like two products.</p>

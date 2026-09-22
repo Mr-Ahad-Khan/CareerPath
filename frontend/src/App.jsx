@@ -26,7 +26,7 @@ function Layout({ children }) {
   const { user } = useAuth();
   return (
     <div
-      className={`flex min-h-screen min-h-[100dvh] flex-col w-full ${user ? "pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0" : ""}`}
+      className={`flex min-h-screen min-h-[100dvh] w-full flex-col overflow-x-hidden ${user ? "pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0" : ""}`}
     >
       <Navbar />
       <main className="flex-1 w-full">{children}</main>

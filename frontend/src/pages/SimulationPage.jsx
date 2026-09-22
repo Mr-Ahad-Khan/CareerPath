@@ -176,8 +176,8 @@ export function SimulationPage() {
   const path = currentPaths[selectedPath];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <div className="w-full px-0 py-4 sm:px-4 sm:py-8 md:mx-auto md:max-w-7xl md:px-6">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4 px-4 sm:px-0">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-display text-3xl font-semibold text-foreground">
