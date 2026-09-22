@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, LayoutDashboard, Compass, Users, Target, FileText, BarChart3, BookOpen } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard, Compass, Users, Target, FileText, BarChart3, BookOpen, MessageSquare, Terminal } from 'lucide-react';
 import { Logo } from './Logo.jsx';
 import { ThemeToggle } from './ThemeToggle.jsx';
 import { Avatar } from './Avatar.jsx';
@@ -10,7 +10,7 @@ import { useAuth } from '@/lib/auth.jsx';
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/simulate', label: 'Simulate', icon: Compass },
-  { to: '/mentors', label: 'Mentors', icon: Users },
+  { to: '/mentors', label: 'Mentors & Chat', icon: MessageSquare, hasBadge: true },
   { to: '/milestones', label: 'Milestones', icon: Target },
   { to: '/resume-check', label: 'Resume Check', icon: FileText },
   { to: '/how-it-works', label: 'How it works', icon: BookOpen },
@@ -56,9 +56,14 @@ export function Navbar() {
     >
       <OfflineBanner />
       <nav className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link to={user ? '/dashboard' : '/'} className="transition-opacity hover:opacity-80">
-          <Logo />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to={user ? '/dashboard' : '/'} className="transition-opacity hover:opacity-80">
+            <Logo />
+          </Link>
+          <span className="hidden md:inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent/5 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase text-accent">
+            <Terminal className="h-3 w-3" /> Software Tech
+          </span>
+        </div>
 
         {user && (
           <div className="hidden items-center gap-1 lg:flex">
@@ -67,7 +72,7 @@ export function Navbar() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 ${
+                  `relative flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 ${
                     isActive
                       ? 'bg-accent/10 text-accent'
                       : 'text-muted hover:bg-surface-2 hover:text-foreground'
@@ -75,7 +80,13 @@ export function Navbar() {
                 }
               >
                 <item.icon className="h-4 w-4" />
-                {item.label}
+                <span>{item.label}</span>
+                {item.hasBadge && (
+                  <span className="relative flex h-2 w-2 ml-0.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+                  </span>
+                )}
               </NavLink>
             ))}
           </div>

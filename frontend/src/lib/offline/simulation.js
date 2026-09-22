@@ -46,16 +46,34 @@ function buildTrajectory(branch, ctx, whatIf) {
   const multiplier = ctx.locationMultiplier || 1;
   const industryMult = INDUSTRY_MULTIPLIERS[ctx.industry] || 1;
   const experienceYears = Math.max(0, ctx.experienceYears || 0);
-  const experiencePremium = 1 + Math.min(experienceYears, 10) * 0.04;
+
+  // Realistic experienced compensation calculation
+  const baselineFromTier = SALARY_BASELINES[ctx.entryPoint] || 2400000;
+  const baselineSalary = ctx.currentSalary && ctx.currentSalary > baselineFromTier * 0.6
+    ? Math.max(ctx.currentSalary, baselineFromTier * 0.9)
+    : baselineFromTier;
+
+  const experiencePremium = 1 + Math.min(experienceYears, 18) * 0.05;
+  const marketTierMultiplier = ctx.marketTier === 'tier1-faang' ? 1.4 :
+    ctx.marketTier === 'growth-product' ? 1.18 : 1.0;
+
   const startSalary = round(
-    SALARY_BASELINES[ctx.entryPoint] * multiplier * industryMult *
-      experiencePremium
+    baselineSalary * multiplier * industryMult * (ctx.currentSalary ? 1.08 : experiencePremium * marketTierMultiplier)
   );
 
   const roleChain = base.roles;
   let salary = startSalary;
-  let level = ctx.entryPoint === 'senior' ? roleChain.length - 1 :
-    ctx.entryPoint === 'mid' ? Math.min(1, roleChain.length - 1) : 0;
+
+  // Intelligent starting level based on experience
+  let level = 0;
+  if (ctx.entryPoint === 'principal' || ctx.entryPoint === 'staff') {
+    level = Math.max(0, roleChain.length - 1);
+  } else if (ctx.entryPoint === 'lead' || ctx.entryPoint === 'senior') {
+    level = Math.min(Math.max(1, roleChain.length - 2), roleChain.length - 1);
+  } else if (ctx.entryPoint === 'mid') {
+    level = Math.min(1, roleChain.length - 1);
+  }
+
   let skillsAcquired = [...ctx.coreSkills.map((s) => s.name.toLowerCase())];
 
   for (let y = 0; y <= years; y++) {
@@ -84,9 +102,18 @@ function buildTrajectory(branch, ctx, whatIf) {
       targetSkills
     );
 
+    // Intelligent role naming for high experience in later years
+    let roleTitle = role.title;
+    if (experienceYears >= 7 && roleIdx === roleChain.length - 1 && y >= 3) {
+      if (branch === 'deep-specialist') roleTitle = y >= 4 ? 'Principal Software Architect' : 'Staff Systems Engineer';
+      else if (branch === 'management-track') roleTitle = y >= 4 ? 'VP of Engineering' : 'Senior Director of Engineering';
+      else if (branch === 'data-scientist') roleTitle = y >= 4 ? 'Distinguished AI Architect' : 'Staff Machine Learning Engineer';
+      else if (branch === 'founder-path') roleTitle = 'Technical Co-Founder & CTO';
+    }
+
     trajectory.push({
       year: y,
-      role: role.title,
+      role: roleTitle,
       companyArchetype: role.companyArchetype,
       salary,
       salaryLow: round(salary * 0.85),
@@ -142,6 +169,19 @@ function buildTrajectory(branch, ctx, whatIf) {
     0.98
   );
 
+  // AI & Career Intelligence Metrics
+  const techGaps = totalGaps.filter((g) => g.category === 'Technical' || g.category === 'Architecture').length;
+  const aiReadinessIndex = round(
+    clamp(0.68 + (ctx.coreSkills.some((s) => (s.name || '').toLowerCase().includes('design') || (s.name || '').toLowerCase().includes('lead')) ? 0.2 : 0.05) - (techGaps > 3 ? 0.08 : 0), 0.5, 0.98),
+    2
+  );
+  const criticalSkillBottleneck = totalGaps[0]?.skill || 'Distributed System Design';
+  const primaryGrowthVector = branch === 'management-track' ? 'Engineering Scale & Executive Leadership' :
+    branch === 'data-scientist' ? 'Applied Intelligence & Neural Modeling' :
+    branch === 'founder-path' ? '0-to-1 Product & Equity Velocity' :
+    branch === 'pivot-adjacent' ? 'Cloud Infrastructure Resilience' :
+    'Deep Technical Systems Architecture';
+
   return {
     code: branch,
     title: base.title,
@@ -153,6 +193,9 @@ function buildTrajectory(branch, ctx, whatIf) {
     finalSalary: finalRole.salary,
     trajectory,
     skillGaps: totalGaps,
+    aiReadinessIndex,
+    criticalSkillBottleneck,
+    primaryGrowthVector,
   };
 }
 
@@ -169,7 +212,9 @@ export function generateSimulation(profileInput, whatIf) {
     {
       coreSkills: profileInput.skills || [],
       interests: profileInput.interests || [],
-      experienceYears: profileInput.experienceYears || 0,
+      experienceYears: Number(profileInput.experienceYears) || 0,
+      currentSalary: Number(profileInput.currentSalary) || null,
+      marketTier: profileInput.marketTier || 'growth-product',
       entryPoint: deriveEntryPoint(profileInput),
       industry: deriveIndustry(profileInput),
       locationMultiplier: 1,
@@ -197,12 +242,15 @@ export function generateSimulation(profileInput, whatIf) {
 }
 
 function deriveEntryPoint(profile) {
-  const yrs = profile.experienceYears || 0;
+  const yrs = Number(profile.experienceYears) || 0;
   if (profile.educationLevel === 'Postgraduate' && yrs < 1) return 'pg-fresh';
   if (yrs < 1) return 'fresher';
   if (yrs < 3) return 'junior';
   if (yrs < 6) return 'mid';
-  return 'senior';
+  if (yrs < 9) return 'senior';
+  if (yrs < 12) return 'lead';
+  if (yrs < 15) return 'staff';
+  return 'principal';
 }
 
 function deriveIndustry(profile) {

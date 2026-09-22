@@ -249,9 +249,21 @@ export function SimulationPage() {
             <p className="mt-2 line-clamp-2 text-sm text-muted text-pretty">
               {p.description}
             </p>
+            {p.primaryGrowthVector && (
+              <div className="mt-2.5 flex flex-wrap gap-1">
+                <span className="chip border-accent/30 bg-accent/5 text-accent text-[10px] py-0 px-2 font-medium">
+                  {p.primaryGrowthVector}
+                </span>
+                {p.aiReadinessIndex && (
+                  <span className="chip border-success/30 bg-success/5 text-success text-[10px] py-0 px-2 font-medium">
+                    {Math.round(p.aiReadinessIndex * 100)}% AI-Resilient
+                  </span>
+                )}
+              </div>
+            )}
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-xs text-muted">Year 5 salary</p>
+                <p className="text-xs text-muted">Year 5 projection</p>
                 <p className="font-display text-lg font-semibold text-accent tabular">
                   {formatMoney(p.finalSalary, currency)}
                 </p>
@@ -273,9 +285,25 @@ export function SimulationPage() {
             <h2 className="mb-1 font-display text-xl font-semibold text-foreground">
               {path.title}
             </h2>
-            <p className="mb-5 text-sm text-muted text-pretty">
+            <p className="mb-4 text-sm text-muted text-pretty">
               {path.description}
             </p>
+
+            {/* Career Intelligence & AI Resilience Panel */}
+            <div className="mb-5 grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-xl border border-border bg-surface-2/60 p-3.5 text-xs">
+              <div>
+                <span className="text-muted block text-[10px] uppercase font-semibold tracking-wider">Growth Vector</span>
+                <span className="text-foreground font-medium mt-0.5 block">{path.primaryGrowthVector || 'Technical Systems Depth'}</span>
+              </div>
+              <div>
+                <span className="text-muted block text-[10px] uppercase font-semibold tracking-wider">AI Resilience Index</span>
+                <span className="text-success font-semibold mt-0.5 block">{Math.round((path.aiReadinessIndex || 0.85) * 100)}% Protected</span>
+              </div>
+              <div>
+                <span className="text-muted block text-[10px] uppercase font-semibold tracking-wider">Key Promotion Bottleneck</span>
+                <span className="text-accent font-medium mt-0.5 block">{path.criticalSkillBottleneck || 'Distributed Systems Architecture'}</span>
+              </div>
+            </div>
 
             <div className="space-y-3">
               {(path.trajectory || []).map((node, i) => (

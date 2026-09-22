@@ -13,6 +13,7 @@ import {
   X,
   Coins,
   Shield,
+  MessageSquare,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth.jsx';
 import { useCurrency } from '@/lib/currency.jsx';
@@ -38,7 +39,7 @@ export function MobileBottomNav() {
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/simulate', label: 'Simulate', icon: Compass },
     { to: '/milestones', label: 'Milestones', icon: Target },
-    { to: '/mentors', label: 'Mentors', icon: Users },
+    { to: '/mentors', label: 'Mentors & Chat', icon: MessageSquare, hasBadge: true },
   ];
 
   const secondaryItems = [
@@ -75,11 +76,17 @@ export function MobileBottomNav() {
                 {({ isActive }) => (
                   <>
                     <div
-                      className={`flex h-8 w-12 items-center justify-center rounded-xl transition-all duration-200 ${
+                      className={`relative flex h-8 w-12 items-center justify-center rounded-xl transition-all duration-200 ${
                         isActive ? 'bg-accent/15 scale-105' : 'group-active:scale-95'
                       }`}
                     >
                       <Icon className="h-5 w-5" />
+                      {item.hasBadge && (
+                        <span className="absolute top-1 right-2 flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+                        </span>
+                      )}
                     </div>
                     <span
                       className={`mt-0.5 text-[10px] font-medium tracking-tight ${

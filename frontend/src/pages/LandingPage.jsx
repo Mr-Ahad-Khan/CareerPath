@@ -2,14 +2,14 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, TrendingUp, GitBranch, Radar, Sliders, Target, Users, FileCheck, Download } from 'lucide-react';
 
 const features = [
-  { icon: GitBranch, title: 'Divergent path branches', text: 'Get three plausible five-year tracks — specialist, management, or a pivot — each with its own tradeoffs.' },
-  { icon: TrendingUp, title: 'Salary trajectory', text: 'See year-by-year salary bands plotted against seniority, with honest confidence scores per path.' },
-  { icon: Radar, title: 'Skill gap radar', text: 'A spider chart pinpoints exactly which skills separate you from your target role today.' },
-  { icon: Sliders, title: 'What-if sliders', text: 'Drag a slider to add six months of learning or switch cities and watch the projection re-render instantly.' },
-  { icon: Target, title: 'Milestone roadmap', text: 'Every path unfolds into quarterly milestones you can mark as in-progress or done.' },
-  { icon: Users, title: 'Mentor matching', text: 'A directory of industry mentors filtered by specialty and experience, with a one-tap connection request.' },
-  { icon: FileCheck, title: 'Resume reality-check', text: 'Paste your resume and see which skills you claim versus which ones your target path actually needs.' },
-  { icon: Download, title: 'Export and share', text: 'Generate a clean summary card of any path — useful for a viva, a mentor call, or your own wall.' },
+  { icon: GitBranch, title: 'Multi-path branch engine', text: 'Simulate up to 5 concurrent engineering tracks — IC specialist, cloud architect, AI lead, founder, or engineering manager.' },
+  { icon: TrendingUp, title: 'Realistic tech salary bands', text: 'Market-anchored compensation bands for junior, senior, staff, and principal engineers with realistic tech tier multipliers.' },
+  { icon: Radar, title: 'Skill gap radar', text: 'A spider chart pinpoints exactly which technologies and system design concepts separate you from your target role.' },
+  { icon: Sliders, title: 'What-if intelligence', text: 'Model the impact of AI adoption, upskilling hours, or remote vs top-tier tech hubs with immediate trajectory re-renders.' },
+  { icon: Target, title: 'Milestone roadmap', text: 'Every path unfolds into quarterly technical milestones you can mark as in-progress or completed.' },
+  { icon: Users, title: 'Mentor chat & matching', text: 'Direct 1-on-1 messaging with verified tech leads, staff engineers, and engineering managers.' },
+  { icon: FileCheck, title: 'Resume reality-check', text: 'Audit your tech stack and experience against industry expectations for your target senior role.' },
+  { icon: Download, title: 'Export and share', text: 'Generate a clean summary card of any path — useful for promotion discussions, 1-on-1s, or mentor reviews.' },
 ];
 
 export function LandingPage() {
@@ -21,15 +21,17 @@ export function LandingPage() {
 
         <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-24 sm:px-6 sm:pt-28 lg:pt-36">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="section-eyebrow">The 5-Year Simulator</span>
-            <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl text-balance">
-              See your career
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-4">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Specialized for Software Engineers & Tech Professionals
+            </div>
+            <h1 className="mt-2 font-display text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl text-balance">
+              See your tech career
               <span className="text-accent"> before you live it.</span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-muted text-pretty">
-              Tell CareerPath where you stand today. It simulates your next five years
-              across multiple paths — role progression, salary, skill gaps, and milestones —
-              then lets you replay the what-ifs.
+              Whether you are an aspiring developer or an experienced staff engineer, simulate your next five years
+              across IC, Cloud Architecture, AI Leadership, and Tech Management with realistic salary models and live mentor chat.
             </p>
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link to="/register" className="btn-primary px-6 py-3 text-base">
@@ -40,15 +42,15 @@ export function LandingPage() {
               </Link>
             </div>
             <p className="mt-5 text-xs text-muted">
-              No credit card. No email confirmation. Demo profile ready in one click.
+              Built for developers • Modern salary baselines up to ₹1.1Cr+ • Free & instant
             </p>
           </div>
 
           <div className="mt-16 grid gap-4 sm:grid-cols-3">
             {[
-              { stat: '3', label: 'divergent career branches per simulation' },
-              { stat: '5 yrs', label: 'year-by-year role and salary projection' },
-              { stat: '20+', label: 'milestone templates across roles and industries' },
+              { stat: 'Up to 5', label: 'concurrent software career branches' },
+              { stat: '5 yrs', label: 'realistic seniority & compensation progression' },
+              { stat: '100% Tech', label: 'tailored for software, cloud, data & engineering management' },
             ].map((s) => (
               <div key={s.label} className="surface-card p-6 text-center">
                 <div className="stat-number text-accent">{s.stat}</div>

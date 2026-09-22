@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, Zap, Plus, X, GraduationCap, Code2, Heart, Settings2, Check } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Zap, Plus, X, GraduationCap, Code2, Heart, Settings2, Check, Terminal, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api.js';
 import { useToast } from '@/lib/toast.jsx';
 import { useCurrency } from '@/lib/currency.jsx';
 import { LoadingOverlay } from '@/components/Spinner.jsx';
 
 const SKILL_SUGGESTIONS = [
-  'JavaScript', 'Python', 'React', 'Node.js', 'SQL', 'Java', 'TypeScript',
-  'AWS', 'Docker', 'Machine Learning', 'Communication', 'Leadership',
-  'Project Management', 'System Design', 'Data Analysis', 'Figma',
+  'TypeScript', 'Python', 'Go', 'React', 'Node.js', 'System Design',
+  'AWS', 'Kubernetes', 'Docker', 'SQL', 'Machine Learning', 'GraphQL',
+  'Microservices', 'Engineering Leadership', 'Security', 'CI/CD',
 ];
 
 const INTEREST_OPTIONS = [
-  'coding', 'data', 'problem solving', 'systems', 'design', 'product',
-  'leadership', 'people', 'strategy', 'research', 'learning', 'variety',
-  'finance', 'health', 'ai', 'creativity',
+  'backend architecture', 'distributed systems', 'full-stack engineering',
+  'ai & ml modeling', 'cloud & platform sre', 'engineering management',
+  'product development', 'developer tools', 'system security', 'high-scale data',
 ];
 
 const steps = [
-  { id: 0, label: 'Education', icon: GraduationCap },
+  { id: 0, label: 'Profile & CTC', icon: GraduationCap },
   { id: 1, label: 'Skills', icon: Code2 },
   { id: 2, label: 'Interests', icon: Heart },
   { id: 3, label: 'Constraints', icon: Settings2 },
@@ -27,21 +27,23 @@ const steps = [
 
 const DEMO = {
   educationLevel: 'Postgraduate',
-  educationField: 'Computer Applications',
+  educationField: 'Computer Applications & Software Systems',
   graduationYear: 2026,
-  currentRole: 'Intern — Backend Developer',
-  experienceYears: 0.5,
-  location: 'Pune',
-  targetRole: 'Senior Engineer or Data Scientist',
+  currentRole: 'Backend Developer',
+  experienceYears: 3,
+  currentSalary: 1800000,
+  marketTier: 'growth-product',
+  location: 'Bengaluru',
+  targetRole: 'Staff Software Architect or Engineering Lead',
   skills: [
-    { name: 'JavaScript', proficiency: 3 },
-    { name: 'React', proficiency: 2 },
-    { name: 'Node.js', proficiency: 3 },
+    { name: 'JavaScript', proficiency: 4 },
+    { name: 'TypeScript', proficiency: 3 },
+    { name: 'Node.js', proficiency: 4 },
     { name: 'Python', proficiency: 3 },
     { name: 'SQL', proficiency: 4 },
-    { name: 'Communication', proficiency: 3 },
+    { name: 'System Design', proficiency: 3 },
   ],
-  interests: ['coding', 'data', 'problem solving', 'systems'],
+  interests: ['backend architecture', 'distributed systems', 'cloud & platform sre'],
   constraints: {
     upskillingBudget: 15000,
     timeAvailability: '15 hours/week',
@@ -61,6 +63,8 @@ export function WizardPage() {
     graduationYear: '',
     currentRole: '',
     experienceYears: 0,
+    currentSalary: '',
+    marketTier: 'growth-product',
     location: '',
     targetRole: '',
     skills: [],
@@ -182,6 +186,13 @@ export function WizardPage() {
       <div className="surface-card p-6 sm:p-8 animate-fade-in" key={step}>
         {step === 0 && (
           <div className="space-y-4">
+            <div className="rounded-xl border border-accent/25 bg-accent/5 p-3.5 flex items-center gap-2.5 text-xs text-accent">
+              <Terminal className="h-4 w-4 shrink-0 text-accent" />
+              <span>
+                <strong>Software & Tech Specialized:</strong> Benchmarks and career ladders are calibrated for Software Engineering, Architecture, AI, and Product roles.
+              </span>
+            </div>
+
             <div>
               <label className="field-label">Education level</label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -201,33 +212,73 @@ export function WizardPage() {
                 ))}
               </div>
             </div>
+
             <div>
-              <label className="field-label">Field of study</label>
-              <input className="field-input" value={form.educationField} onChange={set('educationField')} placeholder="e.g. Computer Applications, Electronics" />
+              <label className="field-label">Field of study / Degree</label>
+              <input className="field-input" value={form.educationField} onChange={set('educationField')} placeholder="e.g. Computer Science, MCA, Software Engineering" />
             </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="field-label">Graduation year</label>
                 <input type="number" className="field-input" value={form.graduationYear} onChange={set('graduationYear')} placeholder="2026" />
               </div>
               <div>
-                <label className="field-label">Years of experience</label>
-                <input type="number" step="0.5" min="0" className="field-input" value={form.experienceYears} onChange={set('experienceYears')} placeholder="0" />
+                <label className="field-label">Total years of tech experience</label>
+                <input type="number" step="0.5" min="0" max="25" className="field-input" value={form.experienceYears} onChange={set('experienceYears')} placeholder="0" />
               </div>
             </div>
+
+            {/* Realistic Salary for Experienced Engineers */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 rounded-xl border border-border/80 bg-surface-2/40 p-3.5">
+              <div>
+                <div className="flex items-center justify-between">
+                  <label className="field-label">Current annual CTC / Salary (optional)</label>
+                  <span className="text-[10px] text-accent">For experienced devs</span>
+                </div>
+                <input
+                  type="number"
+                  className="field-input"
+                  value={form.currentSalary}
+                  onChange={set('currentSalary')}
+                  placeholder={Number(form.experienceYears) >= 4 ? 'e.g. 2800000' : 'e.g. 800000'}
+                />
+                <p className="mt-1 text-[11px] text-muted">
+                  Anchors Year 1-5 trajectory directly to your real compensation baseline.
+                </p>
+              </div>
+
+              <div>
+                <label className="field-label">Target software market tier</label>
+                <select
+                  className="field-select"
+                  value={form.marketTier}
+                  onChange={set('marketTier')}
+                >
+                  <option value="growth-product">Growth-stage Product / SaaS (Market)</option>
+                  <option value="tier1-faang">Top-Tier Tech / FAANG / Unicorn (+40% Premium)</option>
+                  <option value="standard-tech">Early-Stage / Standard Tech Firm</option>
+                </select>
+                <p className="mt-1 text-[11px] text-muted">
+                  Calibrates equity, stock grants, and bonus multiplier curves.
+                </p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="field-label">Current role (optional)</label>
-                <input className="field-input" value={form.currentRole} onChange={set('currentRole')} placeholder="Intern, Junior Developer..." />
+                <label className="field-label">Current title or role (optional)</label>
+                <input className="field-input" value={form.currentRole} onChange={set('currentRole')} placeholder="e.g. Senior Backend Engineer, Tech Lead" />
               </div>
               <div>
-                <label className="field-label">Location</label>
-                <input className="field-input" value={form.location} onChange={set('location')} placeholder="City" />
+                <label className="field-label">Location / Target Hub</label>
+                <input className="field-input" value={form.location} onChange={set('location')} placeholder="e.g. Bengaluru, Remote, Hyderabad" />
               </div>
             </div>
+
             <div>
-              <label className="field-label">Target role (optional)</label>
-              <input className="field-input" value={form.targetRole} onChange={set('targetRole')} placeholder="Where you want to be in 5 years" />
+              <label className="field-label">Target 5-year role (optional)</label>
+              <input className="field-input" value={form.targetRole} onChange={set('targetRole')} placeholder="e.g. Staff Architect, VP of Engineering, CTO" />
             </div>
           </div>
         )}

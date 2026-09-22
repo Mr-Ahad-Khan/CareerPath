@@ -40,7 +40,15 @@ export function MentorsPage() {
 
   useEffect(() => {
     api.get('/mentors/industries').then(setMeta).catch(() => {});
-    api.get('/connections').then((d) => setRequests(d.requests)).catch(() => {});
+    api.get('/connections').then((d) => {
+      const list = d.requests || [];
+      setRequests(list);
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('openChat') === 'true' && list.length > 0) {
+        const active = list.find((r) => r.status === 'accepted') || list[0];
+        if (active) setActiveChatConnection(active);
+      }
+    }).catch(() => {});
   }, []);
 
   const updateRequest = async (requestId, action) => {
@@ -98,6 +106,44 @@ export function MentorsPage() {
         <h1 className="mt-2 font-display text-3xl font-semibold text-foreground">Find someone who has walked the path</h1>
         <p className="mt-1 text-muted">Filter by industry, specialty, or search by name. Send a connection request to start a conversation.</p>
       </div>
+
+      {/* Active Mentorship Chat Notification Banner */}
+      {connectedMentors.length > 0 && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-4 shadow-lift animate-fade-in">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative shrink-0">
+              <Avatar
+                name={isMentor ? (connectedMentors[0].student?.name || 'Student') : (connectedMentors[0].mentor?.name || 'Mentor')}
+                color={isMentor ? connectedMentors[0].student?.avatarColor : connectedMentors[0].mentor?.avatarColor}
+                size={40}
+              />
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-accent" />
+              </span>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Active Mentorship Chat with {isMentor ? connectedMentors[0].student?.name : connectedMentors[0].mentor?.name}
+                </h3>
+                <span className="chip border-accent/40 bg-accent/20 text-accent text-[10px] font-semibold py-0 px-2">
+                  New Messages Active
+                </span>
+              </div>
+              <p className="text-xs text-muted truncate">
+                {connectedMentors[0].messages?.[connectedMentors[0].messages.length - 1]?.content || '1-on-1 mentorship session is active. Click to discuss trajectory.'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveChatConnection(connectedMentors[0])}
+            className="btn-primary text-xs sm:text-sm px-4 py-2 flex items-center gap-2 shrink-0 shadow-sm"
+          >
+            <MessageSquare className="h-4 w-4" /> Open Chat Window
+          </button>
+        </div>
+      )}
 
       <div className="mb-6 flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3">
         <div className="relative flex-1 min-w-[200px]">

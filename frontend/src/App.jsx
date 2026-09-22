@@ -21,6 +21,7 @@ import NotFoundPage from "@/pages/NotFoundPage.jsx";
 
 import { useAuth } from "@/lib/auth.jsx";
 import { MobileBottomNav } from "@/components/MobileBottomNav.jsx";
+import { FloatingChatWidget } from "@/components/FloatingChatWidget.jsx";
 
 function Layout({ children }) {
   const { user } = useAuth();
@@ -32,6 +33,7 @@ function Layout({ children }) {
       <main className="flex-1 w-full">{children}</main>
       <Footer />
       <MobileBottomNav />
+      {user && <FloatingChatWidget />}
     </div>
   );
 }
