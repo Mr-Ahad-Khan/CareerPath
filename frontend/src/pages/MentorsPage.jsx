@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, MapPin, Star, Send, X, MessageSquare, Check, Clock, Bell, UserRound } from 'lucide-react';
 import { api } from '@/lib/api.js';
 import { useToast } from '@/lib/toast.jsx';
@@ -6,6 +6,7 @@ import { LoadingOverlay } from '@/components/Spinner.jsx';
 import { EmptyState } from '@/components/EmptyState.jsx';
 import { Avatar } from '@/components/Avatar.jsx';
 import { useAuth } from '@/lib/auth.jsx';
+import { MentorChatModal } from '@/components/MentorChatModal.jsx';
 
 export function MentorsPage() {
   const { user } = useAuth();
@@ -18,6 +19,11 @@ export function MentorsPage() {
   const [message, setMessage] = useState('');
   const [sendingRequest, setSendingRequest] = useState(false);
   const [updatingRequest, setUpdatingRequest] = useState(null);
+  const [activeChatConnection, setActiveChatConnection] = useState(null);
+
+  const reloadConnections = useCallback(() => {
+    api.get('/connections').then((d) => setRequests(d.requests || [])).catch(() => {});
+  }, []);
 
   const loadMentors = async () => {
     const params = new URLSearchParams();
@@ -136,6 +142,36 @@ export function MentorsPage() {
         </div>
       )}
 
+      {isMentor && connectedMentors.length > 0 && (
+        <div className="mb-6 surface-card p-4 sm:p-5">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
+            <UserRound className="h-4 w-4 text-success" /> Active mentees ({connectedMentors.length})
+          </h3>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {connectedMentors.map((request) => (
+              <div
+                key={request.id}
+                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-2 p-3"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Avatar name={request.student?.name || 'Student'} color={request.student?.avatarColor} size={36} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-foreground">{request.student?.name || 'Student'}</p>
+                    <p className="truncate text-xs text-muted">{request.student?.headline || 'Mentorship connection'}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setActiveChatConnection(request)}
+                  className="btn-primary shrink-0 text-xs px-3 py-1.5 flex items-center gap-1.5 shadow-sm"
+                >
+                  <MessageSquare className="h-3.5 w-3.5" /> Chat
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {!isMentor && requests.length > 0 && (
         <div className="mb-6 surface-card p-4">
           <div className="mb-3 flex items-center gap-2">
@@ -153,13 +189,29 @@ export function MentorsPage() {
       )}
 
       {!isMentor && connectedMentors.length > 0 && (
-        <div className="mb-6 surface-card p-4">
-          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted"><UserRound className="h-4 w-4 text-success" /> Your connected mentors</h3>
-          <div className="flex flex-wrap gap-3">
+        <div className="mb-6 surface-card p-4 sm:p-5">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
+            <UserRound className="h-4 w-4 text-success" /> Your connected mentors
+          </h3>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {connectedMentors.map((request) => (
-              <div key={request.id} className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-3 py-2">
-                <Avatar name={request.mentor?.name || 'Mentor'} color={request.mentor?.avatarColor} size={30} />
-                <div><p className="text-sm font-medium text-foreground">{request.mentor?.name}</p><p className="text-xs text-muted">Connected mentor</p></div>
+              <div
+                key={request.id}
+                className="flex items-center justify-between gap-3 rounded-xl border border-success/30 bg-success/5 p-3"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Avatar name={request.mentor?.name || 'Mentor'} color={request.mentor?.avatarColor} size={36} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-foreground">{request.mentor?.name}</p>
+                    <p className="truncate text-xs text-muted">{request.mentor?.title || 'Connected mentor'}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setActiveChatConnection(request)}
+                  className="btn-primary shrink-0 text-xs px-3 py-1.5 flex items-center gap-1.5 shadow-sm"
+                >
+                  <MessageSquare className="h-3.5 w-3.5" /> Chat
+                </button>
               </div>
             ))}
           </div>
@@ -191,15 +243,35 @@ export function MentorsPage() {
                   <span>{m.menteeCount} mentees</span>
                 </div>
               </div>
-              {!isMentor && <button
-                onClick={() => { setSelected(m); setMessage(''); }}
-                disabled={pendingMentorIds.has(m.id) || acceptedMentorIds.has(m.id)}
-                className={`mt-4 w-full ${pendingMentorIds.has(m.id) ? 'btn-secondary cursor-default' : acceptedMentorIds.has(m.id) ? 'btn-secondary cursor-default' : 'btn-primary'}`}
-              >
-                {pendingMentorIds.has(m.id) ? <><Clock className="h-4 w-4" /> Request pending</> :
-                 acceptedMentorIds.has(m.id) ? <><Check className="h-4 w-4 text-success" /> Connected</> :
-                 <><Send className="h-4 w-4" /> Connect</>}
-              </button>}
+              {!isMentor && (
+                acceptedMentorIds.has(m.id) ? (
+                  <button
+                    onClick={() => {
+                      const conn = requests.find((r) => (r.mentorId === m.id || r.mentor?.id === m.id) && r.status === 'accepted') || {
+                        id: 'conn-' + m.id,
+                        mentor: m,
+                        mentorId: m.id,
+                        status: 'accepted',
+                      };
+                      setActiveChatConnection(conn);
+                    }}
+                    className="mt-4 w-full btn-secondary text-accent hover:border-accent flex items-center justify-center gap-1.5"
+                  >
+                    <MessageSquare className="h-4 w-4 text-accent" /> Chat with {m.name.split(' ')[0]}
+                  </button>
+                ) : pendingMentorIds.has(m.id) ? (
+                  <button disabled className="mt-4 w-full btn-secondary cursor-default flex items-center justify-center gap-1.5">
+                    <Clock className="h-4 w-4" /> Request pending
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => { setSelected(m); setMessage(''); }}
+                    className="mt-4 w-full btn-primary flex items-center justify-center gap-1.5"
+                  >
+                    <Send className="h-4 w-4" /> Connect
+                  </button>
+                )
+              )}
             </div>
           ))}
         </div>
@@ -229,6 +301,14 @@ export function MentorsPage() {
           </div>
         </div>
       )}
+
+      {/* Interactive Mentor-Connection Chat */}
+      <MentorChatModal
+        isOpen={Boolean(activeChatConnection)}
+        connection={activeChatConnection}
+        onClose={() => setActiveChatConnection(null)}
+        onMessageSent={reloadConnections}
+      />
     </div>
   );
 }

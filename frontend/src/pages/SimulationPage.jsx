@@ -225,7 +225,7 @@ export function SimulationPage() {
         <SalaryTrajectoryChart paths={currentPaths} currency={currency} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {currentPaths.map((p, i) => (
           <button
             key={p.code || i}

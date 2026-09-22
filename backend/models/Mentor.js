@@ -12,9 +12,20 @@ const mentorSchema = new Schema({
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 });
+const messageItemSchema = new Schema({
+  senderId: { type: Schema.Types.ObjectId, ref: 'User' },
+  senderRole: { type: String, enum: ['student', 'mentor'], default: 'student' },
+  senderName: { type: String, default: '' },
+  content: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const connectionRequestSchema = new Schema({
-  studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, mentorId: { type: Schema.Types.ObjectId, ref: 'Mentor', required: true },
-  message: { type: String, required: true }, status: { type: String, enum: ['pending', 'accepted', 'declined'], default: 'pending' },
+  studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  mentorId: { type: Schema.Types.ObjectId, ref: 'Mentor', required: true },
+  message: { type: String, required: true },
+  status: { type: String, enum: ['pending', 'accepted', 'declined'], default: 'pending' },
+  messages: { type: [messageItemSchema], default: [] },
 }, {
   timestamps: true,
   versionKey: false,

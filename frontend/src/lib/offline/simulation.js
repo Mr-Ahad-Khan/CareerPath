@@ -225,16 +225,23 @@ function pickBranches(ctx) {
     }))
     .sort((a, b) => b.score - a.score);
 
-  const picked = [primary[0].b];
-  if (primary[1] && primary[1].score > 0.15) picked.push(primary[1].b);
-  const divergent = all.find((b) => !picked.includes(b) && ROLE_TREES[b].divergent);
-  if (divergent) picked.push(divergent);
-  while (picked.length < 3 && all.length > picked.length) {
-    const next = all.find((b) => !picked.includes(b));
-    if (next) picked.push(next);
-    else break;
+  const picked = [];
+  for (const item of primary) {
+    if (!picked.includes(item.b)) {
+      picked.push(item.b);
+    }
+    if (picked.length >= 4) break;
   }
-  return picked.slice(0, 3);
+  const divergent = all.find((b) => !picked.includes(b) && ROLE_TREES[b].divergent);
+  if (divergent && picked.length < 5) {
+    picked.push(divergent);
+  }
+  for (const b of all) {
+    if (!picked.includes(b) && picked.length < 5) {
+      picked.push(b);
+    }
+  }
+  return picked;
 }
 
 export function buildMilestones(path, userId = 'offline-user', pathId = 'offline-path') {

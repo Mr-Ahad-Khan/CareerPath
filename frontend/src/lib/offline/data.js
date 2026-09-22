@@ -623,6 +623,280 @@ export const ROLE_TREES = {
       },
     ],
   },
+
+  "data-scientist": {
+    title: "The AI & Data Specialist",
+    description:
+      "You develop core algorithms, machine learning models, and analytical pipelines. Surging enterprise demand with steep compensation scaling as you transition from model training to production architecture.",
+    riskLevel: 3,
+    divergent: false,
+    interests: ["data", "ai", "machine learning", "statistics", "coding", "research"],
+    salaryGrowthCurve: (y) => 1 + 0.11 * y + 0.014 * y * y,
+    promotionPace: 1,
+    skillsPerYear: 2,
+    roles: [
+      {
+        title: "Junior Data & ML Engineer",
+        seniority: 1,
+        companyArchetype: "AI-driven product company",
+        requiredSkills: [
+          { name: "Python", weight: 1.3 },
+          { name: "SQL", weight: 1.1 },
+          { name: "Statistics", weight: 1 },
+          { name: "Data Analysis", weight: 1 },
+        ],
+        milestones: {
+          0: [
+            {
+              quarter: 1,
+              title: "Deploy first feature pipeline",
+              category: "Delivery",
+              description: "Build an automated data ingestion and cleaning pipeline.",
+            },
+            {
+              quarter: 3,
+              title: "Model benchmarking study",
+              category: "Learning",
+              description: "Benchmark open-source foundational models for internal use.",
+            },
+          ],
+          1: [
+            {
+              quarter: 2,
+              title: "Production model endpoint",
+              category: "Delivery",
+              description: "Serve predictions behind a scalable REST API with monitoring.",
+            },
+            {
+              quarter: 4,
+              title: "Deep learning certification",
+              category: "Credential",
+              description: "Earn a recognized cloud or deep learning specialization.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Machine Learning Engineer",
+        seniority: 2,
+        companyArchetype: "Series B tech scale-up",
+        requiredSkills: [
+          { name: "Machine Learning", weight: 1.5 },
+          { name: "PyTorch", weight: 1.3 },
+          { name: "System Design", weight: 1.1 },
+          { name: "Docker", weight: 0.9 },
+        ],
+        milestones: {
+          2: [
+            {
+              quarter: 1,
+              title: "End-to-end MLOps pipeline",
+              category: "Architecture",
+              description: "Implement CI/CD for automated training, evaluation, and rollout.",
+            },
+            {
+              quarter: 3,
+              title: "Feature store integration",
+              category: "Architecture",
+              description: "Establish shared real-time and batch feature stores.",
+            },
+          ],
+          3: [
+            {
+              quarter: 2,
+              title: "Latency optimization initiative",
+              category: "Reliability",
+              description: "Reduce model p99 inference latency by 40%.",
+            },
+            {
+              quarter: 4,
+              title: "Mentor junior data scientists",
+              category: "Mentoring",
+              description: "Lead onboarding for two incoming junior engineers.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Staff AI & Data Architect",
+        seniority: 3,
+        companyArchetype: "enterprise AI team or unicorn",
+        requiredSkills: [
+          { name: "System Design", weight: 1.5 },
+          { name: "Machine Learning", weight: 1.4 },
+          { name: "Leadership", weight: 1.2 },
+          { name: "Communication", weight: 1 },
+        ],
+        milestones: {
+          4: [
+            {
+              quarter: 1,
+              title: "Company AI infrastructure vision",
+              category: "Strategy",
+              description: "Author the multi-year distributed training and inference roadmap.",
+            },
+            {
+              quarter: 3,
+              title: "Keynote presentation at AI summit",
+              category: "Visibility",
+              description: "Deliver an industry case study on production model reliability.",
+            },
+          ],
+          5: [
+            {
+              quarter: 2,
+              title: "LLM fine-tuning infrastructure",
+              category: "Innovation",
+              description: "Scale proprietary domain-adapted LLM workflows across squads.",
+            },
+            {
+              quarter: 4,
+              title: "Principal-level evaluation case",
+              category: "Career",
+              description: "Document business ROI exceeding 10x compute expenditure.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+
+  "founder-path": {
+    title: "The Early-Stage Founder",
+    description:
+      "High agency, rapid breadth over narrow specialization. You go from founding technical engineer to shaping product, team, and company culture with high upside equity.",
+    riskLevel: 5,
+    divergent: true,
+    interests: ["leadership", "strategy", "product", "creativity", "coding", "problem solving"],
+    salaryGrowthCurve: (y) => 1 + 0.05 * y + 0.025 * y * y,
+    promotionPace: 1,
+    skillsPerYear: 3,
+    roles: [
+      {
+        title: "Founding Full-Stack Engineer",
+        seniority: 1,
+        companyArchetype: "seed-stage venture backed startup",
+        requiredSkills: [
+          { name: "JavaScript", weight: 1.2 },
+          { name: "React", weight: 1.1 },
+          { name: "Node.js", weight: 1.1 },
+          { name: "Product Strategy", weight: 1 },
+        ],
+        milestones: {
+          0: [
+            {
+              quarter: 1,
+              title: "Ship MVP from blank repo",
+              category: "Delivery",
+              description: "Design and ship v1 of the product to first 100 pilot users.",
+            },
+            {
+              quarter: 3,
+              title: "Customer feedback iteration cycle",
+              category: "Discovery",
+              description: "Run weekly user feedback cycles and iterate core value loop.",
+            },
+          ],
+          1: [
+            {
+              quarter: 2,
+              title: "First paid customer conversion",
+              category: "Outcomes",
+              description: "Instrument telemetry and validate product-market fit metrics.",
+            },
+            {
+              quarter: 4,
+              title: "Seed funding technical presentation",
+              category: "Strategy",
+              description: "Co-present architecture and technical moats to venture investors.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Head of Engineering",
+        seniority: 2,
+        companyArchetype: "Series A high-growth startup",
+        requiredSkills: [
+          { name: "System Design", weight: 1.3 },
+          { name: "Leadership", weight: 1.4 },
+          { name: "AWS", weight: 1 },
+          { name: "Communication", weight: 1.2 },
+        ],
+        milestones: {
+          2: [
+            {
+              quarter: 1,
+              title: "Scale core infrastructure 10x",
+              category: "Architecture",
+              description: "Re-architect monolithic core for multi-region microservices.",
+            },
+            {
+              quarter: 3,
+              title: "Hire initial engineering team",
+              category: "People",
+              description: "Interview, hire, and onboard first 6 full-time engineers.",
+            },
+          ],
+          3: [
+            {
+              quarter: 2,
+              title: "Security and compliance audit",
+              category: "Operations",
+              description: "Achieve SOC2 compliance to unlock enterprise client deals.",
+            },
+            {
+              quarter: 4,
+              title: "Engineering leveling and culture framework",
+              category: "Org",
+              description: "Establish career ladders, equity grant schedules, and review cadence.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Chief Technology Officer (CTO)",
+        seniority: 3,
+        companyArchetype: "Series B venture-backed firm",
+        requiredSkills: [
+          { name: "Leadership", weight: 1.5 },
+          { name: "Stakeholder Management", weight: 1.3 },
+          { name: "Budgeting", weight: 1.1 },
+          { name: "Product Strategy", weight: 1.2 },
+        ],
+        milestones: {
+          4: [
+            {
+              quarter: 1,
+              title: "Board-level technical roadmap",
+              category: "Strategy",
+              description: "Define annual technical vision and defend capital budget.",
+            },
+            {
+              quarter: 3,
+              title: "Executive management recruiting",
+              category: "Org",
+              description: "Recruit VP of Engineering and Staff Architects.",
+            },
+          ],
+          5: [
+            {
+              quarter: 2,
+              title: "Strategic enterprise integration",
+              category: "Influence",
+              description: "Deliver high-value enterprise partnerships and ecosystem integrations.",
+            },
+            {
+              quarter: 4,
+              title: "Series C readiness & growth trajectory",
+              category: "Career",
+              description: "Align technology reliability metrics for growth-stage institutional rounds.",
+            },
+          ],
+        },
+      },
+    ],
+  },
 };
 
 export const MILESTONE_CATEGORIES = [

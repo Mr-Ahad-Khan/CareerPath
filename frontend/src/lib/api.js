@@ -193,6 +193,22 @@ function handleOfflineRequest(method, path, data = {}) {
     return { ok: true, status: connActionMatch[2] };
   }
 
+  const connMessagesMatch = cleanPath.match(/^\/connections\/([a-zA-Z0-9_-]+)\/messages$/);
+  if (connMessagesMatch) {
+    const connId = connMessagesMatch[1];
+    if (method === 'GET') {
+      return { messages: offlineStore.getConnectionMessages(connId) };
+    }
+    if (method === 'POST') {
+      const res = offlineStore.sendConnectionMessage(connId, {
+        content: data?.content || '',
+        senderRole: data?.senderRole || 'student',
+        senderName: data?.senderName || 'You',
+      });
+      return { message: res.message, messages: res.connection?.messages || [] };
+    }
+  }
+
   // 7. Resume Analysis
   if (cleanPath === '/resume/analyze' && method === 'POST') {
     return offlineStore.analyzeResume(data);

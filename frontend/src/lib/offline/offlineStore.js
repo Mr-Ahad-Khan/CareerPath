@@ -136,6 +136,52 @@ export function initOfflineStore() {
     ];
     write(STORAGE_KEYS.JOURNAL, starterJournal);
 
+    // 5. Starter accepted mentor connection with message history
+    const starterConnections = [
+      {
+        _id: 'conn-starter-1',
+        id: 'conn-starter-1',
+        mentorId: 'm1',
+        mentor: {
+          id: 'm1',
+          name: 'Ananya Sharma',
+          title: 'Staff Software Engineer',
+          company: 'Razorpay',
+          avatarColor: '#5dade2',
+        },
+        studentId: profile.userId,
+        student: {
+          id: profile.userId,
+          name: profile.fullName || 'Demo Student',
+          headline: 'MCA Student · Software & AI Aspirant',
+          avatarColor: '#ffb340',
+        },
+        message: 'Hi Ananya, I am exploring the software engineering path and would value your perspective on backend system design.',
+        status: 'accepted',
+        statusText: 'Connected mentor',
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        messages: [
+          {
+            id: 'msg-starter-1',
+            senderId: profile.userId,
+            senderRole: 'student',
+            senderName: 'You',
+            content: 'Hi Ananya, I am exploring the software engineering path and would value your perspective on backend system design.',
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+          },
+          {
+            id: 'msg-starter-2',
+            senderId: 'm1',
+            senderRole: 'mentor',
+            senderName: 'Ananya Sharma',
+            content: 'Hey! Glad to connect. Transitioning from foundational coding to production systems is all about understanding trade-offs in data consistency and caching. Have you looked at your Year 2 trajectory milestones yet?',
+            createdAt: new Date(Date.now() - 86400000 + 3600000).toISOString(),
+          },
+        ],
+      },
+    ];
+    write(STORAGE_KEYS.CONNECTIONS, starterConnections);
+
     localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
   }
 }
@@ -424,33 +470,88 @@ export const offlineStore = {
     return DEFAULT_MENTORS.find((m) => m.id === id || m._id === id) || DEFAULT_MENTORS[0];
   },
 
-  // Connections (Outbox)
+  // Connections
   getConnections() {
-    const list = read(STORAGE_KEYS.CONNECTIONS, []);
-    return list;
+    initOfflineStore();
+    return read(STORAGE_KEYS.CONNECTIONS, []);
   },
 
   addConnection({ mentorId, message }) {
+    initOfflineStore();
     const list = read(STORAGE_KEYS.CONNECTIONS, []);
     const mentor = this.getMentorById(mentorId);
+    const initialMsg = {
+      id: generateId('msg'),
+      senderId: 'offline-user',
+      senderRole: 'student',
+      senderName: 'You',
+      content: message,
+      createdAt: new Date().toISOString(),
+    };
     const newConn = {
       _id: generateId('conn'),
       id: generateId('conn'),
       mentorId,
       mentor: {
+        id: mentor.id,
         name: mentor.name,
         title: mentor.title,
         company: mentor.company,
         avatarColor: mentor.avatarColor,
       },
+      studentId: 'offline-user',
+      student: {
+        id: 'offline-user',
+        name: 'Demo Student',
+        headline: 'Exploring Software & AI tracks',
+        avatarColor: '#ffb340',
+      },
       message,
-      status: 'queued_offline',
-      statusText: 'Saved locally (offline)',
+      status: 'accepted',
+      statusText: 'Connected mentor',
       createdAt: new Date().toISOString(),
+      messages: [initialMsg],
     };
     list.unshift(newConn);
     write(STORAGE_KEYS.CONNECTIONS, list);
     return newConn;
+  },
+
+  getConnectionMessages(connId) {
+    initOfflineStore();
+    const list = read(STORAGE_KEYS.CONNECTIONS, []);
+    const conn = list.find((c) => c.id === connId || c._id === connId);
+    return conn?.messages || [];
+  },
+
+  sendConnectionMessage(connId, { content, senderRole = 'student', senderName = 'You' }) {
+    initOfflineStore();
+    const list = read(STORAGE_KEYS.CONNECTIONS, []);
+    let target = null;
+    const newMsg = {
+      id: generateId('msg'),
+      senderId: senderRole === 'mentor' ? 'mentor-id' : 'offline-user',
+      senderRole,
+      senderName,
+      content,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updated = list.map((conn) => {
+      if (conn.id === connId || conn._id === connId) {
+        const msgs = conn.messages || [];
+        target = {
+          ...conn,
+          messages: [...msgs, newMsg],
+          updatedAt: new Date().toISOString(),
+        };
+        return target;
+      }
+      return conn;
+    });
+
+    write(STORAGE_KEYS.CONNECTIONS, updated);
+    return { message: newMsg, connection: target };
   },
 
   // Resume Reality Check

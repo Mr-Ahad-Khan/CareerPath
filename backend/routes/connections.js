@@ -50,8 +50,76 @@ router.post('/', async (req, res, next) => {
       studentId: req.user.id,
       mentorId,
       message,
+      messages: [
+        {
+          senderId: req.user.id,
+          senderRole: req.user.role === 'mentor' ? 'mentor' : 'student',
+          senderName: req.user.name || 'Student',
+          content: message,
+          createdAt: new Date(),
+        },
+      ],
     });
     res.status(201).json({ request });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/:id/messages', async (req, res, next) => {
+  try {
+    const mentor = req.user.role === 'mentor'
+      ? await Mentor.findOne({ userId: req.user.id })
+      : null;
+
+    const request = await ConnectionRequest.findOne({
+      _id: req.params.id,
+      ...(mentor ? { mentorId: mentor.id } : { studentId: req.user.id }),
+    });
+
+    if (!request) {
+      return res.status(404).json({ error: 'Connection not found.' });
+    }
+
+    res.json({ messages: request.messages || [] });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/:id/messages', async (req, res, next) => {
+  try {
+    const { content } = req.body;
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: 'Message content cannot be empty.' });
+    }
+
+    const mentor = req.user.role === 'mentor'
+      ? await Mentor.findOne({ userId: req.user.id })
+      : null;
+
+    const request = await ConnectionRequest.findOne({
+      _id: req.params.id,
+      ...(mentor ? { mentorId: mentor.id } : { studentId: req.user.id }),
+    });
+
+    if (!request) {
+      return res.status(404).json({ error: 'Connection not found.' });
+    }
+
+    const newMessage = {
+      senderId: req.user.id,
+      senderRole: req.user.role === 'mentor' ? 'mentor' : 'student',
+      senderName: req.user.name || (req.user.role === 'mentor' ? 'Mentor' : 'Student'),
+      content: content.trim(),
+      createdAt: new Date(),
+    };
+
+    if (!request.messages) request.messages = [];
+    request.messages.push(newMessage);
+    await request.save();
+
+    res.status(201).json({ message: newMessage, messages: request.messages });
   } catch (err) {
     next(err);
   }

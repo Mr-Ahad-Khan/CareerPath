@@ -40,7 +40,7 @@ export function SkillGapRadar({ currentSkills, targetSkills }) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <RadarChart data={data} outerRadius="64%" margin={{ top: 10, right: 15, bottom: 10, left: 15 }}>
-        <PolarGrid stroke="rgb(var(--border))" />
+        <PolarGrid stroke="rgb(var(--border))" strokeOpacity={0.3} />
         <PolarAngleAxis
           dataKey="skill"
           tick={{ fill: 'rgb(var(--text-muted))', fontSize: 11 }}
@@ -56,16 +56,16 @@ export function SkillGapRadar({ currentSkills, targetSkills }) {
           dataKey="target"
           stroke="rgb(var(--accent))"
           fill="rgb(var(--accent))"
-          fillOpacity={0.15}
-          strokeWidth={2}
+          fillOpacity={0.1}
+          strokeWidth={1.75}
         />
         <Radar
           name="You"
           dataKey="current"
-          stroke="rgb(var(--info))"
-          fill="rgb(var(--info))"
-          fillOpacity={0.1}
-          strokeWidth={2}
+          stroke="#6366f1"
+          fill="#6366f1"
+          fillOpacity={0.08}
+          strokeWidth={1.75}
         />
         <Tooltip content={<RadarTooltip />} />
       </RadarChart>

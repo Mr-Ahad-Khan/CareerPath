@@ -130,7 +130,7 @@ export function WizardPage() {
         profileId: profileRes.profile.id,
         name: `${form.educationField} — 5-year plan`,
       });
-      toast.success('Simulation generated. Three paths are ready.');
+      toast.success('Simulation generated. Multiple paths are ready.');
       navigate(`/simulation/${simRes.simulation.id}`);
     } catch (err) {
       toast.error(err.message);
@@ -336,7 +336,7 @@ export function WizardPage() {
             <div className="rounded-xl border border-accent/20 bg-accent/5 p-4">
               <p className="text-sm text-foreground">Ready to simulate.</p>
               <p className="mt-1 text-xs text-muted">
-                We will generate three divergent five-year paths based on your inputs. You can tweak them with what-if sliders afterwards.
+                We will generate multiple divergent five-year paths based on your inputs. You can tweak them with what-if sliders afterwards.
               </p>
             </div>
           </div>
