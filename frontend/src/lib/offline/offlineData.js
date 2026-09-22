@@ -205,8 +205,8 @@ export const DEMO_ACCOUNTS = {
   guest: {
     id: "offline-guest-user",
     _id: "offline-guest-user",
-    name: "Offline Explorer",
-    email: "explorer@careerpath.offline",
+    name: "Guest Explorer",
+    email: "explorer@careerpath.app",
     role: "student",
     headline: "Exploring career paths in offline mode",
     avatarColor: "#3ddc97",

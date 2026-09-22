@@ -42,7 +42,7 @@ export function LandingPage() {
               </Link>
             </div>
             <p className="mt-5 text-xs text-muted">
-              Built for developers • Modern salary baselines up to ₹1.1Cr+ • Free & instant
+              Built for developers • Grounded salary baselines (₹4.2L – ₹50L+) • Free & instant
             </p>
           </div>
 

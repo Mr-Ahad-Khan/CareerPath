@@ -75,19 +75,19 @@ export default function CalculationProofPage() {
       <section className="mt-8 surface-card border-accent/30 bg-accent/5 p-6 sm:p-8">
         <h2 className="font-display text-2xl font-semibold text-foreground">Worked example</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          Suppose a senior profile has 24.5 years of experience, a senior baseline of ₹21,00,000, and an AI industry multiplier of 1.35.
+          Suppose a senior profile has 12 years of experience, a senior baseline of ₹20,00,000, and an AI industry multiplier of 1.15.
         </p>
-        <pre className="mt-5 overflow-x-auto rounded-lg bg-surface-2 p-4 text-sm leading-relaxed text-foreground">{`experience premium = 1 + min(24.5, 10) x 0.04
-                  = 1.40
+        <pre className="mt-5 overflow-x-auto rounded-lg bg-surface-2 p-4 text-sm leading-relaxed text-foreground">{`experience premium = 1 + min(12, 14) x 0.025
+                  = 1.30
 
-starting salary = ₹21,00,000 x 1.35 x 1.40
-                = ₹39,69,000
+starting salary = ₹20,00,000 x 1.15 x 1.30
+                = ₹29,90,000
 
-management year-5 growth factor = 1 + (0.10 x 5) + (0.012 x 5 x 5)
-                                = 1.80
+management year-5 growth factor = 1 + (0.075 x 5) + (0.007 x 5 x 5)
+                                = 1.55
 
-year-5 estimate = ₹39,69,000 x 1.80
-                = ₹71,44,200`}</pre>
+year-5 estimate = ₹29,90,000 x 1.55
+                = ₹46,34,500`}</pre>
         <div className="mt-5 flex items-start gap-3 text-sm text-muted">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
           <p>The result is intentionally an estimate. Actual compensation depends on country, city, company, role scope, performance, equity, and market conditions.</p>

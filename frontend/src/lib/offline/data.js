@@ -1,19 +1,19 @@
 export const SALARY_BASELINES = {
-  fresher: 650000,
-  "pg-fresh": 900000,
-  junior: 1400000,
-  mid: 2400000,
-  senior: 3800000,
-  lead: 5600000,
-  staff: 7800000,
-  principal: 11000000,
+  fresher: 420000,
+  "pg-fresh": 550000,
+  junior: 800000,
+  mid: 1300000,
+  senior: 2000000,
+  lead: 2800000,
+  staff: 3800000,
+  principal: 5000000,
 };
 
 export const INDUSTRY_MULTIPLIERS = {
-  ai: 1.35,
-  fintech: 1.22,
-  healthtech: 1.1,
-  product: 1.18,
+  ai: 1.15,
+  fintech: 1.10,
+  healthtech: 1.04,
+  product: 1.08,
   general: 1,
 };
 
@@ -79,7 +79,7 @@ export const ROLE_TREES = {
     riskLevel: 2,
     divergent: false,
     interests: ["coding", "architecture", "problem solving", "systems"],
-    salaryGrowthCurve: (y) => 1 + 0.08 * y + 0.01 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.065 * y + 0.006 * y * y,
     promotionPace: 1,
     skillsPerYear: 2,
     roles: [
@@ -223,7 +223,7 @@ export const ROLE_TREES = {
     riskLevel: 3,
     divergent: false,
     interests: ["leadership", "people", "strategy", "communication"],
-    salaryGrowthCurve: (y) => 1 + 0.1 * y + 0.012 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.075 * y + 0.007 * y * y,
     promotionPace: 1,
     skillsPerYear: 2,
     roles: [
@@ -360,7 +360,7 @@ export const ROLE_TREES = {
     riskLevel: 3,
     divergent: true,
     interests: ["systems", "architecture", "coding", "problem solving", "cloud"],
-    salaryGrowthCurve: (y) => 1 + 0.1 * y + 0.013 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.055 * y + 0.006 * y * y,
     promotionPace: 1,
     skillsPerYear: 3,
     roles: [
@@ -497,7 +497,7 @@ export const ROLE_TREES = {
     riskLevel: 3,
     divergent: false,
     interests: ["product", "users", "strategy", "design"],
-    salaryGrowthCurve: (y) => 1 + 0.09 * y + 0.01 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.065 * y + 0.006 * y * y,
     promotionPace: 1,
     skillsPerYear: 2,
     roles: [
@@ -634,7 +634,7 @@ export const ROLE_TREES = {
     riskLevel: 3,
     divergent: false,
     interests: ["data", "ai", "machine learning", "statistics", "coding", "research"],
-    salaryGrowthCurve: (y) => 1 + 0.11 * y + 0.014 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.075 * y + 0.007 * y * y,
     promotionPace: 1,
     skillsPerYear: 2,
     roles: [
@@ -771,7 +771,7 @@ export const ROLE_TREES = {
     riskLevel: 5,
     divergent: true,
     interests: ["leadership", "strategy", "product", "creativity", "coding", "problem solving"],
-    salaryGrowthCurve: (y) => 1 + 0.05 * y + 0.025 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.035 * y + 0.012 * y * y,
     promotionPace: 1,
     skillsPerYear: 3,
     roles: [

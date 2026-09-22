@@ -31,7 +31,7 @@ const DEMO = {
   graduationYear: 2026,
   currentRole: 'Backend Developer',
   experienceYears: 3,
-  currentSalary: 1800000,
+  currentSalary: 1100000,
   marketTier: 'growth-product',
   location: 'Bengaluru',
   targetRole: 'Staff Software Architect or Engineering Lead',
@@ -241,7 +241,7 @@ export function WizardPage() {
                   className="field-input"
                   value={form.currentSalary}
                   onChange={set('currentSalary')}
-                  placeholder={Number(form.experienceYears) >= 4 ? 'e.g. 2800000' : 'e.g. 800000'}
+                  placeholder={Number(form.experienceYears) >= 4 ? 'e.g. 1800000' : 'e.g. 600000'}
                 />
                 <p className="mt-1 text-[11px] text-muted">
                   Anchors Year 1-5 trajectory directly to your real compensation baseline.

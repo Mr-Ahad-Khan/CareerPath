@@ -29,8 +29,8 @@ function applyWhatIf(base, whatIf) {
   if (!whatIf) return base;
   const w = { ...base };
   w.experienceYears = (w.experienceYears || 0) + (whatIf.extraExperienceMonths || 0) / 12;
-  w.locationMultiplier = (whatIf.cityTier === 'metro' ? 1.25 :
-    whatIf.cityTier === 'tier2' ? 0.9 : 1) || 1;
+  w.locationMultiplier = (whatIf.cityTier === 'metro' ? 1.15 :
+    whatIf.cityTier === 'tier2' ? 0.92 : 1) || 1;
   w.upskillingBoost = clamp((whatIf.upskillingHoursPerWeek || 0) / 20, 0, 1.5);
   w.timePenalty = (whatIf.extraLearningMonths || 0) / 12;
   w.networkBoost = whatIf.networkStrength === 'strong' ? 1.08 :
@@ -48,17 +48,17 @@ function buildTrajectory(branch, ctx, whatIf) {
   const experienceYears = Math.max(0, ctx.experienceYears || 0);
 
   // Realistic experienced compensation calculation
-  const baselineFromTier = SALARY_BASELINES[ctx.entryPoint] || 2400000;
-  const baselineSalary = ctx.currentSalary && ctx.currentSalary > baselineFromTier * 0.6
-    ? Math.max(ctx.currentSalary, baselineFromTier * 0.9)
+  const baselineFromTier = SALARY_BASELINES[ctx.entryPoint] || 1300000;
+  const baselineSalary = ctx.currentSalary && ctx.currentSalary > baselineFromTier * 0.5
+    ? Math.max(ctx.currentSalary, baselineFromTier * 0.8)
     : baselineFromTier;
 
-  const experiencePremium = 1 + Math.min(experienceYears, 18) * 0.05;
-  const marketTierMultiplier = ctx.marketTier === 'tier1-faang' ? 1.4 :
-    ctx.marketTier === 'growth-product' ? 1.18 : 1.0;
+  const experiencePremium = 1 + Math.min(experienceYears, 14) * 0.025;
+  const marketTierMultiplier = ctx.marketTier === 'tier1-faang' ? 1.25 :
+    ctx.marketTier === 'growth-product' ? 1.10 : 1.0;
 
   const startSalary = round(
-    baselineSalary * multiplier * industryMult * (ctx.currentSalary ? 1.08 : experiencePremium * marketTierMultiplier)
+    baselineSalary * multiplier * industryMult * (ctx.currentSalary ? 1.05 : experiencePremium * marketTierMultiplier)
   );
 
   const roleChain = base.roles;
