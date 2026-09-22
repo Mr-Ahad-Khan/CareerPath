@@ -6,6 +6,7 @@ import { ProtectedRoute, AdminRoute } from "@/components/ProtectedRoute.jsx";
 
 import LandingPage from "@/pages/LandingPage.jsx";
 import AboutPage from "@/pages/AboutPage.jsx";
+import CalculationProofPage from "@/pages/CalculationProofPage.jsx";
 import LoginPage from "@/pages/LoginPage.jsx";
 import RegisterPage from "@/pages/RegisterPage.jsx";
 import WizardPage from "@/pages/WizardPage.jsx";
@@ -52,6 +53,14 @@ export default function App() {
           element={
             <Layout>
               <AboutPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/calculation-proof"
+          element={
+            <Layout>
+              <CalculationProofPage />
             </Layout>
           }
         />

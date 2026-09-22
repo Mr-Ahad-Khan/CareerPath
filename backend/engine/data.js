@@ -76,7 +76,7 @@ export const ROLE_TREES = {
     riskLevel: 2,
     divergent: false,
     interests: ["coding", "architecture", "problem solving", "systems"],
-    salaryGrowthCurve: (y) => 1 + 0.28 * y + 0.04 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.08 * y + 0.01 * y * y,
     promotionPace: 1,
     skillsPerYear: 2,
     roles: [
@@ -220,7 +220,7 @@ export const ROLE_TREES = {
     riskLevel: 3,
     divergent: false,
     interests: ["leadership", "people", "strategy", "communication"],
-    salaryGrowthCurve: (y) => 1 + 0.31 * y + 0.05 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.1 * y + 0.012 * y * y,
     promotionPace: 1,
     skillsPerYear: 2,
     roles: [
@@ -357,7 +357,7 @@ export const ROLE_TREES = {
     riskLevel: 4,
     divergent: true,
     interests: ["learning", "variety", "data", "research"],
-    salaryGrowthCurve: (y) => 1 + 0.18 * y + 0.06 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.07 * y + 0.012 * y * y,
     promotionPace: 1,
     skillsPerYear: 3,
     roles: [
@@ -494,7 +494,7 @@ export const ROLE_TREES = {
     riskLevel: 3,
     divergent: false,
     interests: ["product", "users", "strategy", "design"],
-    salaryGrowthCurve: (y) => 1 + 0.27 * y + 0.045 * y * y,
+    salaryGrowthCurve: (y) => 1 + 0.09 * y + 0.01 * y * y,
     promotionPace: 1,
     skillsPerYear: 2,
     roles: [

@@ -45,14 +45,17 @@ function buildTrajectory(branch, ctx, whatIf) {
   const trajectory = [];
   const multiplier = ctx.locationMultiplier || 1;
   const industryMult = INDUSTRY_MULTIPLIERS[ctx.industry] || 1;
+  const experienceYears = Math.max(0, ctx.experienceYears || 0);
+  const experiencePremium = 1 + Math.min(experienceYears, 10) * 0.04;
   const startSalary = round(
     SALARY_BASELINES[ctx.entryPoint] * multiplier * industryMult *
-      (1 + (ctx.experienceYears || 0) * 0.08)
+      experiencePremium
   );
 
-  let salary = startSalary;
-  let level = 0;
   const roleChain = base.roles;
+  let salary = startSalary;
+  let level = ctx.entryPoint === 'senior' ? roleChain.length - 1 :
+    ctx.entryPoint === 'mid' ? Math.min(1, roleChain.length - 1) : 0;
   let skillsAcquired = [...ctx.coreSkills.map((s) => s.name.toLowerCase())];
 
   for (let y = 0; y <= years; y++) {

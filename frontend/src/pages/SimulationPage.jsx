@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   Gauge,
   RotateCcw,
+  FileCheck2,
 } from "lucide-react";
 import { api } from "@/lib/api.js";
 import { useToast } from "@/lib/toast.jsx";
@@ -198,6 +199,9 @@ export function SimulationPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Link to="/calculation-proof" className="btn-secondary">
+            <FileCheck2 className="h-4 w-4" /> Calculation proof
+          </Link>
           <button onClick={exportPath} className="btn-secondary">
             <Download className="h-4 w-4" /> Export
           </button>
