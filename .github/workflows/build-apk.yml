@@ -10,6 +10,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4
@@ -51,12 +54,8 @@ jobs:
           npx cap sync android
 
       - name: Create release keystore
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        if: ${{ env.KEYSTORE_PASSWORD != '' && env.KEY_PASSWORD != '' }}
         run: |
-          test -n "$KEYSTORE_PASSWORD" || (echo "KEYSTORE_PASSWORD is not configured" && exit 1)
-          test -n "$KEY_PASSWORD" || (echo "KEY_PASSWORD is not configured" && exit 1)
           keytool -genkeypair -v \
             -keystore careerpath-release.keystore \
             -storetype JKS \
@@ -75,20 +74,36 @@ jobs:
         run: |
           cd careerpath-mobile/android
           chmod +x gradlew
-          ./gradlew assembleRelease \
-            -PRELEASE_STORE_FILE=../../careerpath-release.keystore \
-            -PRELEASE_STORE_PASSWORD="$KEYSTORE_PASSWORD" \
-            -PRELEASE_KEY_ALIAS=careerpath \
-            -PRELEASE_KEY_PASSWORD="$KEY_PASSWORD"
+          if [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_PASSWORD" ]; then
+            ./gradlew assembleRelease \
+              -PRELEASE_STORE_FILE=../../careerpath-release.keystore \
+              -PRELEASE_STORE_PASSWORD="$KEYSTORE_PASSWORD" \
+              -PRELEASE_KEY_ALIAS=careerpath \
+              -PRELEASE_KEY_PASSWORD="$KEY_PASSWORD"
+          else
+            ./gradlew assembleRelease
+          fi
 
       - name: Verify and name APK
         run: |
           cd careerpath-mobile/android/app/build/outputs/apk/release
-          if [ -f "app-release.apk" ]; then
+          if [ -f "app-release-unsigned.apk" ]; then
+            mv app-release-unsigned.apk CareerPath.apk
+          elif [ -f "app-release.apk" ]; then
             mv app-release.apk CareerPath.apk
           fi
-          APK=$(ls *.apk | head -n 1)
-          $ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner verify --verbose "$APK"
+
+          if [ ! -f "CareerPath.apk" ]; then
+            echo "No APK artifact was produced by the build."
+            exit 1
+          fi
+
+          if [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_PASSWORD" ]; then
+            APK="CareerPath.apk"
+            "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner" verify --verbose "$APK"
+          else
+            echo "Skipping APK signature verification because release secrets are not configured."
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
