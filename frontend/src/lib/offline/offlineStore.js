@@ -288,11 +288,18 @@ export const offlineStore = {
     list.unshift(newSim);
     write(STORAGE_KEYS.SIMULATIONS, list);
 
-    // Auto-generate milestones for this new simulation's top path
+    // Auto-generate milestones for this new simulation's top path without duplicates
     if (paths[0]) {
       const generated = buildMilestones(paths[0], profile.userId || 'offline-user', paths[0].id);
       const existingMs = read(STORAGE_KEYS.MILESTONES, []);
-      write(STORAGE_KEYS.MILESTONES, [...generated, ...existingMs]);
+      const seen = new Set(
+        existingMs.map((m) => `${(m.title || '').trim().toLowerCase()}-${m.year ?? 0}-${m.quarter || 'Q1'}`)
+      );
+      const fresh = generated.filter(
+        (m) => !seen.has(`${(m.title || '').trim().toLowerCase()}-${m.year ?? 0}-${m.quarter || 'Q1'}`)
+      );
+      const merged = [...existingMs, ...fresh].slice(0, 20);
+      write(STORAGE_KEYS.MILESTONES, merged);
     }
 
     return newSim;
@@ -317,11 +324,25 @@ export const offlineStore = {
     return { isStarred: updatedStar };
   },
 
-  // Milestones
+  // Milestones: deduplicate repeating items and return strictly at most 20 sample data items
   getMilestones() {
     initOfflineStore();
-    const list = read(STORAGE_KEYS.MILESTONES, []);
-    return list.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+    const rawList = read(STORAGE_KEYS.MILESTONES, []);
+    const seen = new Set();
+    const deduplicated = [];
+    for (const m of rawList) {
+      const key = `${(m.title || '').trim().toLowerCase()}-${m.year ?? 0}-${m.quarter || 'Q1'}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduplicated.push(m);
+      }
+    }
+    const sample20 = deduplicated.slice(0, 20);
+    // If the storage had repeating tasks or excessive items, rewrite the sanitized 20 sample data
+    if (rawList.length !== sample20.length) {
+      write(STORAGE_KEYS.MILESTONES, sample20);
+    }
+    return sample20.sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || (a.orderIndex || 0) - (b.orderIndex || 0));
   },
 
   addMilestone(payload) {
@@ -603,7 +624,16 @@ export const offlineStore = {
         }
         write(STORAGE_KEYS.SIMULATIONS, existing);
       } else if (type === 'milestones' && Array.isArray(data.milestones)) {
-        write(STORAGE_KEYS.MILESTONES, data.milestones);
+        const seen = new Set();
+        const clean = [];
+        for (const m of data.milestones) {
+          const key = `${(m.title || '').trim().toLowerCase()}-${m.year ?? 0}-${m.quarter || 'Q1'}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            clean.push(m);
+          }
+        }
+        write(STORAGE_KEYS.MILESTONES, clean.slice(0, 20));
       }
     } catch (e) {
       console.warn('Failed to cache server data:', e);

@@ -12,7 +12,25 @@ router.get('/', async (req, res, next) => {
     const filter = { userId: req.user.id };
     if (pathId) filter.pathId = pathId;
     const milestones = await Milestone.find(filter).sort({ year: 1, orderIndex: 1 });
-    res.json({ milestones });
+
+    const seen = new Set();
+    const unique = [];
+    const duplicateIds = [];
+    for (const m of milestones) {
+      const key = `${(m.title || '').trim().toLowerCase()}-${m.year ?? 0}-${m.quarter || 'Q1'}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(m);
+      } else {
+        duplicateIds.push(m._id);
+      }
+    }
+
+    if (duplicateIds.length > 0) {
+      Milestone.deleteMany({ _id: { $in: duplicateIds } }).catch(() => {});
+    }
+
+    res.json({ milestones: unique.slice(0, 20) });
   } catch (err) {
     next(err);
   }

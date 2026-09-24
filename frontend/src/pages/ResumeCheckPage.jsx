@@ -8,6 +8,12 @@ import {
   AlertTriangle,
   TrendingUp,
   RefreshCw,
+  Sparkles,
+  Award,
+  Zap,
+  Layers,
+  Lightbulb,
+  Target,
 } from "lucide-react";
 import { api } from "@/lib/api.js";
 import { useToast } from "@/lib/toast.jsx";
@@ -407,11 +413,58 @@ export function ResumeCheckPage() {
                 </div>
               </div>
 
-              <div className="surface-card p-5">
-                <h3 className="mb-3 font-display text-base font-semibold text-foreground">
-                  Resume profile
-                </h3>
-                <div className="grid gap-4 sm:grid-cols-2">
+              {/* Intelligent Resume Assessment & Candidate Profile */}
+              <div className="surface-card p-5 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
+                  <div>
+                    <h3 className="font-display text-base font-semibold text-foreground flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-accent" /> Intelligent Resume Analysis
+                    </h3>
+                    <p className="text-xs text-muted">
+                      Semantic skill extraction, seniority profiling, and metric quantification
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    {result.parsed.seniority?.level && (
+                      <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 font-semibold text-accent flex items-center gap-1">
+                        <Award className="h-3 w-3" /> {result.parsed.seniority.level}
+                      </span>
+                    )}
+                    {result.parsed.yearsExperience !== null && (
+                      <span className="rounded-full border border-border bg-surface-2 px-2.5 py-0.5 text-muted">
+                        {result.parsed.yearsExperience} yrs exp
+                      </span>
+                    )}
+                    {result.parsed.detectedDegree && (
+                      <span className="rounded-full border border-border bg-surface-2 px-2.5 py-0.5 text-muted uppercase">
+                        {result.parsed.detectedDegree}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Intelligent Skill Categories */}
+                {result.parsed.skillCategories && Object.keys(result.parsed.skillCategories).length > 0 ? (
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted flex items-center gap-1.5">
+                      <Layers className="h-3.5 w-3.5 text-accent" /> Skills by Domain ({result.parsed.skills.length} detected)
+                    </p>
+                    <div className="grid gap-2.5 sm:grid-cols-2">
+                      {Object.entries(result.parsed.skillCategories).map(([cat, skills]) => (
+                        <div key={cat} className="rounded-lg border border-border/70 bg-surface-2/40 p-2.5">
+                          <span className="text-[11px] font-semibold text-muted block mb-1.5">{cat}</span>
+                          <div className="flex flex-wrap gap-1">
+                            {skills.map((skill) => (
+                              <span key={skill} className="chip text-[11px] py-0.5 px-2">
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
                   <div>
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
                       Skills found ({result.parsed.skills.length})
@@ -424,26 +477,43 @@ export function ResumeCheckPage() {
                       ))}
                     </div>
                   </div>
+                )}
+
+                {/* Roles & Impact Metrics */}
+                <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-border/60 text-xs">
                   <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                      Roles detected
+                    <p className="font-semibold text-muted mb-1 flex items-center gap-1">
+                      <Target className="h-3.5 w-3.5 text-accent" /> Roles Detected
                     </p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1.5 mt-1">
                       {(result.parsed.roles || []).length > 0 ? (
                         result.parsed.roles.map((role) => (
-                          <span
-                            key={role}
-                            className="chip border-info/40 bg-info/10 text-info text-xs"
-                          >
+                          <span key={role} className="chip border-info/40 bg-info/10 text-info text-xs">
                             {role}
                           </span>
                         ))
                       ) : (
-                        <span className="text-sm text-muted">
-                          No clear role title found.
-                        </span>
+                        <span className="text-muted">No explicit role titles found in headings.</span>
                       )}
                     </div>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-muted mb-1 flex items-center gap-1">
+                      <Zap className="h-3.5 w-3.5 text-accent" /> Impact & Metrics Rigor:{" "}
+                      <span className="text-foreground font-medium">
+                        {result.parsed.impactMetrics?.score || "Evaluated"}
+                      </span>
+                    </p>
+                    {result.parsed.impactMetrics?.metrics?.length > 0 ? (
+                      <ul className="space-y-1 mt-1 text-[11px] text-muted list-disc list-inside">
+                        {result.parsed.impactMetrics.metrics.slice(0, 2).map((m, i) => (
+                          <li key={i} className="truncate">"{m}"</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-muted text-[11px]">Consider adding quantifiable metrics (%, $, latency, scale) to your resume bullets.</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -488,6 +558,23 @@ export function ResumeCheckPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Actionable Smart Gap Suggestions */}
+              {result.realityCheck.smartSuggestions?.length > 0 && (
+                <div className="surface-card p-5 border border-accent/25 bg-accent/5">
+                  <h3 className="mb-2 flex items-center gap-2 font-display text-base font-semibold text-accent">
+                    <Lightbulb className="h-5 w-5" /> Smart Suggestions to Close Gaps
+                  </h3>
+                  <div className="space-y-2 text-xs">
+                    {result.realityCheck.smartSuggestions.map((item) => (
+                      <div key={item.skill} className="rounded-lg bg-surface/80 p-2.5 border border-border/60">
+                        <span className="font-semibold text-foreground">{item.skill}:</span>{" "}
+                        <span className="text-muted">{item.advice}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {result.realityCheck.surplus.length > 0 && (
                 <div className="surface-card p-5">

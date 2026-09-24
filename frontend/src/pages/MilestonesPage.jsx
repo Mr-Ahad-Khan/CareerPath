@@ -48,7 +48,17 @@ export function MilestonesPage() {
   const load = () => {
     Promise.all([api.get("/milestones"), api.get("/journal/stats")])
       .then(([ms, st]) => {
-        setMilestones(ms.milestones);
+        const raw = Array.isArray(ms?.milestones) ? ms.milestones : [];
+        const seen = new Set();
+        const unique = [];
+        for (const m of raw) {
+          const key = `${(m.title || '').trim().toLowerCase()}-${m.year ?? 0}-${m.quarter || 'Q1'}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            unique.push(m);
+          }
+        }
+        setMilestones(unique.slice(0, 20));
         setStats(st);
       })
       .catch(() => setMilestones([]));

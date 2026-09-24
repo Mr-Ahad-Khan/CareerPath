@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Sparkles,
   ShieldCheck,
+  X,
 } from "lucide-react";
 import { api } from "@/lib/api.js";
 import { useToast } from "@/lib/toast.jsx";
@@ -40,6 +41,7 @@ export function SimulationPage() {
   const [sim, setSim] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedPath, setSelectedPath] = useState(0);
+  const [confidenceModalPath, setConfidenceModalPath] = useState(null);
   const [whatIf, setWhatIf] = useState({
     extraLearningMonths: 0,
     upskillingHoursPerWeek: 10,
@@ -288,14 +290,21 @@ export function SimulationPage() {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted flex items-center gap-1">
+                <p className="text-xs text-muted flex items-center gap-1.5">
                   Confidence
-                  <span
-                    title="Confidence is calculated from: 40% Core Skill Match, 25% Experience Baseline, 20% Upskilling Schedule, and 15% Career Continuity."
-                    className="cursor-help text-accent/80 hover:text-accent"
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setConfidenceModalPath(p);
+                    }}
+                    title="Click to view full confidence score calculation & mathematical pillars"
+                    aria-label="View Confidence calculation details"
+                    className="inline-flex items-center justify-center p-0.5 rounded-full hover:bg-surface-2 text-accent/80 hover:text-accent transition-transform hover:scale-125 focus:outline-none"
                   >
-                    <Info className="h-3 w-3 inline" />
-                  </span>
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
                 </p>
                 <p className="font-display text-lg font-semibold text-foreground tabular">
                   {pct(p.confidenceScore * 100)}
@@ -541,6 +550,136 @@ export function SimulationPage() {
           </div>
         </div>
       )}
+
+      {/* Interactive Confidence Calculation Dialog */}
+      {confidenceModalPath && (
+        <ConfidenceDetailsModal
+          path={confidenceModalPath}
+          whatIf={whatIf}
+          onClose={() => setConfidenceModalPath(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function ConfidenceDetailsModal({ path, whatIf, onClose }) {
+  if (!path) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-lg rounded-2xl border border-border bg-surface p-6 shadow-lift animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confidence-title"
+      >
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-lg p-1.5 text-muted hover:bg-surface-2 hover:text-foreground transition-colors"
+          aria-label="Close confidence details"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/15 text-accent shrink-0">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 id="confidence-title" className="font-display text-lg font-semibold text-foreground">
+              Confidence Score Breakdown
+            </h3>
+            <p className="text-xs text-muted">
+              {path.title} — Conviction Score:{" "}
+              <strong className="text-accent font-semibold">{pct(path.confidenceScore * 100)}</strong>
+            </p>
+          </div>
+        </div>
+
+        <p className="text-xs text-muted mb-4 leading-relaxed">
+          Confidence is calculated mathematically through CareerPath's 4-pillar algorithmic rules engine, measuring realistic feasibility rather than empty optimism.
+        </p>
+
+        <div className="grid grid-cols-2 gap-2.5 mb-5 text-xs">
+          <div className="rounded-xl border border-border/80 bg-surface-2/60 p-3">
+            <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
+              Skill Match (40%)
+            </span>
+            <span className="font-display text-base font-semibold text-foreground mt-0.5 block">
+              {path.confidenceBreakdown?.skillMatchPercentage ?? Math.round(path.confidenceScore * 100)}%
+            </span>
+            <span className="text-[10px] text-muted block mt-0.5">
+              Coverage of target required tech stack
+            </span>
+          </div>
+
+          <div className="rounded-xl border border-border/80 bg-surface-2/60 p-3">
+            <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
+              Experience Baseline (25%)
+            </span>
+            <span className="font-display text-base font-semibold text-foreground mt-0.5 block">
+              {path.confidenceBreakdown?.experienceYears !== undefined
+                ? `${path.confidenceBreakdown.experienceYears} yrs`
+                : whatIf?.extraExperienceMonths
+                ? `${((whatIf.extraExperienceMonths) / 12).toFixed(1)} yrs`
+                : "Standard Baseline"}
+            </span>
+            <span className="text-[10px] text-muted block mt-0.5">
+              Tenure grounding vs seniority demand
+            </span>
+          </div>
+
+          <div className="rounded-xl border border-border/80 bg-surface-2/60 p-3">
+            <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
+              Upskilling Schedule (20%)
+            </span>
+            <span className="font-display text-base font-semibold text-foreground mt-0.5 block">
+              {whatIf?.upskillingHoursPerWeek || 10}h / week
+            </span>
+            <span className="text-[10px] text-muted block mt-0.5">
+              Deliberate practice & continuous study
+            </span>
+          </div>
+
+          <div className="rounded-xl border border-border/80 bg-surface-2/60 p-3">
+            <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
+              Career Continuity (15%)
+            </span>
+            <span className="font-display text-base font-semibold text-foreground mt-0.5 block">
+              Continuous
+            </span>
+            <span className="text-[10px] text-muted block mt-0.5">
+              Organic domain progression
+            </span>
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-surface-2/40 border border-border/60 p-3 mb-5 text-[11px] text-muted">
+          <p className="font-mono text-foreground/90 mb-1">
+            Confidence = (0.40 × SkillMatch) + (0.25 × Experience) + (0.20 × Schedule) + (0.15 × Continuity)
+          </p>
+          <p>
+            No black-box hallucinations. All weights and parameters are deterministic and transparent.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            to="/calculation-proof"
+            className="text-xs text-accent hover:underline inline-flex items-center gap-1 font-medium"
+          >
+            Review calculation proof & formulas →
+          </Link>
+          <button onClick={onClose} className="btn-primary text-xs py-1.5 px-4">
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

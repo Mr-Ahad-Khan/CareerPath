@@ -120,9 +120,9 @@ export function Navbar() {
 
       <OfflineBanner />
 
-      <nav className="mx-auto flex h-16 max-w-7xl items-center px-3 sm:px-6 relative">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2.5 px-3 sm:px-6 relative">
         {/* Left: Brand Logo & Sub-tag */}
-        <div className="flex-1 flex items-center justify-start gap-3 min-w-0">
+        <div className="flex items-center justify-start gap-3 shrink-0">
           <Link
             to={user ? '/dashboard' : '/'}
             className="group flex items-center transition-transform duration-150 active:scale-95 shrink-0"
@@ -131,14 +131,14 @@ export function Navbar() {
             <Logo />
           </Link>
 
-          <span className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/5 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-accent whitespace-nowrap shadow-xs">
+          <span className="hidden 2xl:inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/5 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-accent whitespace-nowrap shadow-xs">
             <Terminal className="h-3 w-3 shrink-0 text-accent/80" />
             <span>Software Tech</span>
           </span>
         </div>
 
         {/* Center: Desktop Navigation Links */}
-        <div className="hidden lg:flex items-center justify-center gap-1 xl:gap-1.5 shrink-0 mx-2">
+        <div className="hidden lg:flex items-center justify-center gap-1 xl:gap-1.5 shrink-0">
           {user ? (
             <>
               {primaryNavItems.map((item) => (
@@ -242,7 +242,7 @@ export function Navbar() {
         </div>
 
         {/* Right Actions: Currency Toggle, Theme, Profile / Auth, Mobile Menu */}
-        <div className="flex-1 flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
+        <div className="flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
           {/* Currency Switcher */}
           <button
             onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')}
