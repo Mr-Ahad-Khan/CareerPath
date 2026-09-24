@@ -120,12 +120,12 @@ export function Navbar() {
 
       <OfflineBanner />
 
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-6">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center px-3 sm:px-6 relative">
         {/* Left: Brand Logo & Sub-tag */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex-1 flex items-center justify-start gap-3 min-w-0">
           <Link
             to={user ? '/dashboard' : '/'}
-            className="group flex items-center transition-transform duration-150 active:scale-95"
+            className="group flex items-center transition-transform duration-150 active:scale-95 shrink-0"
             aria-label="CareerPath Home"
           >
             <Logo />
@@ -138,80 +138,111 @@ export function Navbar() {
         </div>
 
         {/* Center: Desktop Navigation Links */}
-        {user && (
-          <div className="hidden lg:flex items-center gap-1 xl:gap-1.5">
-            {primaryNavItems.map((item) => (
+        <div className="hidden lg:flex items-center justify-center gap-1 xl:gap-1.5 shrink-0 mx-2">
+          {user ? (
+            <>
+              {primaryNavItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `group relative flex items-center gap-1.5 rounded-lg px-2.5 xl:px-3 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
+                      isActive
+                        ? 'bg-accent/15 text-accent font-semibold shadow-xs ring-1 ring-accent/30'
+                        : 'text-muted hover:bg-surface-2/80 hover:text-foreground'
+                    }`
+                  }
+                >
+                  <item.icon className="h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110" />
+                  <span>{item.label}</span>
+                  {item.hasBadge && (
+                    <span className="relative flex h-2 w-2 shrink-0 ml-0.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                  )}
+                </NavLink>
+              ))}
+
+              {/* "More" Resources Dropdown */}
+              <div className="relative" ref={moreDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setMoreDropdownOpen((prev) => !prev)}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
+                    isMoreActive || moreDropdownOpen
+                      ? 'bg-surface-2 text-foreground font-semibold'
+                      : 'text-muted hover:bg-surface-2/80 hover:text-foreground'
+                  }`}
+                  aria-expanded={moreDropdownOpen}
+                >
+                  <span>More</span>
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                      moreDropdownOpen ? 'rotate-180 text-foreground' : 'text-muted'
+                    }`}
+                  />
+                </button>
+
+                {moreDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-border bg-surface/95 p-1.5 shadow-lift backdrop-blur-xl animate-fade-in z-50">
+                    {secondaryNavItems.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        className={({ isActive }) =>
+                          `flex items-start gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors duration-150 ${
+                            isActive
+                              ? 'bg-accent/10 text-accent font-semibold'
+                              : 'text-muted hover:bg-surface-2 hover:text-foreground'
+                          }`
+                        }
+                      >
+                        <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                        <div>
+                          <div className="font-medium text-foreground">{item.label}</div>
+                          <div className="text-[11px] text-muted">{item.desc}</div>
+                        </div>
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center gap-1">
               <NavLink
-                key={item.to}
-                to={item.to}
+                to="/how-it-works"
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-1.5 rounded-lg px-2.5 xl:px-3 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
+                  `flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-all ${
                     isActive
-                      ? 'bg-accent/15 text-accent font-semibold shadow-xs ring-1 ring-accent/30'
+                      ? 'bg-accent/15 text-accent font-semibold'
                       : 'text-muted hover:bg-surface-2/80 hover:text-foreground'
                   }`
                 }
               >
-                <item.icon className="h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110" />
-                <span>{item.label}</span>
-                {item.hasBadge && (
-                  <span className="relative flex h-2 w-2 shrink-0 ml-0.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                  </span>
-                )}
+                <BookOpen className="h-3.5 w-3.5 text-accent" />
+                <span>How It Works</span>
               </NavLink>
-            ))}
-
-            {/* "More" Resources Dropdown */}
-            <div className="relative" ref={moreDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setMoreDropdownOpen((prev) => !prev)}
-                className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
-                  isMoreActive || moreDropdownOpen
-                    ? 'bg-surface-2 text-foreground font-semibold'
-                    : 'text-muted hover:bg-surface-2/80 hover:text-foreground'
-                }`}
-                aria-expanded={moreDropdownOpen}
+              <NavLink
+                to="/calculation-proof"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-all ${
+                    isActive
+                      ? 'bg-accent/15 text-accent font-semibold'
+                      : 'text-muted hover:bg-surface-2/80 hover:text-foreground'
+                  }`
+                }
               >
-                <span>More</span>
-                <ChevronDown
-                  className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                    moreDropdownOpen ? 'rotate-180 text-foreground' : 'text-muted'
-                  }`}
-                />
-              </button>
-
-              {moreDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-border bg-surface/95 p-1.5 shadow-lift backdrop-blur-xl animate-fade-in z-50">
-                  {secondaryNavItems.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      className={({ isActive }) =>
-                        `flex items-start gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors duration-150 ${
-                          isActive
-                            ? 'bg-accent/10 text-accent font-semibold'
-                            : 'text-muted hover:bg-surface-2 hover:text-foreground'
-                        }`
-                      }
-                    >
-                      <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                      <div>
-                        <div className="font-medium text-foreground">{item.label}</div>
-                        <div className="text-[11px] text-muted">{item.desc}</div>
-                      </div>
-                    </NavLink>
-                  ))}
-                </div>
-              )}
+                <ShieldCheck className="h-3.5 w-3.5 text-accent" />
+                <span>Calculation Proof</span>
+              </NavLink>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Right Actions: Currency Toggle, Theme, Profile / Auth, Mobile Menu */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <div className="flex-1 flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
           {/* Currency Switcher */}
           <button
             onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')}

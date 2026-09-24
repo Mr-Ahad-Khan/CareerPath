@@ -7,6 +7,8 @@ import {
   CheckCircle2,
   Flame,
   X,
+  Edit3,
+  Sliders,
 } from "lucide-react";
 import { api } from "@/lib/api.js";
 import { useToast } from "@/lib/toast.jsx";
@@ -124,7 +126,12 @@ export function MilestonesPage() {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <span className="section-eyebrow">Milestone Roadmap</span>
+          <div className="flex items-center gap-2">
+            <span className="section-eyebrow">Milestone Roadmap</span>
+            <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent flex items-center gap-1">
+              <Sliders className="h-3 w-3" /> Manual Tracker Mode
+            </span>
+          </div>
           <h1 className="mt-2 font-display text-3xl font-semibold text-foreground">
             Your 5-year plan, quarter by quarter
           </h1>
@@ -136,6 +143,33 @@ export function MilestonesPage() {
           <button onClick={() => setShowAdd(true)} className="btn-primary">
             <Plus className="h-4 w-4" /> Add milestone
           </button>
+        </div>
+      </div>
+
+      {/* Manual Tracking Explicit Notice */}
+      <div className="mb-6 rounded-2xl border border-border/80 bg-surface-2/60 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent text-base">
+            <Edit3 className="h-4 w-4 text-accent" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm sm:text-base font-semibold text-foreground">
+                Self-Directed Manual Progress Tracker
+              </h2>
+              <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent uppercase tracking-wider">
+                Manual Control
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-muted leading-relaxed max-w-3xl">
+              This page is an <strong>interactive manual tracker</strong>. Milestones do not automatically check themselves off — you manually drag or toggle them to <em>"In progress"</em> and <em>"Complete"</em> as you hit them in real life, log daily skill hours, or add custom goals.
+            </p>
+          </div>
+        </div>
+        <div className="shrink-0 flex items-center gap-2 self-stretch sm:self-auto justify-end">
+          <span className="text-xs text-muted font-medium bg-surface px-3 py-1.5 rounded-lg border border-border">
+            Manual Updates Active ✓
+          </span>
         </div>
       </div>
 

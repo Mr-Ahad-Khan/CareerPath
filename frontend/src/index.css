@@ -6,9 +6,9 @@
   --bg: 14 16 20;
   --surface: 22 25 31;
   --surface-2: 29 33 40;
-  --border: 48 53 62;
-  --text: 237 240 245;
-  --text-muted: 150 158 170;
+  --border: 52 58 70;
+  --text: 246 248 252;
+  --text-muted: 172 180 196;
   --accent: 255 179 64;
   --accent-strong: 255 158 31;
   --accent-contrast: 18 14 8;
@@ -27,9 +27,9 @@ html:not(.dark) {
   --bg: 250 248 244;
   --surface: 255 255 255;
   --surface-2: 243 240 234;
-  --border: 224 218 208;
-  --text: 26 25 23;
-  --text-muted: 110 104 94;
+  --border: 220 214 204;
+  --text: 18 20 24;
+  --text-muted: 78 84 96;
   --accent: 214 119 0;
   --accent-strong: 180 98 0;
   --accent-contrast: 255 255 255;
@@ -222,7 +222,7 @@ input[type="range"]::-moz-range-thumb {
   }
 
   .field-label {
-    @apply mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted;
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted;
   }
   .field-input {
     @apply w-full rounded-xl border border-border bg-surface-2 px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted/60 transition-colors duration-200 focus:border-accent/70 focus:ring-2 focus:ring-accent/20;
@@ -232,7 +232,7 @@ input[type="range"]::-moz-range-thumb {
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-medium text-muted transition-colors duration-200;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-semibold text-muted transition-colors duration-200;
   }
   .chip-accent {
     @apply chip border-accent/40 bg-accent/10 text-accent;

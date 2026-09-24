@@ -4,6 +4,8 @@ import {
   SALARY_BASELINES,
   INDUSTRY_MULTIPLIERS,
   SATISFACTION_FACTORS,
+  CITY_TIERS,
+  EXPERIENCE_BRACKETS,
 } from './data.js';
 
 const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
@@ -13,11 +15,45 @@ const round = (n, p = 0) => {
   return Math.round(n * f) / f;
 };
 
+export function getCityMultiplier(inputCity) {
+  if (!inputCity) return 1.0;
+  const key = String(inputCity).toLowerCase().trim();
+  if (CITY_TIERS[key]) return CITY_TIERS[key].multiplier;
+
+  if (key.includes('lucknow')) return CITY_TIERS.lucknow.multiplier;
+  if (key.includes('bangalore') || key.includes('bengaluru')) return CITY_TIERS.bangalore.multiplier;
+  if (key.includes('delhi') || key.includes('gurgaon') || key.includes('noida') || key.includes('ncr')) return CITY_TIERS.delhi.multiplier;
+  if (key.includes('mumbai') || key.includes('thane') || key.includes('bombay')) return CITY_TIERS.mumbai.multiplier;
+  if (key.includes('pune')) return CITY_TIERS.pune.multiplier;
+  if (key.includes('hyderabad')) return CITY_TIERS.hyderabad.multiplier;
+  if (key.includes('chennai') || key.includes('madras')) return CITY_TIERS.chennai.multiplier;
+  if (key.includes('kolkata') || key.includes('calcutta')) return CITY_TIERS.kolkata.multiplier;
+  if (key.includes('ahmedabad') || key.includes('gift')) return CITY_TIERS.ahmedabad.multiplier;
+  if (key.includes('jaipur')) return CITY_TIERS.jaipur.multiplier;
+  if (key.includes('indore')) return CITY_TIERS.indore.multiplier;
+  if (key.includes('kochi') || key.includes('trivandrum') || key.includes('kerala')) return CITY_TIERS.kochi.multiplier;
+  if (key.includes('remote') || key.includes('wfh')) return CITY_TIERS.remote.multiplier;
+  if (key.includes('us') || key.includes('global') || key.includes('international') || key.includes('europe') || key.includes('uk')) return CITY_TIERS.global.multiplier;
+
+  if (key === 'metro' || key === 'tier1') return 1.08;
+  if (key === 'tier2') return 0.65;
+  if (key === 'tier3') return 0.58;
+  return 0.88;
+}
+
+export function getExperienceBracket(years) {
+  const y = Math.max(0, Number(years) || 0);
+  for (const b of EXPERIENCE_BRACKETS) {
+    if (y >= b.minYears && y < b.maxYears) return b;
+  }
+  return EXPERIENCE_BRACKETS[EXPERIENCE_BRACKETS.length - 1];
+}
+
 function skillMatchScore(currentSkills, targetSkills) {
   if (!targetSkills?.length) return 0.5;
   let total = 0;
   for (const t of targetSkills) {
-    const owned = currentSkills.find((s) => s.name.toLowerCase() === t.name.toLowerCase());
+    const owned = currentSkills.find((s) => (s.name || '').toLowerCase() === t.name.toLowerCase());
     const proficiency = owned ? owned.proficiency / 5 : 0;
     const weight = t.weight || 1;
     total += (proficiency * weight) / weight;
@@ -29,12 +65,13 @@ function applyWhatIf(base, whatIf) {
   if (!whatIf) return base;
   const w = { ...base };
   w.experienceYears = (w.experienceYears || 0) + (whatIf.extraExperienceMonths || 0) / 12;
-  w.locationMultiplier = (whatIf.cityTier === 'metro' ? 1.15 :
-    whatIf.cityTier === 'tier2' ? 0.92 : 1) || 1;
+  const cityKey = whatIf.city || whatIf.cityTier || base.location || 'bangalore';
+  w.location = cityKey;
+  w.locationMultiplier = getCityMultiplier(cityKey);
   w.upskillingBoost = clamp((whatIf.upskillingHoursPerWeek || 0) / 20, 0, 1.5);
   w.timePenalty = (whatIf.extraLearningMonths || 0) / 12;
-  w.networkBoost = whatIf.networkStrength === 'strong' ? 1.08 :
-    whatIf.networkStrength === 'weak' ? 0.94 : 1;
+  w.networkBoost = whatIf.networkStrength === 'strong' ? 1.06 :
+    whatIf.networkStrength === 'weak' ? 0.95 : 1;
   return w;
 }
 
@@ -43,49 +80,65 @@ function buildTrajectory(branch, ctx, whatIf) {
   if (!base) throw new Error(`Unknown branch: ${branch}`);
   const years = 5;
   const trajectory = [];
-  const multiplier = ctx.locationMultiplier || 1;
-  const industryMult = INDUSTRY_MULTIPLIERS[ctx.industry] || 1;
+  const cityMult = ctx.locationMultiplier || 1.0;
+  const industryMult = INDUSTRY_MULTIPLIERS[ctx.industry] || 1.0;
   const experienceYears = Math.max(0, ctx.experienceYears || 0);
 
-  // Realistic experienced compensation calculation
-  const baselineFromTier = SALARY_BASELINES[ctx.entryPoint] || 1300000;
-  const baselineSalary = ctx.currentSalary && ctx.currentSalary > baselineFromTier * 0.5
-    ? Math.max(ctx.currentSalary, baselineFromTier * 0.8)
-    : baselineFromTier;
+  // Realistic experienced compensation calculation with experience brackets
+  const startBracket = getExperienceBracket(experienceYears);
+  const marketTierMultiplier = ctx.marketTier === 'tier1-faang' ? 1.20 :
+    ctx.marketTier === 'growth-product' ? 1.05 : 0.95;
 
-  const experiencePremium = 1 + Math.min(experienceYears, 14) * 0.025;
-  const marketTierMultiplier = ctx.marketTier === 'tier1-faang' ? 1.25 :
-    ctx.marketTier === 'growth-product' ? 1.10 : 1.0;
-
-  const startSalary = round(
-    baselineSalary * multiplier * industryMult * (ctx.currentSalary ? 1.05 : experiencePremium * marketTierMultiplier)
-  );
+  let startSalary;
+  if (ctx.currentSalary && ctx.currentSalary > 100000) {
+    // If user provided salary, use it as baseline but anchor with soft sanity cap to prevent runaways
+    const maxRealisticStart = Math.round(startBracket.maxRealistic * cityMult * marketTierMultiplier);
+    startSalary = round(Math.min(ctx.currentSalary, maxRealisticStart));
+  } else {
+    // Standard grounded baseline for their experience bracket in this city
+    const calculatedBase = startBracket.baseSalary * cityMult * industryMult * marketTierMultiplier;
+    const minBound = Math.round(startBracket.minRealistic * cityMult * 0.9);
+    const maxBound = Math.round(startBracket.maxRealistic * cityMult * marketTierMultiplier);
+    startSalary = round(clamp(calculatedBase, minBound, maxBound));
+  }
 
   const roleChain = base.roles;
   let salary = startSalary;
 
   // Intelligent starting level based on experience
   let level = 0;
-  if (ctx.entryPoint === 'principal' || ctx.entryPoint === 'staff') {
+  if (experienceYears >= 12 || ctx.entryPoint === 'principal' || ctx.entryPoint === 'staff') {
     level = Math.max(0, roleChain.length - 1);
-  } else if (ctx.entryPoint === 'lead' || ctx.entryPoint === 'senior') {
+  } else if (experienceYears >= 6 || ctx.entryPoint === 'lead' || ctx.entryPoint === 'senior') {
     level = Math.min(Math.max(1, roleChain.length - 2), roleChain.length - 1);
-  } else if (ctx.entryPoint === 'mid') {
+  } else if (experienceYears >= 2 || ctx.entryPoint === 'mid') {
     level = Math.min(1, roleChain.length - 1);
   }
 
-  let skillsAcquired = [...ctx.coreSkills.map((s) => s.name.toLowerCase())];
+  let skillsAcquired = [...ctx.coreSkills.map((s) => (s.name || '').toLowerCase())];
 
   for (let y = 0; y <= years; y++) {
     const roleIdx = Math.min(level, roleChain.length - 1);
     const role = roleChain[roleIdx];
 
-    const growthFactor =
-      base.salaryGrowthCurve(y + (ctx.timePenalty || 0)) *
-      (1 + (ctx.upskillingBoost || 0) * 0.06) *
-      (ctx.networkBoost || 1);
+    // Cumulative continuous experience in the field
+    const effectiveExperience = experienceYears + y;
+    const currBracket = getExperienceBracket(effectiveExperience);
 
-    salary = round(startSalary * growthFactor);
+    if (y === 0) {
+      salary = startSalary;
+    } else {
+      // Annual compounding bounded by realistic experience bracket growth rate
+      const annualRate = Math.min(currBracket.annualGrowthCap, 0.08) *
+        (1 + (ctx.upskillingBoost || 0) * 0.04) *
+        (ctx.networkBoost || 1);
+
+      const projectedNext = salary * (1 + annualRate);
+
+      // Upper ceiling bound for this city and experience bracket to guarantee grounded results
+      const ceilingForYear = currBracket.maxRealistic * cityMult * marketTierMultiplier * (branch === 'founder-path' ? 1.15 : 1.0);
+      salary = round(Math.min(projectedNext, ceilingForYear));
+    }
 
     const targetSkills = role.requiredSkills || [];
     const gaps = targetSkills
@@ -104,11 +157,15 @@ function buildTrajectory(branch, ctx, whatIf) {
 
     // Intelligent role naming for high experience in later years
     let roleTitle = role.title;
-    if (experienceYears >= 7 && roleIdx === roleChain.length - 1 && y >= 3) {
+    if (effectiveExperience >= 8 && roleIdx === roleChain.length - 1 && y >= 3) {
       if (branch === 'deep-specialist') roleTitle = y >= 4 ? 'Principal Software Architect' : 'Staff Systems Engineer';
       else if (branch === 'management-track') roleTitle = y >= 4 ? 'VP of Engineering' : 'Senior Director of Engineering';
       else if (branch === 'data-scientist') roleTitle = y >= 4 ? 'Distinguished AI Architect' : 'Staff Machine Learning Engineer';
       else if (branch === 'founder-path') roleTitle = 'Technical Co-Founder & CTO';
+      else if (branch === 'cybersecurity-architect') roleTitle = y >= 4 ? 'Chief Information Security Officer (CISO)' : 'Principal Security Architect';
+      else if (branch === 'fullstack-solopreneur') roleTitle = 'Principal AI Consultant & Tech Founder';
+      else if (branch === 'qa-automation-sdet') roleTitle = y >= 4 ? 'VP of Quality & Engineering Excellence' : 'Staff SDET Architect';
+      else if (branch === 'mobile-ecosystem-lead') roleTitle = y >= 4 ? 'Head of Mobile Engineering' : 'Staff Mobile Systems Architect';
     }
 
     trajectory.push({
@@ -116,9 +173,10 @@ function buildTrajectory(branch, ctx, whatIf) {
       role: roleTitle,
       companyArchetype: role.companyArchetype,
       salary,
-      salaryLow: round(salary * 0.85),
-      salaryHigh: round(salary * 1.2),
+      salaryLow: round(salary * 0.88),
+      salaryHigh: round(salary * 1.14),
       seniority: role.seniority,
+      experienceBracket: currBracket.label,
       skillsToAcquire: gaps.map((g) => g.skill),
       skillMatch: round(match, 2),
       milestones: (role.milestones[y] || []).map((m) => ({
@@ -208,6 +266,7 @@ function matchInterest(userInterests, branchInterests) {
 }
 
 export function generateSimulation(profileInput, whatIf) {
+  const cityKey = whatIf?.city || whatIf?.cityTier || profileInput.location || 'bangalore';
   const ctx = applyWhatIf(
     {
       coreSkills: profileInput.skills || [],
@@ -215,9 +274,10 @@ export function generateSimulation(profileInput, whatIf) {
       experienceYears: Number(profileInput.experienceYears) || 0,
       currentSalary: Number(profileInput.currentSalary) || null,
       marketTier: profileInput.marketTier || 'growth-product',
+      location: profileInput.location || cityKey,
       entryPoint: deriveEntryPoint(profileInput),
       industry: deriveIndustry(profileInput),
-      locationMultiplier: 1,
+      locationMultiplier: getCityMultiplier(cityKey),
     },
     whatIf
   );
@@ -236,6 +296,7 @@ export function generateSimulation(profileInput, whatIf) {
       paths.reduce((s, p) => s + p.confidenceScore, 0) / paths.length,
       2
     ),
+    continuousWorkAssumption: "Calculations reflect continuous specialized employment in this domain without multi-year career gaps or major domain resets.",
   };
 
   return { paths, summary };
@@ -250,7 +311,13 @@ function deriveEntryPoint(profile) {
   if (yrs < 9) return 'senior';
   if (yrs < 12) return 'lead';
   if (yrs < 15) return 'staff';
-  return 'principal';
+  if (yrs < 18) return 'director';
+  if (yrs < 22) return 'sr-director';
+  if (yrs < 26) return 'vp';
+  if (yrs < 30) return 'svp';
+  if (yrs < 35) return 'cto';
+  if (yrs < 42) return 'evp-advisor';
+  return 'elder-board';
 }
 
 function deriveIndustry(profile) {
@@ -278,14 +345,14 @@ function pickBranches(ctx) {
     if (!picked.includes(item.b)) {
       picked.push(item.b);
     }
-    if (picked.length >= 4) break;
+    if (picked.length >= 6) break;
   }
-  const divergent = all.find((b) => !picked.includes(b) && ROLE_TREES[b].divergent);
-  if (divergent && picked.length < 5) {
-    picked.push(divergent);
+  const divergent = all.filter((b) => !picked.includes(b) && ROLE_TREES[b].divergent);
+  for (const d of divergent) {
+    if (picked.length < 8) picked.push(d);
   }
   for (const b of all) {
-    if (!picked.includes(b) && picked.length < 5) {
+    if (!picked.includes(b) && picked.length < 8) {
       picked.push(b);
     }
   }

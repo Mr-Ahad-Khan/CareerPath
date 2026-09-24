@@ -5,11 +5,16 @@ import App from "./App.jsx";
 import { AuthProvider } from "./lib/auth.jsx";
 import { ThemeProvider } from "./lib/theme.jsx";
 import { ToastProvider } from "./lib/toast.jsx";
+import { ErrorBoundary } from "./components/ErrorBoundary.jsx";
 import { initOfflineStore } from "./lib/offline/offlineStore.js";
 import "./index.css";
 
-// Initialize offline storage with default simulations and roadmap
-initOfflineStore();
+// Safely initialize offline storage with fallback demo data
+try {
+  initOfflineStore();
+} catch (e) {
+  console.warn("[CareerPath] Offline store initialization caught:", e);
+}
 
 // Register PWA service worker if supported
 if (typeof window !== "undefined" && "serviceWorker" in navigator) {
@@ -27,19 +32,21 @@ if (typeof window !== "undefined" && "serviceWorker" in navigator) {
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
-      <ThemeProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </ToastProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <ThemeProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </ToastProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>,
 );

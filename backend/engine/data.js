@@ -1,12 +1,53 @@
+export const CITY_TIERS = {
+  bangalore: { code: "bangalore", name: "Bangalore / Bengaluru", multiplier: 1.15, tier: "Tier 1 Tech Capital", description: "Top tech compensation, FAANG & unicorn hub" },
+  delhi: { code: "delhi", name: "Delhi NCR (Gurgaon / Noida)", multiplier: 1.08, tier: "Tier 1 Hub", description: "High corporate & growth product presence" },
+  mumbai: { code: "mumbai", name: "Mumbai (MMR)", multiplier: 1.06, tier: "Tier 1 Commercial Hub", description: "Fintech, BFSI & large enterprise scale" },
+  hyderabad: { code: "hyderabad", name: "Hyderabad", multiplier: 1.02, tier: "Tier 1 Tech Hub", description: "Major cloud MNCs & GCC centers" },
+  pune: { code: "pune", name: "Pune", multiplier: 0.90, tier: "Major Tech Hub", description: "Core engineering, automotive & SaaS centers" },
+  chennai: { code: "chennai", name: "Chennai", multiplier: 0.88, tier: "Major Tech Hub", description: "SaaS capital & deep enterprise software" },
+  kolkata: { code: "kolkata", name: "Kolkata", multiplier: 0.72, tier: "Tier 2 Hub", description: "Emerging IT services & analytics" },
+  lucknow: { code: "lucknow", name: "Lucknow", multiplier: 0.62, tier: "Tier 2 Emerging Hub", description: "Growing IT state capital, cost-effective base" },
+  ahmedabad: { code: "ahmedabad", name: "Ahmedabad / GIFT City", multiplier: 0.70, tier: "Tier 2 Hub", description: "Fintech SEZ & regional tech growth" },
+  jaipur: { code: "jaipur", name: "Jaipur", multiplier: 0.64, tier: "Tier 2 Hub", description: "Software export & digital agencies" },
+  indore: { code: "indore", name: "Indore", multiplier: 0.63, tier: "Tier 2 Hub", description: "Fast-growing central Indian IT corridor" },
+  kochi: { code: "kochi", name: "Kochi / Trivandrum", multiplier: 0.72, tier: "Tier 2 Hub", description: "Infopark / Technopark ecosystems" },
+  remote: { code: "remote", name: "Remote (Pan-India)", multiplier: 0.88, tier: "Distributed", description: "Flexible location-independent compensation" },
+  other: { code: "other", name: "Other Tier-2 / Tier-3 Cities", multiplier: 0.58, tier: "Tier 2/3 Regional", description: "Lower living expenses, localized bands" },
+  global: { code: "global", name: "Remote (Global / US / EU)", multiplier: 1.80, tier: "International", description: "Cross-border USD-denominated contracts" },
+};
+
+export const EXPERIENCE_BRACKETS = [
+  { minYears: 0, maxYears: 1, key: "entry", label: "Fresher / Entry (0-1 yrs)", baseSalary: 450000, minRealistic: 300000, maxRealistic: 750000, annualGrowthCap: 0.12 },
+  { minYears: 1, maxYears: 3, key: "junior", label: "Junior (1-3 yrs)", baseSalary: 750000, minRealistic: 500000, maxRealistic: 1200000, annualGrowthCap: 0.11 },
+  { minYears: 3, maxYears: 5, key: "mid", label: "Mid-Level (3-5 yrs)", baseSalary: 1250000, minRealistic: 850000, maxRealistic: 1800000, annualGrowthCap: 0.09 },
+  { minYears: 5, maxYears: 8, key: "senior", label: "Senior Engineer (5-8 yrs)", baseSalary: 1850000, minRealistic: 1300000, maxRealistic: 2600000, annualGrowthCap: 0.08 },
+  { minYears: 8, maxYears: 11, key: "lead", label: "Lead / Staff Engineer (8-11 yrs)", baseSalary: 2500000, minRealistic: 1800000, maxRealistic: 3500000, annualGrowthCap: 0.07 },
+  { minYears: 11, maxYears: 15, key: "principal", label: "Principal / Architect (11-15 yrs)", baseSalary: 3300000, minRealistic: 2400000, maxRealistic: 4600000, annualGrowthCap: 0.06 },
+  { minYears: 15, maxYears: 18, key: "director", label: "Engineering Director / Head of Tech (15-18 yrs)", baseSalary: 4200000, minRealistic: 3000000, maxRealistic: 5800000, annualGrowthCap: 0.050 },
+  { minYears: 18, maxYears: 22, key: "sr-director", label: "Senior Director / Distinguished Engineer (18-22 yrs)", baseSalary: 4900000, minRealistic: 3500000, maxRealistic: 6800000, annualGrowthCap: 0.045 },
+  { minYears: 22, maxYears: 26, key: "vp", label: "VP of Engineering / Principal Fellow (22-26 yrs)", baseSalary: 5600000, minRealistic: 4000000, maxRealistic: 7800000, annualGrowthCap: 0.040 },
+  { minYears: 26, maxYears: 30, key: "svp", label: "Senior VP of Tech / Chief Architect (26-30 yrs)", baseSalary: 6400000, minRealistic: 4600000, maxRealistic: 8900000, annualGrowthCap: 0.035 },
+  { minYears: 30, maxYears: 35, key: "cto", label: "Chief Technology Officer (CTO) (30-35 yrs)", baseSalary: 7200000, minRealistic: 5200000, maxRealistic: 10200000, annualGrowthCap: 0.032 },
+  { minYears: 35, maxYears: 42, key: "evp-advisor", label: "Executive VP / Chief Technology Strategist (35-42 yrs)", baseSalary: 8000000, minRealistic: 5800000, maxRealistic: 11500000, annualGrowthCap: 0.028 },
+  { minYears: 42, maxYears: 99, key: "elder-board", label: "Senior Board Advisor / Tech Elder & Patriarch (42-99 yrs)", baseSalary: 8800000, minRealistic: 6400000, maxRealistic: 12800000, annualGrowthCap: 0.024 },
+];
+
 export const SALARY_BASELINES = {
-  fresher: 420000,
-  "pg-fresh": 550000,
-  junior: 800000,
-  mid: 1300000,
-  senior: 2000000,
-  lead: 2800000,
-  staff: 3800000,
-  principal: 5000000,
+  fresher: 450000,
+  "pg-fresh": 580000,
+  junior: 750000,
+  mid: 1250000,
+  senior: 1850000,
+  lead: 2500000,
+  staff: 3300000,
+  principal: 4200000,
+  director: 4200000,
+  "sr-director": 4900000,
+  vp: 5600000,
+  svp: 6400000,
+  cto: 7200000,
+  "evp-advisor": 8000000,
+  "elder-board": 8800000,
 };
 
 export const INDUSTRY_MULTIPLIERS = {
@@ -50,7 +91,10 @@ export const SKILL_DEMAND = {
   java: { demand: 0.81, category: "Technical" },
   typescript: { demand: 0.89, category: "Technical" },
   graphql: { demand: 0.68, category: "Technical" },
-  cypress: { demand: 0.55, category: "QA" },
+  cypress: { demand: 0.65, category: "QA" },
+  playwright: { demand: 0.78, category: "QA" },
+  "test automation": { demand: 0.82, category: "QA" },
+  "ci/cd": { demand: 0.85, category: "DevOps" },
   figma: { demand: 0.58, category: "Design" },
   "responsive design": { demand: 0.72, category: "Frontend" },
   accessibility: { demand: 0.68, category: "Frontend" },
@@ -59,7 +103,17 @@ export const SKILL_DEMAND = {
   mentoring: { demand: 0.7, category: "Soft" },
   budgeting: { demand: 0.62, category: "Soft" },
   negotiation: { demand: 0.68, category: "Soft" },
-  security: { demand: 0.77, category: "Security" },
+  security: { demand: 0.85, category: "Security" },
+  "application security": { demand: 0.88, category: "Security" },
+  devsecops: { demand: 0.86, category: "Security" },
+  "penetration testing": { demand: 0.78, category: "Security" },
+  "react native": { demand: 0.84, category: "Mobile" },
+  flutter: { demand: 0.80, category: "Mobile" },
+  "ios / swift": { demand: 0.79, category: "Mobile" },
+  "android / kotlin": { demand: 0.78, category: "Mobile" },
+  "full-stack": { demand: 0.90, category: "Technical" },
+  "next.js": { demand: 0.88, category: "Technical" },
+  "generative ai": { demand: 0.92, category: "AI/ML" },
 };
 
 export const SATISFACTION_FACTORS = {
@@ -68,7 +122,11 @@ export const SATISFACTION_FACTORS = {
   "pivot-adjacent": 0.69,
   "product-track": 0.78,
   "founder-path": 0.66,
-  "data-scientist": 0.8,
+  "data-scientist": 0.80,
+  "cybersecurity-architect": 0.81,
+  "fullstack-solopreneur": 0.77,
+  "qa-automation-sdet": 0.75,
+  "mobile-ecosystem-lead": 0.79,
 };
 
 export const ROLE_TREES = {
@@ -894,6 +952,554 @@ export const ROLE_TREES = {
               title: "Series C readiness & growth trajectory",
               category: "Career",
               description: "Align technology reliability metrics for growth-stage institutional rounds.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+
+  "cybersecurity-architect": {
+    title: "Cybersecurity & DevSecOps Architect",
+    description:
+      "You safeguard mission-critical systems, secure cloud perimeters, and engineer automated DevSecOps pipelines. High scarcity skill set commanding premier enterprise compensation and regulatory respect.",
+    riskLevel: 2,
+    divergent: true,
+    interests: ["security", "cloud", "systems", "architecture", "coding"],
+    salaryGrowthCurve: (y) => 1 + 0.060 * y + 0.005 * y * y,
+    promotionPace: 1,
+    skillsPerYear: 2,
+    roles: [
+      {
+        title: "Application Security & DevSecOps Engineer",
+        seniority: 1,
+        companyArchetype: "enterprise cloud / fintech security",
+        requiredSkills: [
+          { name: "Security", weight: 1.3 },
+          { name: "Application Security", weight: 1.2 },
+          { name: "DevSecOps", weight: 1.1 },
+          { name: "Docker", weight: 0.9 },
+        ],
+        milestones: {
+          0: [
+            {
+              quarter: 1,
+              title: "Automate SAST/DAST in CI/CD pipeline",
+              category: "Delivery",
+              description: "Integrate security scanners into deployment workflows with automated PR gatekeeping.",
+            },
+            {
+              quarter: 3,
+              title: "OWASP Top-10 remediation audit",
+              category: "Learning",
+              description: "Perform vulnerability audits across core backend endpoints and remediate injection vectors.",
+            },
+          ],
+          1: [
+            {
+              quarter: 2,
+              title: "SOC-2 Type II readiness controls",
+              category: "Visibility",
+              description: "Implement audit trails, secrets rotation, and identity access management policies.",
+            },
+            {
+              quarter: 4,
+              title: "Threat modeling framework rollout",
+              category: "Strategy",
+              description: "Run threat modeling sessions for high-risk payment and auth microservices.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Senior Cloud Security Engineer",
+        seniority: 2,
+        companyArchetype: "regulated SaaS / financial platform",
+        requiredSkills: [
+          { name: "AWS", weight: 1.3 },
+          { name: "Kubernetes", weight: 1.2 },
+          { name: "Penetration Testing", weight: 1.1 },
+          { name: "System Design", weight: 1.0 },
+        ],
+        milestones: {
+          2: [
+            {
+              quarter: 1,
+              title: "Zero-Trust network architecture implementation",
+              category: "Architecture",
+              description: "Migrate internal cluster services to mutual TLS and strict least-privilege IAM.",
+            },
+            {
+              quarter: 3,
+              title: "Bug bounty program triage lead",
+              category: "Org",
+              description: "Direct third-party hacker vulnerability submissions and manage SLA response times.",
+            },
+          ],
+          3: [
+            {
+              quarter: 2,
+              title: "Chaos engineering red-team drill",
+              category: "Delivery",
+              description: "Orchestrate simulated adversarial intrusion drills and evaluate blue-team incident response.",
+            },
+            {
+              quarter: 4,
+              title: "Security council champion",
+              category: "Mentoring",
+              description: "Train 20+ product engineers on defensive coding and cryptographic key management.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Principal Security Architect",
+        seniority: 3,
+        companyArchetype: "global tech unicorn / enterprise tier",
+        requiredSkills: [
+          { name: "System Design", weight: 1.4 },
+          { name: "Leadership", weight: 1.3 },
+          { name: "Stakeholder Management", weight: 1.2 },
+          { name: "Security", weight: 1.5 },
+        ],
+        milestones: {
+          4: [
+            {
+              quarter: 1,
+              title: "Global cryptographic governance standard",
+              category: "Strategy",
+              description: "Architect post-quantum ready encryption and data-at-rest governance across cloud regions.",
+            },
+            {
+              quarter: 4,
+              title: "CISO advisory & compliance defense",
+              category: "Influence",
+              description: "Represent cybersecurity posture before external compliance regulators and enterprise auditors.",
+            },
+          ],
+          5: [
+            {
+              quarter: 2,
+              title: "Autonomous security remediation engine",
+              category: "Architecture",
+              description: "Deploy AI-assisted auto-patching for critical CVEs without customer-facing downtime.",
+            },
+            {
+              quarter: 4,
+              title: "Enterprise security roadmap",
+              category: "Career",
+              description: "Define multi-year defense posture and secure multi-million security infrastructure budget.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+
+  "fullstack-solopreneur": {
+    title: "Full-Stack AI Product Builder & Consultant",
+    description:
+      "High-agency autonomy blending modern full-stack development, Generative AI models, and high-ticket technical consulting or scalable SaaS products.",
+    riskLevel: 4,
+    divergent: true,
+    interests: ["coding", "full-stack", "product", "creativity", "ai"],
+    salaryGrowthCurve: (y) => 1 + 0.055 * y + 0.008 * y * y,
+    promotionPace: 1,
+    skillsPerYear: 3,
+    roles: [
+      {
+        title: "Full-Stack AI Product Engineer",
+        seniority: 1,
+        companyArchetype: "modern AI venture / digital studio",
+        requiredSkills: [
+          { name: "Full-Stack", weight: 1.3 },
+          { name: "Next.js", weight: 1.2 },
+          { name: "TypeScript", weight: 1.1 },
+          { name: "Generative AI", weight: 1.0 },
+        ],
+        milestones: {
+          0: [
+            {
+              quarter: 1,
+              title: "Ship production AI full-stack application",
+              category: "Delivery",
+              description: "Launch Next.js application with streaming LLM responses, Stripe subscriptions, and auth.",
+            },
+            {
+              quarter: 3,
+              title: "API rate-limiting & caching architecture",
+              category: "Learning",
+              description: "Implement Redis semantic caching to slash AI inference costs by 40%.",
+            },
+          ],
+          1: [
+            {
+              quarter: 2,
+              title: "Acquire first 1,000 active users",
+              category: "Product",
+              description: "Optimize conversion funnels, onboarding flows, and automated retention emails.",
+            },
+            {
+              quarter: 4,
+              title: "High-ticket consulting contract delivery",
+              category: "Delivery",
+              description: "Deliver a 4-week modernization sprint for an enterprise client looking to adopt AI tooling.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Senior Product Architect & Solo Builder",
+        seniority: 2,
+        companyArchetype: "independent software venture / high-growth SaaS",
+        requiredSkills: [
+          { name: "System Design", weight: 1.2 },
+          { name: "Product Strategy", weight: 1.3 },
+          { name: "Generative AI", weight: 1.2 },
+          { name: "Full-Stack", weight: 1.1 },
+        ],
+        milestones: {
+          2: [
+            {
+              quarter: 1,
+              title: "Multi-tenant architecture refactoring",
+              category: "Architecture",
+              description: "Scale database isolation and tenant billing to support enterprise B2B customer tiers.",
+            },
+            {
+              quarter: 3,
+              title: "Automated distribution flywheel",
+              category: "Visibility",
+              description: "Publish technical teardowns and open-source boilerplates attracting 50k+ views.",
+            },
+          ],
+          3: [
+            {
+              quarter: 2,
+              title: "Profitable recurring revenue milestone",
+              category: "Career",
+              description: "Achieve stable monthly recurring revenue or sustained $150+/hr advisory rate.",
+            },
+            {
+              quarter: 4,
+              title: "Autonomous deployment workflows",
+              category: "Process",
+              description: "Construct zero-touch staging and canary deployment automation for lightning-fast feature releases.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Principal AI Consultant & Tech Founder",
+        seniority: 3,
+        companyArchetype: "boutique consulting firm / portfolio holding",
+        requiredSkills: [
+          { name: "Product Strategy", weight: 1.4 },
+          { name: "Leadership", weight: 1.2 },
+          { name: "Stakeholder Management", weight: 1.3 },
+          { name: "System Design", weight: 1.2 },
+        ],
+        milestones: {
+          4: [
+            {
+              quarter: 2,
+              title: "Fractional CTO engagements",
+              category: "Influence",
+              description: "Advise series-A founders on tech stack selection, hiring pipelines, and AI defensibility.",
+            },
+            {
+              quarter: 4,
+              title: "SaaS micro-acquisition or strategic partnership",
+              category: "Strategy",
+              description: "Negotiate licensing or integration terms with institutional software buyers.",
+            },
+          ],
+          5: [
+            {
+              quarter: 2,
+              title: "Automated portfolio operations",
+              category: "Org",
+              description: "Delegate routine engineering ops to trusted contractors while retaining creative direction.",
+            },
+            {
+              quarter: 4,
+              title: "Sustainable freedom & premium compensation",
+              category: "Career",
+              description: "Establish location-independent high income with compounding intellectual property equity.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+
+  "qa-automation-sdet": {
+    title: "SDET & Quality Platform Architect",
+    description:
+      "You build automated test platforms, CI/CD verification gates, and chaos engineering tools that keep massive distributed systems reliable under high load.",
+    riskLevel: 1,
+    divergent: false,
+    interests: ["testing", "coding", "systems", "problem solving"],
+    salaryGrowthCurve: (y) => 1 + 0.052 * y + 0.005 * y * y,
+    promotionPace: 1,
+    skillsPerYear: 2,
+    roles: [
+      {
+        title: "Software Development Engineer in Test (SDET)",
+        seniority: 1,
+        companyArchetype: "product scale-up / fintech platform",
+        requiredSkills: [
+          { name: "Test Automation", weight: 1.3 },
+          { name: "Playwright", weight: 1.2 },
+          { name: "JavaScript", weight: 1.0 },
+          { name: "CI/CD", weight: 1.1 },
+        ],
+        milestones: {
+          0: [
+            {
+              quarter: 1,
+              title: "End-to-End test suite framework setup",
+              category: "Delivery",
+              description: "Build robust Playwright regression framework executing in parallel CI runners.",
+            },
+            {
+              quarter: 3,
+              title: "API contract testing with mock servers",
+              category: "Learning",
+              description: "Implement contract tests ensuring zero broken microservice contracts during deployments.",
+            },
+          ],
+          1: [
+            {
+              quarter: 2,
+              title: "Slash test pipeline runtime by 50%",
+              category: "Process",
+              description: "Implement smart test sharding, selective test execution, and caching in GitHub Actions.",
+            },
+            {
+              quarter: 4,
+              title: "Flaky test quarantine mechanism",
+              category: "Visibility",
+              description: "Create automated metrics dashboard monitoring flaky tests and auto-quarantining false alarms.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Senior SDET & Quality Platform Lead",
+        seniority: 2,
+        companyArchetype: "high-throughput distributed tech company",
+        requiredSkills: [
+          { name: "System Design", weight: 1.2 },
+          { name: "Docker", weight: 1.1 },
+          { name: "CI/CD", weight: 1.3 },
+          { name: "Python", weight: 1.0 },
+        ],
+        milestones: {
+          2: [
+            {
+              quarter: 1,
+              title: "Load & stress testing test harness",
+              category: "Architecture",
+              description: "Design automated performance test harnesses simulating 50,000 concurrent API users.",
+            },
+            {
+              quarter: 3,
+              title: "Developer experience tooling",
+              category: "Delivery",
+              description: "Provide one-click ephemeral preview environments with seeded test data for engineers.",
+            },
+          ],
+          3: [
+            {
+              quarter: 2,
+              title: "Chaos testing & disaster recovery validation",
+              category: "Delivery",
+              description: "Inject network latency and node failures in staging environments to verify resilient fallbacks.",
+            },
+            {
+              quarter: 4,
+              title: "Cross-team quality standards champion",
+              category: "Mentoring",
+              description: "Mentor 15+ backend and frontend developers on effective unit and integration testing habits.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Staff Quality Platform Architect",
+        seniority: 3,
+        companyArchetype: "Tier-1 tech enterprise / global cloud",
+        requiredSkills: [
+          { name: "System Design", weight: 1.4 },
+          { name: "Leadership", weight: 1.2 },
+          { name: "CI/CD", weight: 1.3 },
+          { name: "Stakeholder Management", weight: 1.1 },
+        ],
+        milestones: {
+          4: [
+            {
+              quarter: 1,
+              title: "Organization-wide zero-defect gatekeeping",
+              category: "Strategy",
+              description: "Architect automated release confidence score enabling continuous production deployments.",
+            },
+            {
+              quarter: 3,
+              title: "AI-powered test generation platform",
+              category: "Architecture",
+              description: "Deploy generative AI agent that parses PR diffs and automatically generates edge-case test cases.",
+            },
+          ],
+          5: [
+            {
+              quarter: 2,
+              title: "Executive quality & reliability SLA metrics",
+              category: "Influence",
+              description: "Report production uptime, mean-time-to-detection, and regression impact to VP of Engineering.",
+            },
+            {
+              quarter: 4,
+              title: "Industry conference keynote on reliability",
+              category: "Career",
+              description: "Present testing innovations at premier DevOps and testing conferences.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+
+  "mobile-ecosystem-lead": {
+    title: "Mobile Systems & Cross-Platform Lead",
+    description:
+      "You master high-performance mobile apps across React Native, Flutter, iOS, and Android — delivering fluid user experiences to millions of active consumers.",
+    riskLevel: 2,
+    divergent: false,
+    interests: ["mobile", "frontend", "coding", "product", "users"],
+    salaryGrowthCurve: (y) => 1 + 0.058 * y + 0.006 * y * y,
+    promotionPace: 1,
+    skillsPerYear: 2,
+    roles: [
+      {
+        title: "Mobile Application Engineer",
+        seniority: 1,
+        companyArchetype: "consumer tech / digital commerce app",
+        requiredSkills: [
+          { name: "React Native", weight: 1.3 },
+          { name: "TypeScript", weight: 1.1 },
+          { name: "JavaScript", weight: 1.0 },
+          { name: "Responsive Design", weight: 1.0 },
+        ],
+        milestones: {
+          0: [
+            {
+              quarter: 1,
+              title: "Ship cross-platform feature to App Store & Play Store",
+              category: "Delivery",
+              description: "Deliver pixel-perfect mobile features supporting both iOS and Android navigation paradigms.",
+            },
+            {
+              quarter: 3,
+              title: "Offline-first database sync implementation",
+              category: "Learning",
+              description: "Implement local SQLite / WatermelonDB cache with conflict resolution for low-connectivity users.",
+            },
+          ],
+          1: [
+            {
+              quarter: 2,
+              title: "60 FPS rendering & memory leak profiling",
+              category: "Delivery",
+              description: "Profile app memory and JS thread bottlenecks to eliminate frame drops in heavy scrolling lists.",
+            },
+            {
+              quarter: 4,
+              title: "Deep link & push notification infrastructure",
+              category: "Process",
+              description: "Set up universal deep linking and targeted push notification campaigns boosting retention by 25%.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Senior Mobile Platform Engineer",
+        seniority: 2,
+        companyArchetype: "high-scale B2C app / FinTech unicorn",
+        requiredSkills: [
+          { name: "React Native", weight: 1.3 },
+          { name: "iOS / Swift", weight: 1.1 },
+          { name: "Android / Kotlin", weight: 1.1 },
+          { name: "System Design", weight: 1.0 },
+        ],
+        milestones: {
+          2: [
+            {
+              quarter: 1,
+              title: "Native bridge & custom C++/Swift modules",
+              category: "Architecture",
+              description: "Write high-performance native modules bridging device hardware and encryption directly.",
+            },
+            {
+              quarter: 3,
+              title: "Mobile CI/CD Fastlane deployment automation",
+              category: "Process",
+              description: "Automate code signing, beta distribution via TestFlight, and phased production app store releases.",
+            },
+          ],
+          3: [
+            {
+              quarter: 2,
+              title: "Design system mobile component library",
+              category: "Delivery",
+              description: "Build shared token-based mobile UI library used across 4 distinct company mobile apps.",
+            },
+            {
+              quarter: 4,
+              title: "Crash-free sessions metric over 99.8%",
+              category: "Visibility",
+              description: "Lead mobile observability and bug triage to maintain industry-leading crash-free session stability.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Staff Mobile Systems Architect",
+        seniority: 3,
+        companyArchetype: "global consumer app / streaming giant",
+        requiredSkills: [
+          { name: "System Design", weight: 1.4 },
+          { name: "Leadership", weight: 1.2 },
+          { name: "Stakeholder Management", weight: 1.1 },
+          { name: "React Native", weight: 1.3 },
+        ],
+        milestones: {
+          4: [
+            {
+              quarter: 1,
+              title: "Micro-frontend or SuperApp modular architecture",
+              category: "Architecture",
+              description: "Decouple monolithic mobile codebase into independent feature mini-apps maintained by distinct squads.",
+            },
+            {
+              quarter: 3,
+              title: "Over-The-Air (OTA) update safety architecture",
+              category: "Strategy",
+              description: "Deploy instant bugfix OTA rollouts with automated rollbacks if crash anomalies are detected.",
+            },
+          ],
+          5: [
+            {
+              quarter: 2,
+              title: "Mobile engineering hiring standard & culture",
+              category: "Org",
+              description: "Hire and mentor 12+ junior and senior mobile specialists across iOS and Android verticals.",
+            },
+            {
+              quarter: 4,
+              title: "Executive mobile product roadmapping",
+              category: "Career",
+              description: "Partner with CPO to define next-generation device features including on-device AI and spatial UI.",
             },
           ],
         },

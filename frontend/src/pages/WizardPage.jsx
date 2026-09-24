@@ -5,6 +5,8 @@ import { api } from '@/lib/api.js';
 import { useToast } from '@/lib/toast.jsx';
 import { useCurrency } from '@/lib/currency.jsx';
 import { LoadingOverlay } from '@/components/Spinner.jsx';
+import { CITY_TIERS, EXPERIENCE_BRACKETS } from '@/lib/offline/data.js';
+import { formatMoney } from '@/lib/format.js';
 
 const SKILL_SUGGESTIONS = [
   'TypeScript', 'Python', 'Go', 'React', 'Node.js', 'System Design',
@@ -65,7 +67,7 @@ export function WizardPage() {
     experienceYears: 0,
     currentSalary: '',
     marketTier: 'growth-product',
-    location: '',
+    location: 'bangalore',
     targetRole: '',
     skills: [],
     interests: [],
@@ -76,6 +78,13 @@ export function WizardPage() {
     },
   });
   const [skillInput, setSkillInput] = useState('');
+
+  const currentExp = Number(form.experienceYears) || 0;
+  const matchedBracket =
+    EXPERIENCE_BRACKETS.find(
+      (b) => currentExp >= b.minYears && currentExp < b.maxYears
+    ) || EXPERIENCE_BRACKETS[EXPERIENCE_BRACKETS.length - 1];
+  const selectedCity = CITY_TIERS[form.location] || CITY_TIERS.bangalore;
 
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   const setConstraint = (k) => (e) =>
@@ -229,38 +238,81 @@ export function WizardPage() {
               </div>
             </div>
 
-            {/* Realistic Salary for Experienced Engineers */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 rounded-xl border border-border/80 bg-surface-2/40 p-3.5">
-              <div>
-                <div className="flex items-center justify-between">
-                  <label className="field-label">Current annual CTC / Salary (optional)</label>
-                  <span className="text-[10px] text-accent">For experienced devs</span>
+            {/* City & Tech Hub Selector */}
+            <div className="rounded-xl border border-border/80 bg-surface-2/40 p-3.5 sm:p-4">
+              <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
+                <label className="field-label mb-0">City / Tech Hub Location</label>
+                <span className="text-xs font-medium text-accent">Calibrates city salary multipliers</span>
+              </div>
+              <select
+                className="field-select font-medium"
+                value={form.location || 'bangalore'}
+                onChange={set('location')}
+              >
+                {Object.values(CITY_TIERS).map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name} — {c.tier} ({c.multiplier >= 1 ? `+${Math.round((c.multiplier - 1) * 100)}%` : `-${Math.round((1 - c.multiplier) * 100)}%`} pay band)
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1.5 text-xs text-muted leading-relaxed">
+                Anchored to realistic local compensation: e.g. Lucknow / Tier-2 bases have lower living expenses and distinct salary bands compared to Bangalore or Mumbai.
+              </p>
+            </div>
+
+            {/* Realistic Salary for Experienced Engineers with Experience Brackets */}
+            <div className="rounded-xl border border-border/80 bg-surface-2/40 p-3.5 sm:p-4 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label className="field-label">Current annual CTC / Salary (optional)</label>
+                    <span className="text-xs font-semibold text-accent">Experienced devs</span>
+                  </div>
+                  <input
+                    type="number"
+                    className="field-input"
+                    value={form.currentSalary}
+                    onChange={set('currentSalary')}
+                    placeholder={Number(form.experienceYears) >= 4 ? 'e.g. 1800000' : 'e.g. 600000'}
+                  />
+                  <p className="mt-1 text-xs text-muted">
+                    Leave blank to auto-calculate from realistic market brackets.
+                  </p>
                 </div>
-                <input
-                  type="number"
-                  className="field-input"
-                  value={form.currentSalary}
-                  onChange={set('currentSalary')}
-                  placeholder={Number(form.experienceYears) >= 4 ? 'e.g. 1800000' : 'e.g. 600000'}
-                />
-                <p className="mt-1 text-[11px] text-muted">
-                  Anchors Year 1-5 trajectory directly to your real compensation baseline.
-                </p>
+
+                <div>
+                  <label className="field-label">Target software market tier</label>
+                  <select
+                    className="field-select"
+                    value={form.marketTier}
+                    onChange={set('marketTier')}
+                  >
+                    <option value="growth-product">Growth-stage Product / SaaS (Market Baseline)</option>
+                    <option value="tier1-faang">Top-Tier Tech / FAANG / Unicorn (+20% Premium)</option>
+                    <option value="standard-tech">Early-Stage / Standard Tech Firm</option>
+                  </select>
+                  <p className="mt-1 text-xs text-muted">
+                    Calibrates equity, stock grants, and bonus multiplier curves.
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <label className="field-label">Target software market tier</label>
-                <select
-                  className="field-select"
-                  value={form.marketTier}
-                  onChange={set('marketTier')}
-                >
-                  <option value="growth-product">Growth-stage Product / SaaS (Market)</option>
-                  <option value="tier1-faang">Top-Tier Tech / FAANG / Unicorn (+40% Premium)</option>
-                  <option value="standard-tech">Early-Stage / Standard Tech Firm</option>
-                </select>
-                <p className="mt-1 text-[11px] text-muted">
-                  Calibrates equity, stock grants, and bonus multiplier curves.
+              {/* Realistic Experience Bracket Indicator */}
+              <div className="rounded-lg border border-accent/25 bg-accent/5 p-3 text-xs leading-relaxed">
+                <div className="flex flex-wrap items-center justify-between gap-1">
+                  <span className="font-semibold text-foreground">
+                    📊 Calibrated Bracket: {matchedBracket.label}
+                  </span>
+                  <span className="rounded bg-accent/15 px-2 py-0.5 font-semibold text-accent">
+                    {selectedCity.name}
+                  </span>
+                </div>
+                <p className="mt-1.5 text-muted">
+                  Standard market range for this experience & city: <strong className="text-foreground">{formatMoney(Math.round(matchedBracket.minRealistic * selectedCity.multiplier), currency)}</strong> – <strong className="text-foreground">{formatMoney(Math.round(matchedBracket.maxRealistic * selectedCity.multiplier), currency)}</strong>.
+                </p>
+                <p className="mt-1 text-[11px] text-accent/90 flex items-center gap-1.5">
+                  <span>💡</span>
+                  <strong>Continuous Domain Note:</strong> Projections calculate 5-year growth assuming you continuously remain and advance in this field without multi-year career gaps.
                 </p>
               </div>
             </div>
@@ -271,14 +323,9 @@ export function WizardPage() {
                 <input className="field-input" value={form.currentRole} onChange={set('currentRole')} placeholder="e.g. Senior Backend Engineer, Tech Lead" />
               </div>
               <div>
-                <label className="field-label">Location / Target Hub</label>
-                <input className="field-input" value={form.location} onChange={set('location')} placeholder="e.g. Bengaluru, Remote, Hyderabad" />
+                <label className="field-label">Target 5-year role (optional)</label>
+                <input className="field-input" value={form.targetRole} onChange={set('targetRole')} placeholder="e.g. Staff Architect, VP of Engineering, CTO" />
               </div>
-            </div>
-
-            <div>
-              <label className="field-label">Target 5-year role (optional)</label>
-              <input className="field-input" value={form.targetRole} onChange={set('targetRole')} placeholder="e.g. Staff Architect, VP of Engineering, CTO" />
             </div>
           </div>
         )}

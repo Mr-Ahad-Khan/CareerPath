@@ -9,6 +9,10 @@ import {
   Gauge,
   RotateCcw,
   FileCheck2,
+  MapPin,
+  Info,
+  TrendingUp,
+  Sparkles,
 } from "lucide-react";
 import { api } from "@/lib/api.js";
 import { useToast } from "@/lib/toast.jsx";
@@ -18,6 +22,7 @@ import { LoadingOverlay } from "@/components/Spinner.jsx";
 import { EmptyState } from "@/components/EmptyState.jsx";
 import { SalaryTrajectoryChart } from "@/components/charts/SalaryTrajectoryChart.jsx";
 import { SkillGapRadar } from "@/components/charts/SkillGapRadar.jsx";
+import { CITY_TIERS } from "@/lib/offline/data.js";
 
 const RISK_LABELS = {
   1: "Low",
@@ -211,6 +216,34 @@ export function SimulationPage() {
         </div>
       </div>
 
+      {/* Continuous Field Work & City Compensation Calibration Banner */}
+      <div className="mb-6 rounded-2xl border border-accent/30 bg-accent/5 p-4 sm:p-5 text-sm shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent/20 text-accent font-bold">
+              <Info className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                Continuous Domain Progression & City-Calibrated Brackets
+                <span className="rounded bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">
+                  Realistic Tech Model
+                </span>
+              </h3>
+              <p className="mt-1 text-xs sm:text-[13px] text-muted leading-relaxed">
+                This projection models your 5-year compounding potential <strong>under the assumption that you continue working and upskilling in this specialized field</strong> without multi-year career gaps. Salaries are constrained by realistic experience brackets and localized for your target city (e.g. Lucknow, Bangalore, Delhi NCR, Pune, Mumbai) to prevent runaway compensation inflation.
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-xl border border-accent/25 bg-surface-2 px-3 py-1.5 text-xs font-semibold text-foreground shadow-xs">
+              <MapPin className="h-3.5 w-3.5 text-accent" />
+              {CITY_TIERS[whatIf.cityTier]?.name || (whatIf.cityTier === 'tier2' ? 'Lucknow / Tier-2 IT Hub' : 'Bangalore / Bengaluru')}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-8 surface-card p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold text-foreground">
@@ -321,14 +354,21 @@ export function SimulationPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <h4 className="font-display text-base font-semibold text-foreground">
-                        {node.role}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-display text-base font-semibold text-foreground">
+                          {node.role}
+                        </h4>
+                        {node.experienceBracket && (
+                          <span className="rounded bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">
+                            {node.experienceBracket}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-sm font-semibold tabular text-accent">
                         {formatMoney(node.salary, currency)}
                       </span>
                     </div>
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-muted mt-0.5">
                       {node.companyArchetype} ·{" "}
                       {formatMoney(node.salaryLow, currency)} –{" "}
                       {formatMoney(node.salaryHigh, currency)}
@@ -390,7 +430,10 @@ export function SimulationPage() {
                   />
                 </div>
                 <div>
-                  <label className="field-label">City tier</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="field-label mb-0">City & Tech Hub</label>
+                    <span className="text-[11px] font-medium text-accent">Local bands</span>
+                  </div>
                   <select
                     className="field-select"
                     value={whatIf.cityTier}
@@ -398,13 +441,13 @@ export function SimulationPage() {
                       setWhatIf({ ...whatIf, cityTier: e.target.value })
                     }
                   >
-                    <option value="metro">
-                      Metro (higher pay, higher cost)
-                    </option>
-                    <option value="tier2">
-                      Tier-2 (lower cost, lower pay)
-                    </option>
-                    <option value="remote">Remote / flexible</option>
+                    {Object.values(CITY_TIERS).map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.name} — {c.tier} ({c.multiplier >= 1 ? `+${Math.round((c.multiplier - 1) * 100)}%` : `-${Math.round((1 - c.multiplier) * 100)}%`})
+                      </option>
+                    ))}
+                    <option value="metro">Metro (General Tier-1 Benchmark)</option>
+                    <option value="tier2">Tier-2 (Lucknow / Emerging IT)</option>
                   </select>
                 </div>
                 <div>
