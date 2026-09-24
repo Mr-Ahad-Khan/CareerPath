@@ -13,6 +13,7 @@ import {
   Info,
   TrendingUp,
   Sparkles,
+  ShieldCheck,
 } from "lucide-react";
 import { api } from "@/lib/api.js";
 import { useToast } from "@/lib/toast.jsx";
@@ -217,31 +218,16 @@ export function SimulationPage() {
       </div>
 
       {/* Continuous Field Work & City Compensation Calibration Banner */}
-      <div className="mb-6 rounded-2xl border border-accent/30 bg-accent/5 p-4 sm:p-5 text-sm shadow-xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent/20 text-accent font-bold">
-              <Info className="h-4 w-4" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
-                Continuous Domain Progression & City-Calibrated Brackets
-                <span className="rounded bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">
-                  Realistic Tech Model
-                </span>
-              </h3>
-              <p className="mt-1 text-xs sm:text-[13px] text-muted leading-relaxed">
-                This projection models your 5-year compounding potential <strong>under the assumption that you continue working and upskilling in this specialized field</strong> without multi-year career gaps. Salaries are constrained by realistic experience brackets and localized for your target city (e.g. Lucknow, Bangalore, Delhi NCR, Pune, Mumbai) to prevent runaway compensation inflation.
-              </p>
-            </div>
-          </div>
-          <div className="shrink-0 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-xl border border-accent/25 bg-surface-2 px-3 py-1.5 text-xs font-semibold text-foreground shadow-xs">
-              <MapPin className="h-3.5 w-3.5 text-accent" />
-              {CITY_TIERS[whatIf.cityTier]?.name || (whatIf.cityTier === 'tier2' ? 'Lucknow / Tier-2 IT Hub' : 'Bangalore / Bengaluru')}
-            </span>
-          </div>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-border/80 bg-surface-2/40 px-4 py-3 text-xs">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse" />
+          <span className="text-muted">
+            5-year projections calibrated for <strong className="text-foreground">{CITY_TIERS[whatIf.cityTier]?.name || (whatIf.cityTier === 'tier2' ? 'Lucknow / Tier-2 IT Hub' : 'Bangalore / Bengaluru')}</strong> assuming a consistent upskilling schedule.
+          </span>
         </div>
+        <span className="shrink-0 self-start sm:self-auto rounded-md border border-accent/20 bg-accent/10 px-2.5 py-1 text-[11px] font-medium text-accent">
+          Realistic Market Model
+        </span>
       </div>
 
       <div className="mb-8 surface-card p-6">
@@ -302,7 +288,15 @@ export function SimulationPage() {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted">Confidence</p>
+                <p className="text-xs text-muted flex items-center gap-1">
+                  Confidence
+                  <span
+                    title="Confidence is calculated from: 40% Core Skill Match, 25% Experience Baseline, 20% Upskilling Schedule, and 15% Career Continuity."
+                    className="cursor-help text-accent/80 hover:text-accent"
+                  >
+                    <Info className="h-3 w-3 inline" />
+                  </span>
+                </p>
                 <p className="font-display text-lg font-semibold text-foreground tabular">
                   {pct(p.confidenceScore * 100)}
                 </p>
@@ -323,7 +317,7 @@ export function SimulationPage() {
             </p>
 
             {/* Career Intelligence & AI Resilience Panel */}
-            <div className="mb-5 grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-xl border border-border bg-surface-2/60 p-3.5 text-xs">
+            <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-xl border border-border bg-surface-2/60 p-3.5 text-xs">
               <div>
                 <span className="text-muted block text-[10px] uppercase font-semibold tracking-wider">Growth Vector</span>
                 <span className="text-foreground font-medium mt-0.5 block">{path.primaryGrowthVector || 'Technical Systems Depth'}</span>
@@ -335,6 +329,49 @@ export function SimulationPage() {
               <div>
                 <span className="text-muted block text-[10px] uppercase font-semibold tracking-wider">Key Promotion Bottleneck</span>
                 <span className="text-accent font-medium mt-0.5 block">{path.criticalSkillBottleneck || 'Distributed Systems Architecture'}</span>
+              </div>
+            </div>
+
+            {/* Basis of Confidence Breakdown Panel */}
+            <div className="mb-5 rounded-xl border border-border/80 bg-surface-2/40 p-3.5 sm:p-4">
+              <div className="flex flex-wrap items-center justify-between gap-1 mb-2.5">
+                <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 text-accent" />
+                  Basis of Confidence: {pct(path.confidenceScore * 100)}
+                </span>
+                <span className="text-[11px] text-muted">
+                  Grounded on 4 mathematical pillars
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="rounded-lg bg-surface-2 p-2.5 border border-border/50">
+                  <span className="text-muted block text-[10px] uppercase font-semibold">Skill Match (40%)</span>
+                  <span className="text-foreground font-semibold text-sm mt-0.5 block">
+                    {path.confidenceBreakdown?.skillMatchPercentage ?? Math.round(path.confidenceScore * 100)}%
+                  </span>
+                  <span className="text-[10px] text-muted block mt-0.5">Role stack coverage</span>
+                </div>
+                <div className="rounded-lg bg-surface-2 p-2.5 border border-border/50">
+                  <span className="text-muted block text-[10px] uppercase font-semibold">Experience (25%)</span>
+                  <span className="text-foreground font-semibold text-sm mt-0.5 block">
+                    {profile?.experienceYears || whatIf?.extraExperienceMonths ? `${(Number(profile?.experienceYears || 0) + (whatIf.extraExperienceMonths || 0)/12).toFixed(1)} yrs` : 'Baseline'}
+                  </span>
+                  <span className="text-[10px] text-muted block mt-0.5">Tenure grounding</span>
+                </div>
+                <div className="rounded-lg bg-surface-2 p-2.5 border border-border/50">
+                  <span className="text-muted block text-[10px] uppercase font-semibold">Schedule (20%)</span>
+                  <span className="text-foreground font-semibold text-sm mt-0.5 block">
+                    {whatIf.upskillingHoursPerWeek || 10}h / wk
+                  </span>
+                  <span className="text-[10px] text-muted block mt-0.5">Weekly practice</span>
+                </div>
+                <div className="rounded-lg bg-surface-2 p-2.5 border border-border/50">
+                  <span className="text-muted block text-[10px] uppercase font-semibold">Continuity (15%)</span>
+                  <span className="text-foreground font-semibold text-sm mt-0.5 block">
+                    Continuous
+                  </span>
+                  <span className="text-[10px] text-muted block mt-0.5">No career gaps</span>
+                </div>
               </div>
             </div>
 

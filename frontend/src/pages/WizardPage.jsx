@@ -195,13 +195,6 @@ export function WizardPage() {
       <div className="surface-card p-6 sm:p-8 animate-fade-in" key={step}>
         {step === 0 && (
           <div className="space-y-4">
-            <div className="rounded-xl border border-accent/25 bg-accent/5 p-3.5 flex items-center gap-2.5 text-xs text-accent">
-              <Terminal className="h-4 w-4 shrink-0 text-accent" />
-              <span>
-                <strong>Software & Tech Specialized:</strong> Benchmarks and career ladders are calibrated for Software Engineering, Architecture, AI, and Product roles.
-              </span>
-            </div>
-
             <div>
               <label className="field-label">Education level</label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -239,11 +232,8 @@ export function WizardPage() {
             </div>
 
             {/* City & Tech Hub Selector */}
-            <div className="rounded-xl border border-border/80 bg-surface-2/40 p-3.5 sm:p-4">
-              <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
-                <label className="field-label mb-0">City / Tech Hub Location</label>
-                <span className="text-xs font-medium text-accent">Calibrates city salary multipliers</span>
-              </div>
+            <div>
+              <label className="field-label">City / Tech Hub Location</label>
               <select
                 className="field-select font-medium"
                 value={form.location || 'bangalore'}
@@ -255,66 +245,43 @@ export function WizardPage() {
                   </option>
                 ))}
               </select>
-              <p className="mt-1.5 text-xs text-muted leading-relaxed">
-                Anchored to realistic local compensation: e.g. Lucknow / Tier-2 bases have lower living expenses and distinct salary bands compared to Bangalore or Mumbai.
-              </p>
             </div>
 
-            {/* Realistic Salary for Experienced Engineers with Experience Brackets */}
-            <div className="rounded-xl border border-border/80 bg-surface-2/40 p-3.5 sm:p-4 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label className="field-label">Current annual CTC / Salary (optional)</label>
-                    <span className="text-xs font-semibold text-accent">Experienced devs</span>
-                  </div>
-                  <input
-                    type="number"
-                    className="field-input"
-                    value={form.currentSalary}
-                    onChange={set('currentSalary')}
-                    placeholder={Number(form.experienceYears) >= 4 ? 'e.g. 1800000' : 'e.g. 600000'}
-                  />
-                  <p className="mt-1 text-xs text-muted">
-                    Leave blank to auto-calculate from realistic market brackets.
-                  </p>
-                </div>
-
-                <div>
-                  <label className="field-label">Target software market tier</label>
-                  <select
-                    className="field-select"
-                    value={form.marketTier}
-                    onChange={set('marketTier')}
-                  >
-                    <option value="growth-product">Growth-stage Product / SaaS (Market Baseline)</option>
-                    <option value="tier1-faang">Top-Tier Tech / FAANG / Unicorn (+20% Premium)</option>
-                    <option value="standard-tech">Early-Stage / Standard Tech Firm</option>
-                  </select>
-                  <p className="mt-1 text-xs text-muted">
-                    Calibrates equity, stock grants, and bonus multiplier curves.
-                  </p>
-                </div>
+            {/* Realistic Salary & Market Tier */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div>
+                <label className="field-label">Current annual CTC / Salary (optional)</label>
+                <input
+                  type="number"
+                  className="field-input"
+                  value={form.currentSalary}
+                  onChange={set('currentSalary')}
+                  placeholder={Number(form.experienceYears) >= 4 ? 'e.g. 1100000 (auto-calculated if blank)' : 'e.g. 450000 (auto-calculated if blank)'}
+                />
               </div>
 
-              {/* Realistic Experience Bracket Indicator */}
-              <div className="rounded-lg border border-accent/25 bg-accent/5 p-3 text-xs leading-relaxed">
-                <div className="flex flex-wrap items-center justify-between gap-1">
-                  <span className="font-semibold text-foreground">
-                    📊 Calibrated Bracket: {matchedBracket.label}
-                  </span>
-                  <span className="rounded bg-accent/15 px-2 py-0.5 font-semibold text-accent">
-                    {selectedCity.name}
-                  </span>
-                </div>
-                <p className="mt-1.5 text-muted">
-                  Standard market range for this experience & city: <strong className="text-foreground">{formatMoney(Math.round(matchedBracket.minRealistic * selectedCity.multiplier), currency)}</strong> – <strong className="text-foreground">{formatMoney(Math.round(matchedBracket.maxRealistic * selectedCity.multiplier), currency)}</strong>.
-                </p>
-                <p className="mt-1 text-[11px] text-accent/90 flex items-center gap-1.5">
-                  <span>💡</span>
-                  <strong>Continuous Domain Note:</strong> Projections calculate 5-year growth assuming you continuously remain and advance in this field without multi-year career gaps.
-                </p>
+              <div>
+                <label className="field-label">Target software market tier</label>
+                <select
+                  className="field-select"
+                  value={form.marketTier}
+                  onChange={set('marketTier')}
+                >
+                  <option value="growth-product">Growth-stage Product / SaaS (Market Baseline)</option>
+                  <option value="tier1-faang">Top-Tier Tech / FAANG / Unicorn (+20% Premium)</option>
+                  <option value="standard-tech">Early-Stage / Standard Tech Firm</option>
+                </select>
               </div>
+            </div>
+
+            {/* Clean Market Benchmark Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/70 bg-surface-2/60 px-3.5 py-2.5 text-xs">
+              <span className="text-muted">
+                Benchmark for <span className="font-semibold text-foreground">{matchedBracket.label}</span> in <span className="font-semibold text-foreground">{selectedCity.name}</span>:
+              </span>
+              <span className="font-semibold text-accent tabular">
+                {formatMoney(Math.round(matchedBracket.minRealistic * selectedCity.multiplier), currency)} – {formatMoney(Math.round(matchedBracket.maxRealistic * selectedCity.multiplier), currency)}
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">

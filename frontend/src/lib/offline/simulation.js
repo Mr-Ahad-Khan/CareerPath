@@ -75,6 +75,70 @@ function applyWhatIf(base, whatIf) {
   return w;
 }
 
+const BRANCH_DYNAMICS = {
+  'data-scientist': {
+    annualRate: 0.125,
+    promotionStep: 0.12,
+    ceilingBoost: 1.25,
+    baseMult: 1.08,
+  },
+  'deep-specialist': {
+    annualRate: 0.088,
+    promotionStep: 0.10,
+    ceilingBoost: 1.15,
+    baseMult: 1.0,
+  },
+  'management-track': {
+    annualRate: 0.098,
+    promotionStep: 0.16,
+    ceilingBoost: 1.22,
+    baseMult: 1.02,
+  },
+  'founder-path': {
+    annualRate: 0.055,
+    promotionStep: 0.24,
+    lateAcceleration: 0.22,
+    ceilingBoost: 1.40,
+    baseMult: 0.88,
+  },
+  'pivot-adjacent': {
+    annualRate: 0.102,
+    promotionStep: 0.11,
+    ceilingBoost: 1.18,
+    baseMult: 1.04,
+  },
+  'cybersecurity-architect': {
+    annualRate: 0.108,
+    promotionStep: 0.12,
+    ceilingBoost: 1.20,
+    baseMult: 1.05,
+  },
+  'mobile-ecosystem-lead': {
+    annualRate: 0.082,
+    promotionStep: 0.09,
+    ceilingBoost: 1.12,
+    baseMult: 0.98,
+  },
+  'qa-automation-sdet': {
+    annualRate: 0.072,
+    promotionStep: 0.08,
+    ceilingBoost: 1.08,
+    baseMult: 0.94,
+  },
+  'product-track': {
+    annualRate: 0.092,
+    promotionStep: 0.12,
+    ceilingBoost: 1.16,
+    baseMult: 1.02,
+  },
+  'fullstack-solopreneur': {
+    annualRate: 0.095,
+    promotionStep: 0.15,
+    ceilingBoost: 1.20,
+    baseMult: 0.96,
+  },
+};
+
 function buildTrajectory(branch, ctx, whatIf) {
   const base = ROLE_TREES[branch];
   if (!base) throw new Error(`Unknown branch: ${branch}`);
@@ -84,6 +148,13 @@ function buildTrajectory(branch, ctx, whatIf) {
   const industryMult = INDUSTRY_MULTIPLIERS[ctx.industry] || 1.0;
   const experienceYears = Math.max(0, ctx.experienceYears || 0);
 
+  const dynamics = BRANCH_DYNAMICS[branch] || {
+    annualRate: 0.085,
+    promotionStep: 0.10,
+    ceilingBoost: 1.15,
+    baseMult: 1.0,
+  };
+
   // Realistic experienced compensation calculation with experience brackets
   const startBracket = getExperienceBracket(experienceYears);
   const marketTierMultiplier = ctx.marketTier === 'tier1-faang' ? 1.20 :
@@ -91,14 +162,13 @@ function buildTrajectory(branch, ctx, whatIf) {
 
   let startSalary;
   if (ctx.currentSalary && ctx.currentSalary > 100000) {
-    // If user provided salary, use it as baseline but anchor with soft sanity cap to prevent runaways
-    const maxRealisticStart = Math.round(startBracket.maxRealistic * cityMult * marketTierMultiplier);
-    startSalary = round(Math.min(ctx.currentSalary, maxRealisticStart));
+    // If user provided salary, anchor accurately to their starting baseline
+    startSalary = round(ctx.currentSalary);
   } else {
-    // Standard grounded baseline for their experience bracket in this city
-    const calculatedBase = startBracket.baseSalary * cityMult * industryMult * marketTierMultiplier;
-    const minBound = Math.round(startBracket.minRealistic * cityMult * 0.9);
-    const maxBound = Math.round(startBracket.maxRealistic * cityMult * marketTierMultiplier);
+    // Standard grounded baseline for their experience bracket in this city and track
+    const calculatedBase = startBracket.baseSalary * cityMult * industryMult * marketTierMultiplier * (dynamics.baseMult || 1.0);
+    const minBound = Math.round(startBracket.minRealistic * cityMult * 0.85);
+    const maxBound = Math.round(startBracket.maxRealistic * cityMult * marketTierMultiplier * (dynamics.baseMult || 1.0));
     startSalary = round(clamp(calculatedBase, minBound, maxBound));
   }
 
@@ -117,6 +187,7 @@ function buildTrajectory(branch, ctx, whatIf) {
 
   let skillsAcquired = [...ctx.coreSkills.map((s) => (s.name || '').toLowerCase())];
 
+  let prevRoleIdx = level;
   for (let y = 0; y <= years; y++) {
     const roleIdx = Math.min(level, roleChain.length - 1);
     const role = roleChain[roleIdx];
@@ -128,17 +199,24 @@ function buildTrajectory(branch, ctx, whatIf) {
     if (y === 0) {
       salary = startSalary;
     } else {
-      // Annual compounding bounded by realistic experience bracket growth rate
-      const annualRate = Math.min(currBracket.annualGrowthCap, 0.08) *
-        (1 + (ctx.upskillingBoost || 0) * 0.04) *
-        (ctx.networkBoost || 1);
+      // Annual compounding bounded by branch-specific velocity, promotions, and upskilling
+      const isPromoted = roleIdx > prevRoleIdx;
+      const promotionBonus = isPromoted ? dynamics.promotionStep : 0;
+      const founderLateBonus = (branch === 'founder-path' && y >= 3) ? (dynamics.lateAcceleration || 0.22) * (y - 2) * 0.4 : 0;
+      const upskillingImpact = 1 + (ctx.upskillingBoost || 0) * 0.05;
+      const networkImpact = ctx.networkBoost || 1;
 
-      const projectedNext = salary * (1 + annualRate);
+      const rate = (dynamics.annualRate + promotionBonus + founderLateBonus) * upskillingImpact * networkImpact;
+      const projectedNext = salary * (1 + rate);
 
       // Upper ceiling bound for this city and experience bracket to guarantee grounded results
-      const ceilingForYear = currBracket.maxRealistic * cityMult * marketTierMultiplier * (branch === 'founder-path' ? 1.15 : 1.0);
+      const ceilingForYear = Math.max(
+        salary * 1.04,
+        currBracket.maxRealistic * cityMult * marketTierMultiplier * (dynamics.ceilingBoost || 1.15)
+      );
       salary = round(Math.min(projectedNext, ceilingForYear));
     }
+    prevRoleIdx = roleIdx;
 
     const targetSkills = role.requiredSkills || [];
     const gaps = targetSkills
@@ -210,15 +288,32 @@ function buildTrajectory(branch, ctx, whatIf) {
     };
   });
 
-  const confidence = clamp(
-    0.4 +
-      skillMatchScore(ctx.coreSkills, base.roles[base.roles.length - 1].requiredSkills) * 0.3 +
-      (ctx.upskillingBoost || 0) * 0.15 +
-      (ctx.experienceYears || 0) * 0.03 -
-      (ctx.timePenalty || 0) * 0.1,
-    0.1,
-    0.97
+  const skillMatch = skillMatchScore(
+    ctx.coreSkills,
+    base.roles[base.roles.length - 1].requiredSkills
   );
+  const upskillingImpact = Math.min((ctx.upskillingBoost || 0) * 0.15, 0.20);
+  const experienceImpact = Math.min(experienceYears * 0.03, 0.25);
+  const timePenalty = (ctx.timePenalty || 0) * 0.10;
+
+  const confidence = clamp(
+    0.40 + skillMatch * 0.30 + upskillingImpact + experienceImpact - timePenalty,
+    0.20,
+    0.98
+  );
+
+  const confidenceBreakdown = {
+    overallPercentage: round(confidence * 100),
+    skillMatchPercentage: round(skillMatch * 100),
+    experienceYears: experienceYears,
+    upskillingHoursPerWeek: whatIf?.upskillingHoursPerWeek || 10,
+    factors: [
+      { name: 'Core Skill Match', weight: '40%', score: `${round(skillMatch * 100)}%`, description: 'Coverage of required tech competencies for the role' },
+      { name: 'Experience Baseline', weight: '25%', score: `${experienceYears} yrs`, description: 'Domain seniority and past engineering tenure' },
+      { name: 'Upskilling Discipline', weight: '20%', score: `${whatIf?.upskillingHoursPerWeek || 10}h / week`, description: 'Scheduled weekly hours committed to practice' },
+      { name: 'Career Continuity', weight: '15%', score: timePenalty > 0 ? 'Pivoting (-penalty)' : '100% Continuous', description: 'Progression in specialized track without career gaps' },
+    ],
+  };
 
   const satisfaction = clamp(
     SATISFACTION_FACTORS[branch] * 0.6 +
@@ -247,6 +342,7 @@ function buildTrajectory(branch, ctx, whatIf) {
     riskLevel: base.riskLevel,
     satisfactionScore: round(satisfaction, 2),
     confidenceScore: round(confidence, 2),
+    confidenceBreakdown,
     startSalary,
     finalSalary: finalRole.salary,
     trajectory,

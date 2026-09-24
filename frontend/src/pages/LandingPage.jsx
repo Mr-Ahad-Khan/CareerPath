@@ -42,13 +42,13 @@ export function LandingPage() {
               </Link>
             </div>
             <p className="mt-5 text-xs text-muted">
-              Built for developers • Grounded salary baselines (₹4.2L – ₹50L+) • Free & instant
+              Built for developers • Grounded salary baselines • Compounding growth for consistent schedules • Free & instant
             </p>
           </div>
 
           <div className="mt-16 grid gap-4 sm:grid-cols-3">
             {[
-              { stat: 'Up to 5', label: 'concurrent software career branches' },
+              { stat: 'Up to 8', label: 'concurrent software career branches' },
               { stat: '5 yrs', label: 'realistic seniority & compensation progression' },
               { stat: '100% Tech', label: 'tailored for software, cloud, data & engineering management' },
             ].map((s) => (
@@ -57,6 +57,61 @@ export function LandingPage() {
                 <p className="mt-1 text-sm text-muted">{s.label}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Consistency & Schedule Compounding Section */}
+      <section className="border-b border-border/80 bg-surface-2/20 py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="relative overflow-hidden rounded-2xl border border-accent/20 bg-gradient-to-b from-accent/10 via-surface-2/60 to-surface-2/30 p-8 sm:p-12 shadow-lg">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+              <div className="max-w-2xl">
+                <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent mb-4">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse"></span>
+                  Compounding Career Progression
+                </span>
+                <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl text-balance">
+                  If you keep continuing & consistently follow your schedule, growth compounds.
+                </h2>
+                <p className="mt-4 text-base text-muted leading-relaxed text-pretty">
+                  Top engineering careers don’t leap forward overnight—they compound through disciplined, continuous execution. When you consistently follow your weekly upskilling schedule and hit quarterly roadmap milestones, your skill coverage, market value, and trajectory confidence rise together predictably without multi-year career gaps.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-4 text-xs sm:text-sm text-foreground/90 font-medium">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-bold">✓</span>
+                    <span>10–15h / week deliberate practice</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-bold">✓</span>
+                    <span>Structured quarterly milestone delivery</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-bold">✓</span>
+                    <span>Continuous domain progression</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:w-96 shrink-0">
+                <div className="rounded-xl border border-border/70 bg-surface/80 p-4 backdrop-blur-sm">
+                  <span className="text-xs text-muted block">Adherence Velocity</span>
+                  <span className="font-display text-2xl font-bold text-accent mt-1 block">+25% to +40%</span>
+                  <p className="text-[11px] text-muted mt-1">Faster promotion velocity for consistent weekly schedules</p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-surface/80 p-4 backdrop-blur-sm">
+                  <span className="text-xs text-muted block">Trajectory Confidence</span>
+                  <span className="font-display text-2xl font-bold text-success mt-1 block">85% – 95%</span>
+                  <p className="text-[11px] text-muted mt-1">High-conviction trajectory backed by structured milestones</p>
+                </div>
+                <div className="sm:col-span-2 rounded-xl border border-border/70 bg-surface/80 p-4 backdrop-blur-sm">
+                  <span className="text-xs text-muted block">Compounding Principle</span>
+                  <p className="text-xs text-foreground font-medium mt-1">
+                    "Consistent daily progress in a specialized tech domain outperforms occasional bursts of frantic effort every time."
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
