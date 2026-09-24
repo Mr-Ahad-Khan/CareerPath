@@ -14,7 +14,7 @@ const STORAGE_KEYS = {
   JOURNAL: 'cp-offline-journal',
   PROFILES: 'cp-offline-profiles',
   CONNECTIONS: 'cp-offline-connections',
-  INITIALIZED: 'cp-offline-initialized-v3',
+  INITIALIZED: 'cp-offline-initialized-v5',
 };
 
 function read(key, fallback = []) {

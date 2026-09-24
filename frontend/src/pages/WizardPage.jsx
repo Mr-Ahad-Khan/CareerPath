@@ -9,7 +9,7 @@ import { CITY_TIERS, EXPERIENCE_BRACKETS } from '@/lib/offline/data.js';
 import { formatMoney } from '@/lib/format.js';
 
 const SKILL_SUGGESTIONS = [
-  'TypeScript', 'Python', 'Go', 'React', 'Node.js', 'System Design',
+  'Full-Stack', 'Next.js', 'TypeScript', 'Python', 'Go', 'React', 'Node.js', 'System Design',
   'AWS', 'Kubernetes', 'Docker', 'SQL', 'Machine Learning', 'GraphQL',
   'Microservices', 'Engineering Leadership', 'Security', 'CI/CD',
 ];
@@ -287,11 +287,43 @@ export function WizardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="field-label">Current title or role (optional)</label>
-                <input className="field-input" value={form.currentRole} onChange={set('currentRole')} placeholder="e.g. Senior Backend Engineer, Tech Lead" />
+                <input className="field-input" value={form.currentRole} onChange={set('currentRole')} placeholder="e.g. Full Stack Developer, Backend Engineer" />
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {['Full Stack Developer', 'Backend Developer', 'Frontend Developer', 'Software Engineer'].map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setForm({ ...form, currentRole: r })}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${
+                        form.currentRole === r
+                          ? 'border-accent bg-accent/15 text-accent font-semibold'
+                          : 'border-border/60 bg-surface-2/60 text-muted hover:text-foreground'
+                      }`}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="field-label">Target 5-year role (optional)</label>
-                <input className="field-input" value={form.targetRole} onChange={set('targetRole')} placeholder="e.g. Staff Architect, VP of Engineering, CTO" />
+                <input className="field-input" value={form.targetRole} onChange={set('targetRole')} placeholder="e.g. Principal Full-Stack Architect, Staff Engineer" />
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {['The Full-Stack Developer', 'Staff Software Architect', 'Engineering Lead', 'Distinguished AI Engineer'].map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setForm({ ...form, targetRole: r })}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${
+                        form.targetRole === r
+                          ? 'border-accent bg-accent/15 text-accent font-semibold'
+                          : 'border-border/60 bg-surface-2/60 text-muted hover:text-foreground'
+                      }`}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

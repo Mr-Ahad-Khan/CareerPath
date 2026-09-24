@@ -5,8 +5,9 @@ import {
 import { formatMoney } from '@/lib/format.js';
 import { useCurrency } from '@/lib/currency.jsx';
 
-// 10 distinct, vibrant modern colors ensuring no duplicate colors across 8+ paths
+// 12 distinct, vibrant modern colors ensuring no duplicate colors across 10+ paths
 const PATH_COLORS = [
+  '#0ea5e9', // Sky Blue (Full-Stack Developer)
   '#6366f1', // Indigo (Deep Specialist)
   '#10b981', // Emerald (Founder)
   '#f59e0b', // Amber (AI & Data)
@@ -17,6 +18,7 @@ const PATH_COLORS = [
   '#14b8a6', // Teal (Cybersecurity)
   '#f97316', // Orange (Product Track)
   '#a855f7', // Violet (Solopreneur)
+  '#f43f5e', // Rose Red
 ];
 
 function CustomTooltip({ active, payload, label, currency }) {

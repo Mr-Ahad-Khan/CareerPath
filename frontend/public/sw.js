@@ -1,4 +1,4 @@
-const CACHE_NAME = 'careerpath-cache-v2';
+const CACHE_NAME = 'careerpath-cache-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

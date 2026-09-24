@@ -254,11 +254,150 @@ export const SATISFACTION_FACTORS = {
   "data-scientist": 0.80,
   "cybersecurity-architect": 0.81,
   "fullstack-solopreneur": 0.77,
+  "fullstack-developer": 0.83,
   "qa-automation-sdet": 0.75,
   "mobile-ecosystem-lead": 0.79,
 };
 
 export const ROLE_TREES = {
+  "fullstack-developer": {
+    title: "The Full-Stack Developer",
+    description:
+      "You master end-to-end web engineering, seamlessly connecting responsive frontend user experiences, scalable backend microservices, robust databases, and automated cloud deployments.",
+    riskLevel: 2,
+    divergent: false,
+    interests: ["coding", "full-stack", "web", "systems", "architecture", "problem solving", "react", "node"],
+    salaryGrowthCurve: (y) => 1 + 0.072 * y + 0.007 * y * y,
+    promotionPace: 1,
+    skillsPerYear: 2,
+    roles: [
+      {
+        title: "Full-Stack Software Engineer",
+        seniority: 1,
+        companyArchetype: "product scale-up / modern tech SaaS",
+        requiredSkills: [
+          { name: "JavaScript", weight: 1.2 },
+          { name: "React", weight: 1.1 },
+          { name: "Node.js", weight: 1.1 },
+          { name: "SQL", weight: 0.9 },
+          { name: "REST API", weight: 1.0 },
+        ],
+        milestones: {
+          0: [
+            {
+              quarter: 1,
+              title: "Deploy end-to-end full-stack feature",
+              category: "Delivery",
+              description: "Build reactive UI in React, backend REST endpoints in Node.js, and integrate SQL schema migrations.",
+            },
+            {
+              quarter: 3,
+              title: "Implement JWT authentication & RBAC",
+              category: "Craft",
+              description: "Architect secure token auth middleware and protected client-side route guards.",
+            },
+          ],
+          1: [
+            {
+              quarter: 1,
+              title: "Full-stack latency & bundle optimization",
+              category: "Performance",
+              description: "Reduce frontend initial bundle size by 35% and implement server-side Redis caching.",
+            },
+            {
+              quarter: 3,
+              title: "Real-time bidirectional WebSocket service",
+              category: "Architecture",
+              description: "Design low-latency live synchronization pipeline with automated reconnection fallbacks.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Senior Full-Stack Engineer",
+        seniority: 2,
+        companyArchetype: "growth-stage unicorn / tier-1 product platform",
+        requiredSkills: [
+          { name: "TypeScript", weight: 1.3 },
+          { name: "Next.js", weight: 1.2 },
+          { name: "Docker", weight: 1.0 },
+          { name: "System Design", weight: 1.2 },
+        ],
+        milestones: {
+          2: [
+            {
+              quarter: 1,
+              title: "Architect micro-frontends & API gateway",
+              category: "Architecture",
+              description: "Decouple monolithic application into independent domain micro-frontends with a unified gateway.",
+            },
+            {
+              quarter: 3,
+              title: "Zero-downtime CI/CD container pipeline",
+              category: "DevOps",
+              description: "Orchestrate Docker containerized builds with automated integration testing gates.",
+            },
+          ],
+          3: [
+            {
+              quarter: 1,
+              title: "Full-stack engineering mentorship program",
+              category: "Mentoring",
+              description: "Coach 3 junior engineers on clean architecture, full-stack debugging, and testing best practices.",
+            },
+            {
+              quarter: 4,
+              title: "Scale data layer for 10x peak throughput",
+              category: "Reliability",
+              description: "Optimize database read replicas, connection pooling, and asynchronous background worker queues.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Staff Full-Stack Architect",
+        seniority: 3,
+        companyArchetype: "global tech enterprise / high-scale cloud provider",
+        requiredSkills: [
+          { name: "System Design", weight: 1.4 },
+          { name: "Cloud Architecture", weight: 1.2 },
+          { name: "Leadership", weight: 1.2 },
+          { name: "Kubernetes", weight: 1.0 },
+        ],
+        milestones: {
+          4: [
+            {
+              quarter: 1,
+              title: "Multi-year technical architecture strategy & RFC",
+              category: "Strategy",
+              description: "Formulate technical strategy across frontend, backend, and platform teams for next 2 years.",
+            },
+            {
+              quarter: 3,
+              title: "Event-driven distributed systems migration",
+              category: "Influence",
+              description: "Lead company-wide migration from sync HTTP to event-driven streaming architecture.",
+            },
+          ],
+          5: [
+            {
+              quarter: 2,
+              title: "Engineering bar & hiring loop lead",
+              category: "Team building",
+              description: "Establish company-wide evaluation rubric and lead principal promotion panel reviews.",
+            },
+            {
+              quarter: 4,
+              title: "Resilient active-active multi-region deployment",
+              category: "Career",
+              description: "Ship edge-rendered, active-active multi-region web platform serving millions of global users.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+
   "deep-specialist": {
     title: "The Deep Specialist",
     description:

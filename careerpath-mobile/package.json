@@ -1,6 +1,6 @@
 {
   "name": "careerpath-mobile",
-  "version": "1.0.0",
+  "version": "5.0.0",
   "description": "CareerPath Mobile App",
   "engines": {
     "node": ">=22.0.0"

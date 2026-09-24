@@ -131,9 +131,11 @@ export function Navbar() {
             <Logo />
           </Link>
 
-          <span className="hidden 2xl:inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/5 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-accent whitespace-nowrap shadow-xs">
-            <Terminal className="h-3 w-3 shrink-0 text-accent/80" />
-            <span>Software Tech</span>
+          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent/10 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-accent whitespace-nowrap shadow-xs">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+            <span>v5.0</span>
+            <span className="text-muted/60">•</span>
+            <span className="text-foreground/80 font-normal">Tech Simulator</span>
           </span>
         </div>
 

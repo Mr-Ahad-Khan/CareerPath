@@ -240,6 +240,7 @@ function buildTrajectory(branch, ctx, whatIf) {
       else if (branch === 'management-track') roleTitle = y >= 4 ? 'VP of Engineering' : 'Senior Director of Engineering';
       else if (branch === 'data-scientist') roleTitle = y >= 4 ? 'Distinguished AI Architect' : 'Staff Machine Learning Engineer';
       else if (branch === 'founder-path') roleTitle = 'Technical Co-Founder & CTO';
+      else if (branch === 'fullstack-developer') roleTitle = y >= 4 ? 'Principal Full-Stack Architect' : 'Staff Full-Stack Engineer';
       else if (branch === 'cybersecurity-architect') roleTitle = y >= 4 ? 'Chief Information Security Officer (CISO)' : 'Principal Security Architect';
       else if (branch === 'fullstack-solopreneur') roleTitle = 'Principal AI Consultant & Tech Founder';
       else if (branch === 'qa-automation-sdet') roleTitle = y >= 4 ? 'VP of Quality & Engineering Excellence' : 'Staff SDET Architect';
@@ -288,30 +289,55 @@ function buildTrajectory(branch, ctx, whatIf) {
     };
   });
 
-  const skillMatch = skillMatchScore(
-    ctx.coreSkills,
-    base.roles[base.roles.length - 1].requiredSkills
+  // 1. Skill Match (40% weight): Entry readiness + progressive track skill alignment + interest affinity
+  const entryRoleSkills = base.roles[0]?.requiredSkills || [];
+  const entrySkillMatch = skillMatchScore(ctx.coreSkills, entryRoleSkills);
+  const allTrackSkills = base.roles.flatMap((r) => r.requiredSkills || []);
+  const trackSkillMatch = skillMatchScore(ctx.coreSkills, allTrackSkills);
+  const domainInterestMatch = matchInterest(ctx.interests, base.interests);
+  const effectiveSkillMatch = clamp(
+    entrySkillMatch * 0.50 + trackSkillMatch * 0.30 + domainInterestMatch * 0.20,
+    0.15,
+    0.98
   );
-  const upskillingImpact = Math.min((ctx.upskillingBoost || 0) * 0.15, 0.20);
-  const experienceImpact = Math.min(experienceYears * 0.03, 0.25);
-  const timePenalty = (ctx.timePenalty || 0) * 0.10;
+
+  // 2. Experience Baseline (25% weight): Tenure grounded against entry seniority
+  const requiredEntrySeniority = base.roles[0]?.seniority || 1;
+  const normalizedTenure = experienceYears / Math.max(1, requiredEntrySeniority * 1.8);
+  const experienceScore = clamp(0.38 + Math.min(normalizedTenure, 1.0) * 0.54, 0.35, 0.96);
+
+  // 3. Upskilling Discipline (20% weight): Committed study schedule
+  const weeklyHours = whatIf?.upskillingHoursPerWeek ?? 10;
+  const upskillingScore = clamp(0.35 + (weeklyHours / 20) * 0.58, 0.35, 0.96);
+
+  // 4. Career Continuity & Risk Stability (15% weight): Track volatility & transition penalties
+  const riskStabilityMap = { 1: 0.92, 2: 0.85, 3: 0.74, 4: 0.62, 5: 0.48 };
+  const baseStability = riskStabilityMap[base.riskLevel] || 0.75;
+  const timePenalty = (ctx.timePenalty || 0) * 0.15;
+  const continuityScore = clamp(baseStability - timePenalty, 0.30, 0.95);
 
   const confidence = clamp(
-    0.40 + skillMatch * 0.30 + upskillingImpact + experienceImpact - timePenalty,
-    0.20,
-    0.98
+    effectiveSkillMatch * 0.40 +
+    experienceScore * 0.25 +
+    upskillingScore * 0.20 +
+    continuityScore * 0.15,
+    0.35,
+    0.95
   );
 
   const confidenceBreakdown = {
     overallPercentage: round(confidence * 100),
-    skillMatchPercentage: round(skillMatch * 100),
+    skillMatchPercentage: round(effectiveSkillMatch * 100),
     experienceYears: experienceYears,
-    upskillingHoursPerWeek: whatIf?.upskillingHoursPerWeek || 10,
+    experienceScorePercentage: round(experienceScore * 100),
+    upskillingHoursPerWeek: weeklyHours,
+    upskillingPercentage: round(upskillingScore * 100),
+    continuityPercentage: round(continuityScore * 100),
     factors: [
-      { name: 'Core Skill Match', weight: '40%', score: `${round(skillMatch * 100)}%`, description: 'Coverage of required tech competencies for the role' },
-      { name: 'Experience Baseline', weight: '25%', score: `${experienceYears} yrs`, description: 'Domain seniority and past engineering tenure' },
-      { name: 'Upskilling Discipline', weight: '20%', score: `${whatIf?.upskillingHoursPerWeek || 10}h / week`, description: 'Scheduled weekly hours committed to practice' },
-      { name: 'Career Continuity', weight: '15%', score: timePenalty > 0 ? 'Pivoting (-penalty)' : '100% Continuous', description: 'Progression in specialized track without career gaps' },
+      { name: 'Core Skill Match', weight: '40%', score: `${round(effectiveSkillMatch * 100)}%`, description: 'Coverage of immediate & progressive tech competencies' },
+      { name: 'Experience Baseline', weight: '25%', score: `${round(experienceScore * 100)}%`, description: `${experienceYears} yrs domain tenure grounding` },
+      { name: 'Upskilling Discipline', weight: '20%', score: `${round(upskillingScore * 100)}%`, description: `${weeklyHours}h / week committed practice` },
+      { name: 'Career Continuity', weight: '15%', score: `${round(continuityScore * 100)}%`, description: `${base.riskLevel <= 2 ? 'Low-Mid' : base.riskLevel === 3 ? 'Moderate' : 'High'} track risk stability` },
     ],
   };
 
@@ -332,6 +358,7 @@ function buildTrajectory(branch, ctx, whatIf) {
   const primaryGrowthVector = branch === 'management-track' ? 'Engineering Scale & Executive Leadership' :
     branch === 'data-scientist' ? 'Applied Intelligence & Neural Modeling' :
     branch === 'founder-path' ? '0-to-1 Product & Equity Velocity' :
+    branch === 'fullstack-developer' ? 'End-to-End Product Architecture & Systems' :
     branch === 'pivot-adjacent' ? 'Cloud Infrastructure Resilience' :
     'Deep Technical Systems Architecture';
 
@@ -428,28 +455,22 @@ function deriveIndustry(profile) {
 
 function pickBranches(ctx) {
   const all = Object.keys(ROLE_TREES);
-  const primary = all
-    .map((b) => ({
-      b,
-      score: matchInterest(ctx.interests, ROLE_TREES[b].interests) +
-        (ctx.coreSkills.length > 0 ? skillMatchScore(ctx.coreSkills, ROLE_TREES[b].roles[0].requiredSkills) * 0.3 : 0),
-    }))
+  const scored = all
+    .map((b) => {
+      const tree = ROLE_TREES[b];
+      const interestScore = matchInterest(ctx.interests, tree.interests);
+      const entryMatch = ctx.coreSkills.length > 0 ? skillMatchScore(ctx.coreSkills, tree.roles[0].requiredSkills) : 0.5;
+      return {
+        b,
+        score: interestScore * 0.6 + entryMatch * 0.4,
+      };
+    })
     .sort((a, b) => b.score - a.score);
 
   const picked = [];
-  for (const item of primary) {
+  for (const item of scored) {
     if (!picked.includes(item.b)) {
       picked.push(item.b);
-    }
-    if (picked.length >= 6) break;
-  }
-  const divergent = all.filter((b) => !picked.includes(b) && ROLE_TREES[b].divergent);
-  for (const d of divergent) {
-    if (picked.length < 8) picked.push(d);
-  }
-  for (const b of all) {
-    if (!picked.includes(b) && picked.length < 8) {
-      picked.push(b);
     }
   }
   return picked;

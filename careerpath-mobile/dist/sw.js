@@ -1,4 +1,4 @@
-const CACHE_NAME = 'careerpath-cache-v2';
+const CACHE_NAME = 'careerpath-cache-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -51,18 +51,24 @@ self.addEventListener('fetch', (event) => {
 
       return fetch(request)
         .then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
+          if (!response || response.status !== 200) {
             return response;
           }
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          if (response.type === 'basic' || response.type === 'cors') {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
           return response;
         })
-        .catch(() => {
-          // If request was for a navigation/page, return cached index.html
-          if (request.mode === 'navigate') {
-            return caches.match('/index.html');
+        .catch(async () => {
+          const fallback = await caches.match(request);
+          if (fallback) return fallback;
+
+          if (request.mode === 'navigate' || request.destination === 'document') {
+            return (await caches.match('/index.html')) || (await caches.match('/'));
           }
+
+          return new Response('', { status: 408, statusText: 'Offline Asset Unavailable' });
         });
     })
   );

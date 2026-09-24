@@ -623,14 +623,16 @@ function ConfidenceDetailsModal({ path, whatIf, onClose }) {
               Experience Baseline (25%)
             </span>
             <span className="font-display text-base font-semibold text-foreground mt-0.5 block">
-              {path.confidenceBreakdown?.experienceYears !== undefined
+              {path.confidenceBreakdown?.experienceScorePercentage
+                ? `${path.confidenceBreakdown.experienceScorePercentage}%`
+                : path.confidenceBreakdown?.experienceYears !== undefined
                 ? `${path.confidenceBreakdown.experienceYears} yrs`
-                : whatIf?.extraExperienceMonths
-                ? `${((whatIf.extraExperienceMonths) / 12).toFixed(1)} yrs`
                 : "Standard Baseline"}
             </span>
             <span className="text-[10px] text-muted block mt-0.5">
-              Tenure grounding vs seniority demand
+              {path.confidenceBreakdown?.experienceYears !== undefined
+                ? `${path.confidenceBreakdown.experienceYears} yrs tenure grounding`
+                : "Tenure grounding vs seniority demand"}
             </span>
           </div>
 
@@ -639,10 +641,14 @@ function ConfidenceDetailsModal({ path, whatIf, onClose }) {
               Upskilling Schedule (20%)
             </span>
             <span className="font-display text-base font-semibold text-foreground mt-0.5 block">
-              {whatIf?.upskillingHoursPerWeek || 10}h / week
+              {path.confidenceBreakdown?.upskillingPercentage
+                ? `${path.confidenceBreakdown.upskillingPercentage}%`
+                : `${whatIf?.upskillingHoursPerWeek || 10}h / week`}
             </span>
             <span className="text-[10px] text-muted block mt-0.5">
-              Deliberate practice & continuous study
+              {path.confidenceBreakdown?.upskillingHoursPerWeek !== undefined
+                ? `${path.confidenceBreakdown.upskillingHoursPerWeek}h/wk study schedule`
+                : "Deliberate practice & study schedule"}
             </span>
           </div>
 
@@ -651,10 +657,12 @@ function ConfidenceDetailsModal({ path, whatIf, onClose }) {
               Career Continuity (15%)
             </span>
             <span className="font-display text-base font-semibold text-foreground mt-0.5 block">
-              Continuous
+              {path.confidenceBreakdown?.continuityPercentage
+                ? `${path.confidenceBreakdown.continuityPercentage}%`
+                : "Continuous"}
             </span>
             <span className="text-[10px] text-muted block mt-0.5">
-              Organic domain progression
+              {`${RISK_LABELS[path.riskLevel] || 'Normal'} track risk stability`}
             </span>
           </div>
         </div>

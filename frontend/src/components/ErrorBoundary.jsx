@@ -21,6 +21,7 @@ export class ErrorBoundary extends React.Component {
 
   handleResetOffline = () => {
     try {
+      localStorage.removeItem('cp-offline-initialized-v5');
       localStorage.removeItem('cp-offline-initialized-v3');
     } catch {}
     window.location.href = '/';
