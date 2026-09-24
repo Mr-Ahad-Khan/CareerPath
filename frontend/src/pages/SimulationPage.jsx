@@ -354,7 +354,11 @@ export function SimulationPage() {
                 <div className="rounded-lg bg-surface-2 p-2.5 border border-border/50">
                   <span className="text-muted block text-[10px] uppercase font-semibold">Experience (25%)</span>
                   <span className="text-foreground font-semibold text-sm mt-0.5 block">
-                    {profile?.experienceYears || whatIf?.extraExperienceMonths ? `${(Number(profile?.experienceYears || 0) + (whatIf.extraExperienceMonths || 0)/12).toFixed(1)} yrs` : 'Baseline'}
+                    {path.confidenceBreakdown?.experienceYears !== undefined
+                      ? `${path.confidenceBreakdown.experienceYears} yrs`
+                      : whatIf?.extraExperienceMonths
+                      ? `${((whatIf.extraExperienceMonths) / 12).toFixed(1)} yrs`
+                      : 'Baseline'}
                   </span>
                   <span className="text-[10px] text-muted block mt-0.5">Tenure grounding</span>
                 </div>
