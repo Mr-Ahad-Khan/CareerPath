@@ -28,14 +28,26 @@ export function AuthProvider({ children }) {
     // expected-but-noisy 401 on every initial page load.
     const token = getToken();
     if (!token) {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const guestUser = {
+          ...DEMO_ACCOUNTS.guest,
+          isOffline: true,
+        };
+        const offlineToken = 'cp-offline-guest-' + Date.now();
+        setToken(offlineToken);
+        setCachedUser(guestUser);
+        setUser(guestUser);
+        setLoading(false);
+        return;
+      }
       setUser(null);
       setCachedUser(null);
       setLoading(false);
       return;
     }
 
-    // If it's an offline token, resolve immediately with cached user or demo student
-    if (token.startsWith('cp-offline')) {
+    // If it's an offline token or if offline, resolve immediately with cached user or demo student
+    if (token.startsWith('cp-offline') || (typeof navigator !== 'undefined' && !navigator.onLine)) {
       const cached = getCachedUser() || DEMO_ACCOUNTS.student;
       setUser(cached);
       setLoading(false);

@@ -533,9 +533,14 @@ export function parseResume(text) {
   };
 }
 
-export function realityCheck(resumeSkills, simulationSkillGaps) {
-  const resumeSet = new Set((resumeSkills || []).map((s) => s.toLowerCase()));
-  const gaps = simulationSkillGaps || [];
+export function realityCheck(resumeSkills = [], simulationSkillGaps = []) {
+  const safeResumeSkills = (resumeSkills || []).map((s) => (typeof s === 'string' ? s : s?.name || s?.skill || '')).filter(Boolean);
+  const resumeSet = new Set(safeResumeSkills.map((s) => s.toLowerCase()));
+  
+  const gaps = (simulationSkillGaps || []).map((g) => {
+    if (typeof g === 'string') return { skill: g, category: 'Technical' };
+    return { skill: g?.skill || g?.name || 'Core Skill', ...g };
+  }).filter((g) => Boolean(g.skill));
 
   const matched = [];
   const missing = [];
@@ -550,7 +555,7 @@ export function realityCheck(resumeSkills, simulationSkillGaps) {
   }
 
   const gapSet = new Set(gaps.map((g) => g.skill.toLowerCase()));
-  for (const skill of resumeSkills || []) {
+  for (const skill of safeResumeSkills) {
     if (!gapSet.has(skill.toLowerCase())) {
       surplus.push({ skill, status: "surplus" });
     }
@@ -573,7 +578,7 @@ export function realityCheck(resumeSkills, simulationSkillGaps) {
     missing,
     surplus,
     coverageScore,
-    resumeSkillCount: (resumeSkills || []).length,
+    resumeSkillCount: safeResumeSkills.length,
     gapCount: missing.length,
     smartSuggestions,
   };

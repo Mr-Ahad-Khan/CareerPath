@@ -227,6 +227,7 @@ export const offlineStore = {
       createdAt: sim.createdAt || new Date().toISOString(),
       whatIf: sim.whatIf,
       summary: sim.summary,
+      paths: sim.paths || [],
       pathCount: sim.paths?.length || 0,
       topSalary: Math.max(...(sim.paths?.map((p) => p.finalSalary) || [0]), 0),
       pathTitles: (sim.paths || []).map((p) => p.title),

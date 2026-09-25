@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   FileCheck,
+  FileCheck2,
   Upload,
   ClipboardPaste,
   Check,
@@ -231,7 +232,7 @@ export function ResumeCheckPage() {
 
   if (!sims && !simError) return <LoadingOverlay />;
 
-  const path = simDetail?.paths[selectedPath];
+  const path = (simDetail?.paths || [])[selectedPath] || (simDetail?.paths || [])[0] || null;
 
   return (
     <>
@@ -306,11 +307,11 @@ export function ResumeCheckPage() {
                     setResult(null);
                   }}
                 >
-                  {simDetail?.paths.map((p, i) => (
-                    <option key={p.code} value={i}>
+                  {(simDetail?.paths || []).map((p, i) => (
+                    <option key={p.code || i} value={i}>
                       {p.title}
                     </option>
-                  )) || []}
+                  ))}
                 </select>
               </div>
             </div>
