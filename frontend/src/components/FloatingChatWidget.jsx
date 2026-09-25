@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MessageSquare, Sparkles, X } from 'lucide-react';
 import { api } from '@/lib/api.js';
 import { useAuth } from '@/lib/auth.jsx';
@@ -7,6 +8,7 @@ import { MentorChatModal } from './MentorChatModal.jsx';
 
 export function FloatingChatWidget() {
   const { user } = useAuth();
+  const location = useLocation();
   const [connections, setConnections] = useState([]);
   const [activeModalConnection, setActiveModalConnection] = useState(null);
   const [minimized, setMinimized] = useState(false);
@@ -28,7 +30,7 @@ export function FloatingChatWidget() {
     return () => clearInterval(interval);
   }, [user]);
 
-  if (!user) return null;
+  if (!user || location.pathname === '/mentors') return null;
 
   const isMentor = user?.role === 'mentor';
   const acceptedConns = connections.filter((r) => r.status === 'accepted');

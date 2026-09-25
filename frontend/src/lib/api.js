@@ -355,6 +355,12 @@ function shouldUseOfflineFallback(path, method, status) {
 async function request(path, options = {}) {
   const method = options.method || 'GET';
   const data = options.body ? JSON.parse(options.body) : {};
+  const cleanPath = path.split('?')[0].replace(/\/+$/, '');
+
+  // Local/starter connections (such as conn-starter-1) or mock IDs are served locally to avoid 500 CastError on remote server
+  if (cleanPath.startsWith('/connections/conn-') || cleanPath.startsWith('/connections/local-') || cleanPath.includes('/conn-')) {
+    return handleOfflineRequest(method, path, data);
+  }
 
   // If offline or in guest/offline session mode, serve locally without making remote network calls
   if (isOffline()) {
@@ -401,7 +407,7 @@ async function request(path, options = {}) {
   if (!res.ok) {
     // If the backend is unavailable or rejects protected resources while the app is
     // running in an offline-capable mode, treat it as a graceful local fallback.
-    if (shouldUseOfflineFallback(path, method, res.status)) {
+    if (shouldUseOfflineFallback(path, method, res.status) || cleanPath.startsWith('/connections')) {
       return handleOfflineRequest(method, path, data);
     }
 

@@ -241,24 +241,24 @@ export function MentorsPage() {
       </div>
 
       {isMentor && incomingPending.length > 0 && (
-        <div className="mb-6 surface-card border-accent/30 p-4">
+        <div className="mb-6 surface-card border-accent/30 p-3.5 sm:p-5 w-full min-w-0 overflow-hidden">
           <div className="mb-3 flex items-center gap-2">
             <Bell className="h-4 w-4 text-accent" />
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">New connection requests</h3>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2.5 sm:space-y-3 w-full min-w-0">
             {incomingPending.map((request) => (
-              <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface-2 p-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  <Avatar name={request.student?.name || 'Student'} color={request.student?.avatarColor} size={36} />
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground">{request.student?.name || 'Student'}</p>
-                    <p className="truncate text-sm text-muted">{request.message}</p>
+              <div key={request.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-border bg-surface-2 p-3 w-full min-w-0">
+                <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                  <Avatar name={request.student?.name || 'Student'} color={request.student?.avatarColor} size={36} className="shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm text-foreground truncate">{request.student?.name || 'Student'}</p>
+                    <p className="truncate text-xs text-muted">{request.message}</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => updateRequest(request.id, 'decline')} disabled={updatingRequest === request.id} className="btn-secondary px-3 py-2 text-sm">Decline</button>
-                  <button onClick={() => updateRequest(request.id, 'accept')} disabled={updatingRequest === request.id} className="btn-primary px-3 py-2 text-sm"><Check className="h-4 w-4" /> Accept</button>
+                <div className="flex gap-2 shrink-0 self-end sm:self-auto">
+                  <button onClick={() => updateRequest(request.id, 'decline')} disabled={updatingRequest === request.id} className="btn-secondary px-3 py-1.5 text-xs">Decline</button>
+                  <button onClick={() => updateRequest(request.id, 'accept')} disabled={updatingRequest === request.id} className="btn-primary px-3 py-1.5 text-xs flex items-center gap-1"><Check className="h-3.5 w-3.5" /> Accept & Chat</button>
                 </div>
               </div>
             ))}
@@ -267,28 +267,30 @@ export function MentorsPage() {
       )}
 
       {isMentor && connectedMentors.length > 0 && (
-        <div className="mb-6 surface-card p-4 sm:p-5">
+        <div className="mb-6 surface-card p-3.5 sm:p-5 w-full min-w-0 overflow-hidden">
           <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
             <UserRound className="h-4 w-4 text-success" /> Active mentees ({connectedMentors.length})
           </h3>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2.5 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full min-w-0">
             {connectedMentors.map((request) => (
               <div
                 key={request.id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-2 p-3"
+                className="flex items-center justify-between gap-2.5 rounded-xl border border-border bg-surface-2 p-2.5 sm:p-3 w-full min-w-0 overflow-hidden shadow-xs"
               >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <Avatar name={request.student?.name || 'Student'} color={request.student?.avatarColor} size={36} />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-foreground">{request.student?.name || 'Student'}</p>
-                    <p className="truncate text-xs text-muted">{request.student?.headline || 'Mentorship connection'}</p>
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <Avatar name={request.student?.name || 'Student'} color={request.student?.avatarColor} size={36} className="shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs sm:text-sm font-semibold text-foreground">{request.student?.name || 'Student'}</p>
+                    <p className="truncate text-[11px] sm:text-xs text-muted">{request.student?.headline || 'Mentorship connection'}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setActiveChatConnection(request)}
-                  className="btn-primary shrink-0 text-xs px-3 py-1.5 flex items-center gap-1.5 shadow-sm"
+                  className="btn-primary shrink-0 text-xs px-2.5 sm:px-3 py-1.5 flex items-center gap-1 shadow-sm whitespace-nowrap"
+                  aria-label={`Chat with ${request.student?.name || 'Student'}`}
                 >
-                  <MessageSquare className="h-3.5 w-3.5" /> Chat
+                  <MessageSquare className="h-3.5 w-3.5 text-accent-contrast" />
+                  <span>Chat</span>
                 </button>
               </div>
             ))}
@@ -297,7 +299,7 @@ export function MentorsPage() {
       )}
 
       {!isMentor && requests.length > 0 && (
-        <div className="mb-6 surface-card p-4">
+        <div className="mb-6 surface-card p-3.5 sm:p-5 w-full min-w-0 overflow-hidden">
           <div className="mb-3 flex items-center gap-2">
             <Bell className="h-4 w-4 text-accent" />
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Connection updates</h3>
@@ -313,28 +315,30 @@ export function MentorsPage() {
       )}
 
       {!isMentor && connectedMentors.length > 0 && (
-        <div className="mb-6 surface-card p-4 sm:p-5">
+        <div className="mb-6 surface-card p-3.5 sm:p-5 w-full min-w-0 overflow-hidden">
           <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
-            <UserRound className="h-4 w-4 text-success" /> Your connected mentors
+            <UserRound className="h-4 w-4 text-success" /> Your connected mentors ({connectedMentors.length})
           </h3>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2.5 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full min-w-0">
             {connectedMentors.map((request) => (
               <div
                 key={request.id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-success/30 bg-success/5 p-3"
+                className="flex items-center justify-between gap-2.5 rounded-xl border border-success/30 bg-success/5 p-2.5 sm:p-3 w-full min-w-0 overflow-hidden shadow-xs"
               >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <Avatar name={request.mentor?.name || 'Mentor'} color={request.mentor?.avatarColor} size={36} />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-foreground">{request.mentor?.name}</p>
-                    <p className="truncate text-xs text-muted">{request.mentor?.title || 'Connected mentor'}</p>
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <Avatar name={request.mentor?.name || 'Mentor'} color={request.mentor?.avatarColor} size={36} className="shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs sm:text-sm font-semibold text-foreground">{request.mentor?.name || 'Mentor'}</p>
+                    <p className="truncate text-[11px] sm:text-xs text-muted">{request.mentor?.title || 'Connected mentor'}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setActiveChatConnection(request)}
-                  className="btn-primary shrink-0 text-xs px-3 py-1.5 flex items-center gap-1.5 shadow-sm"
+                  className="btn-primary shrink-0 text-xs px-2.5 sm:px-3 py-1.5 flex items-center gap-1 shadow-sm whitespace-nowrap"
+                  aria-label={`Chat with ${request.mentor?.name || 'Mentor'}`}
                 >
-                  <MessageSquare className="h-3.5 w-3.5" /> Chat
+                  <MessageSquare className="h-3.5 w-3.5 text-accent-contrast" />
+                  <span>Chat</span>
                 </button>
               </div>
             ))}
