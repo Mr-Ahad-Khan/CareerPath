@@ -23,11 +23,67 @@ import { EmptyState } from "@/components/EmptyState.jsx";
 import { pct } from "@/lib/format.js";
 import { readResumeFile, MAX_RESUME_FILE_SIZE } from "@/lib/resumeReader.js";
 
+const TARGET_CAREER_TRACKS = [
+  {
+    id: "fullstack-developer",
+    title: "Full-Stack Developer",
+    badge: "Full-Stack",
+    description: "End-to-end web engineering, React/Next.js frontend, Node.js APIs, SQL databases, and CI/CD.",
+    skillGaps: [
+      { skill: "React", demand: 0.92, category: "Frontend" },
+      { skill: "Node.js", demand: 0.90, category: "Backend" },
+      { skill: "TypeScript", demand: 0.88, category: "Language" },
+      { skill: "SQL", demand: 0.85, category: "Database" },
+      { skill: "REST API", demand: 0.86, category: "Backend" },
+      { skill: "Docker", demand: 0.78, category: "Cloud" },
+      { skill: "System Design", demand: 0.82, category: "Architecture" },
+      { skill: "Next.js", demand: 0.80, category: "Frontend" },
+      { skill: "CI/CD", demand: 0.75, category: "DevOps" },
+    ],
+  },
+  {
+    id: "frontend-developer",
+    title: "Frontend Developer",
+    badge: "Frontend UI/UX",
+    description: "Reactive UI systems, responsive CSS/Tailwind, TypeScript, state management, and web performance.",
+    skillGaps: [
+      { skill: "React", demand: 0.95, category: "Frontend" },
+      { skill: "JavaScript", demand: 0.92, category: "Language" },
+      { skill: "TypeScript", demand: 0.90, category: "Language" },
+      { skill: "CSS", demand: 0.88, category: "Styling" },
+      { skill: "Next.js", demand: 0.85, category: "Frontend" },
+      { skill: "Web Performance", demand: 0.82, category: "Performance" },
+      { skill: "REST API", demand: 0.80, category: "Networking" },
+      { skill: "Testing", demand: 0.78, category: "Quality" },
+      { skill: "Accessibility", demand: 0.75, category: "Standards" },
+    ],
+  },
+  {
+    id: "backend-developer",
+    title: "Backend Developer",
+    badge: "Distributed Systems",
+    description: "High-throughput microservices, distributed systems, PostgreSQL, Redis caching, and cloud APIs.",
+    skillGaps: [
+      { skill: "Node.js", demand: 0.92, category: "Backend" },
+      { skill: "SQL", demand: 0.90, category: "Database" },
+      { skill: "System Design", demand: 0.88, category: "Architecture" },
+      { skill: "PostgreSQL", demand: 0.85, category: "Database" },
+      { skill: "Docker", demand: 0.82, category: "Cloud" },
+      { skill: "Distributed Systems", demand: 0.80, category: "Architecture" },
+      { skill: "Redis", demand: 0.78, category: "Caching" },
+      { skill: "REST API", demand: 0.85, category: "Networking" },
+      { skill: "Kubernetes", demand: 0.74, category: "Cloud" },
+    ],
+  },
+];
+
 export function ResumeCheckPage() {
   const toast = useToast();
   const fileInputRef = useRef(null);
   const [sims, setSims] = useState(null);
   const [simError, setSimError] = useState(null);
+  const [evalMode, setEvalMode] = useState("track"); // "track" | "simulation"
+  const [selectedTrack, setSelectedTrack] = useState("fullstack-developer");
   const [selectedSim, setSelectedSim] = useState(null);
   const [selectedPath, setSelectedPath] = useState(0);
   const [resumeText, setResumeText] = useState("");
@@ -99,19 +155,30 @@ export function ResumeCheckPage() {
       toast.error("Paste your resume text or upload a file first.");
       return;
     }
-    const path = simDetail
-      ? (simDetail.paths || [])[selectedPath] || (simDetail.paths || [])[0] || null
-      : null;
+
+    let targetGaps = [];
+    let targetTitle = "";
+
+    if (evalMode === "simulation" && simDetail) {
+      const p = (simDetail.paths || [])[selectedPath] || (simDetail.paths || [])[0] || null;
+      targetGaps = p?.skillGaps || [];
+      targetTitle = p?.title || "Simulated Path";
+    } else {
+      const track = TARGET_CAREER_TRACKS.find((t) => t.id === selectedTrack) || TARGET_CAREER_TRACKS[0];
+      targetGaps = track.skillGaps;
+      targetTitle = track.title;
+    }
 
     setAnalyzing(true);
     try {
       const data = await api.post("/resume/analyze", {
         resumeText,
-        skillGaps: path?.skillGaps || [],
-        simulationId: selectedSim || null,
+        skillGaps: targetGaps,
+        targetRole: evalMode === "track" ? selectedTrack : undefined,
+        simulationId: evalMode === "simulation" ? selectedSim : null,
       });
-      setResult(data);
-      toast.success("Resume analysed.");
+      setResult({ ...data, targetTitle });
+      toast.success(`Resume analysed for ${targetTitle}.`);
     } catch (err) {
       toast.error(err.message || "Failed to analyze resume.");
     } finally {
@@ -134,7 +201,7 @@ export function ResumeCheckPage() {
           <p className="mt-1 text-muted">
             Paste your resume or upload a PDF, DOCX, TXT, or image file (up to 15
             MB). We’ll parse the skills you mention and cross-reference them
-            against the gaps identified in your simulation.
+            against Full-Stack, Frontend, Backend, or custom simulated role gaps.
           </p>
         </div>
 
@@ -143,7 +210,7 @@ export function ResumeCheckPage() {
           <FileCheck2 className="h-4 w-4 text-accent shrink-0 mt-0.5" />
           <div>
             <span className="font-semibold text-foreground">User Responsibility & Input Quality Notice:</span>{' '}
-            Resume match scores and skill gap diagnoses are calculated directly from your entered resume text against your simulation model. It is your responsibility to upload an accurate, up-to-date resume to produce reliable and actionable skill gap results.
+            Resume match scores and skill gap diagnoses are calculated directly from your entered resume text against your chosen role model. It is your responsibility to upload an accurate, up-to-date resume to produce reliable and actionable skill gap results.
           </div>
         </div>
 
@@ -161,56 +228,148 @@ export function ResumeCheckPage() {
         )}
 
         <>
-          {sims?.length > 0 ? (
-            <div className="mb-4 grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className="field-label" htmlFor="resume-target-sim">
-                  Compare against simulation
-                </label>
-                <select
-                  id="resume-target-sim"
-                  name="selectedSim"
-                  className="field-select"
-                  value={selectedSim || ""}
-                  onChange={(e) => {
-                    setSelectedSim(e.target.value);
+          {/* Target Role & Path Selector */}
+          <div className="mb-5 surface-card p-4 sm:p-5">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted">
+                Select Target Career Path
+              </span>
+              <div className="flex rounded-lg border border-border bg-surface-2 p-0.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEvalMode("track");
                     setResult(null);
                   }}
+                  className={`rounded-md px-3 py-1 font-medium transition-all ${
+                    evalMode === "track"
+                      ? "bg-accent text-accent-contrast shadow-xs font-semibold"
+                      : "text-muted hover:text-foreground"
+                  }`}
                 >
-                  {sims.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="field-label" htmlFor="resume-target-path">Path</label>
-                <select
-                  id="resume-target-path"
-                  name="selectedPath"
-                  className="field-select"
-                  value={selectedPath}
-                  onChange={(e) => {
-                    setSelectedPath(+e.target.value);
+                  Core Developer Tracks
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEvalMode("simulation");
                     setResult(null);
                   }}
+                  className={`rounded-md px-3 py-1 font-medium transition-all ${
+                    evalMode === "simulation"
+                      ? "bg-accent text-accent-contrast shadow-xs font-semibold"
+                      : "text-muted hover:text-foreground"
+                  }`}
                 >
-                  {(simDetail?.paths || []).map((p, i) => (
-                    <option key={p.code || i} value={i}>
-                      {p.title}
-                    </option>
-                  ))}
-                </select>
+                  Saved Simulations {(sims?.length > 0) && `(${sims.length})`}
+                </button>
               </div>
             </div>
-          ) : (
-            <EmptyState
-              icon={FileCheck}
-              title="Run a simulation to compare results"
-              description="You can paste or upload your resume now. Create a simulation before running the reality-check."
-            />
-          )}
+
+            {evalMode === "track" ? (
+              <div className="grid gap-2.5 sm:grid-cols-3">
+                {TARGET_CAREER_TRACKS.map((track) => {
+                  const isSelected = selectedTrack === track.id;
+                  return (
+                    <button
+                      key={track.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedTrack(track.id);
+                        setResult(null);
+                      }}
+                      className={`relative flex flex-col justify-between rounded-xl border p-3.5 text-left transition-all ${
+                        isSelected
+                          ? "border-accent bg-accent/10 ring-1 ring-accent shadow-xs"
+                          : "border-border/80 bg-surface-2/40 hover:border-accent/40 hover:bg-surface-2/70"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="font-display text-sm font-semibold text-foreground">
+                            {track.title}
+                          </span>
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                              isSelected
+                                ? "bg-accent text-accent-contrast"
+                                : "bg-surface text-muted border border-border/70"
+                            }`}
+                          >
+                            {track.badge}
+                          </span>
+                        </div>
+                        <p className="text-[11px] leading-relaxed text-muted line-clamp-2">
+                          {track.description}
+                        </p>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-1">
+                        {track.skillGaps.slice(0, 4).map((s) => (
+                          <span
+                            key={s.skill}
+                            className="chip text-[10px] py-0 px-1.5"
+                          >
+                            {s.skill}
+                          </span>
+                        ))}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : sims?.length > 0 ? (
+              <div className="grid gap-3 sm:grid-cols-2 pt-1">
+                <div>
+                  <label className="field-label" htmlFor="resume-target-sim">
+                    Compare against simulation
+                  </label>
+                  <select
+                    id="resume-target-sim"
+                    name="selectedSim"
+                    className="field-select"
+                    value={selectedSim || ""}
+                    onChange={(e) => {
+                      setSelectedSim(e.target.value);
+                      setResult(null);
+                    }}
+                  >
+                    {sims.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="field-label" htmlFor="resume-target-path">
+                    Simulation Path
+                  </label>
+                  <select
+                    id="resume-target-path"
+                    name="selectedPath"
+                    className="field-select"
+                    value={selectedPath}
+                    onChange={(e) => {
+                      setSelectedPath(+e.target.value);
+                      setResult(null);
+                    }}
+                  >
+                    {(simDetail?.paths || []).map((p, i) => (
+                      <option key={p.code || i} value={i}>
+                        {p.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ) : (
+              <EmptyState
+                icon={FileCheck}
+                title="No saved simulations yet"
+                description="Run a simulation to generate personalized multi-year career paths, or use the Core Developer Tracks above."
+              />
+            )}
+          </div>
 
           <div className="mb-4 surface-card p-5">
             <div className="mb-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">

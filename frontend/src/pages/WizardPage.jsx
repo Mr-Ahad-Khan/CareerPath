@@ -364,7 +364,7 @@ export function WizardPage() {
                   placeholder="e.g. Principal Full-Stack Architect, Staff Engineer"
                 />
                 <div className="mt-1.5 flex flex-wrap gap-1">
-                  {['The Full-Stack Developer', 'Staff Software Architect', 'Engineering Lead', 'Distinguished AI Engineer'].map((r) => (
+                  {['Full-Stack Developer', 'Frontend Developer', 'Backend Developer', 'Staff Software Architect', 'Engineering Lead'].map((r) => (
                     <button
                       key={r}
                       type="button"

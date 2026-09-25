@@ -131,6 +131,24 @@ const BRANCH_DYNAMICS = {
     ceilingBoost: 1.16,
     baseMult: 1.02,
   },
+  'fullstack-developer': {
+    annualRate: 0.098,
+    promotionStep: 0.13,
+    ceilingBoost: 1.20,
+    baseMult: 1.02,
+  },
+  'frontend-developer': {
+    annualRate: 0.088,
+    promotionStep: 0.11,
+    ceilingBoost: 1.15,
+    baseMult: 1.0,
+  },
+  'backend-developer': {
+    annualRate: 0.096,
+    promotionStep: 0.13,
+    ceilingBoost: 1.22,
+    baseMult: 1.04,
+  },
   'fullstack-solopreneur': {
     annualRate: 0.095,
     promotionStep: 0.15,
@@ -241,6 +259,8 @@ function buildTrajectory(branch, ctx, whatIf) {
       else if (branch === 'data-scientist') roleTitle = y >= 4 ? 'Distinguished AI Architect' : 'Staff Machine Learning Engineer';
       else if (branch === 'founder-path') roleTitle = 'Technical Co-Founder & CTO';
       else if (branch === 'fullstack-developer') roleTitle = y >= 4 ? 'Principal Full-Stack Architect' : 'Staff Full-Stack Engineer';
+      else if (branch === 'frontend-developer') roleTitle = y >= 4 ? 'Principal Frontend Architect' : 'Staff Web Systems Engineer';
+      else if (branch === 'backend-developer') roleTitle = y >= 4 ? 'Principal Backend Architect' : 'Staff Distributed Systems Engineer';
       else if (branch === 'cybersecurity-architect') roleTitle = y >= 4 ? 'Chief Information Security Officer (CISO)' : 'Principal Security Architect';
       else if (branch === 'fullstack-solopreneur') roleTitle = 'Principal AI Consultant & Tech Founder';
       else if (branch === 'qa-automation-sdet') roleTitle = y >= 4 ? 'VP of Quality & Engineering Excellence' : 'Staff SDET Architect';
@@ -359,6 +379,8 @@ function buildTrajectory(branch, ctx, whatIf) {
     branch === 'data-scientist' ? 'Applied Intelligence & Neural Modeling' :
     branch === 'founder-path' ? '0-to-1 Product & Equity Velocity' :
     branch === 'fullstack-developer' ? 'End-to-End Product Architecture & Systems' :
+    branch === 'frontend-developer' ? 'High-Performance Web Systems & Frontend Architecture' :
+    branch === 'backend-developer' ? 'Distributed Microservices & Cloud Scale Engineering' :
     branch === 'pivot-adjacent' ? 'Cloud Infrastructure Resilience' :
     'Deep Technical Systems Architecture';
 
@@ -398,6 +420,8 @@ export function generateSimulation(profileInput, whatIf) {
       currentSalary: Number(profileInput.currentSalary) || null,
       marketTier: profileInput.marketTier || 'growth-product',
       location: profileInput.location || cityKey,
+      targetRole: profileInput.targetRole || '',
+      currentRole: profileInput.currentRole || '',
       entryPoint: deriveEntryPoint(profileInput),
       industry: deriveIndustry(profileInput),
       locationMultiplier: getCityMultiplier(cityKey),
@@ -455,14 +479,19 @@ function deriveIndustry(profile) {
 
 function pickBranches(ctx) {
   const all = Object.keys(ROLE_TREES);
+  const roleText = `${ctx.targetRole || ''} ${ctx.currentRole || ''}`.toLowerCase();
   const scored = all
     .map((b) => {
       const tree = ROLE_TREES[b];
       const interestScore = matchInterest(ctx.interests, tree.interests);
       const entryMatch = ctx.coreSkills.length > 0 ? skillMatchScore(ctx.coreSkills, tree.roles[0].requiredSkills) : 0.5;
+      let roleBonus = 0;
+      if (b === 'fullstack-developer' && (roleText.includes('full') || roleText.includes('stack'))) roleBonus += 1.0;
+      if (b === 'frontend-developer' && (roleText.includes('front') || roleText.includes('ui') || roleText.includes('web'))) roleBonus += 1.0;
+      if (b === 'backend-developer' && (roleText.includes('back') || roleText.includes('api') || roleText.includes('server') || roleText.includes('distributed'))) roleBonus += 1.0;
       return {
         b,
-        score: interestScore * 0.6 + entryMatch * 0.4,
+        score: interestScore * 0.6 + entryMatch * 0.4 + roleBonus,
       };
     })
     .sort((a, b) => b.score - a.score);

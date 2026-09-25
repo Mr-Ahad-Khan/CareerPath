@@ -398,6 +398,254 @@ export const ROLE_TREES = {
     ],
   },
 
+  "frontend-developer": {
+    title: "Frontend Developer & Web Systems Lead",
+    description:
+      "You spearhead cutting-edge web interfaces, reactive frontend architectures, fluid micro-interactions, high-performance rendering engines, and accessible design systems.",
+    riskLevel: 2,
+    divergent: false,
+    interests: ["frontend", "ui", "ux", "web", "react", "javascript", "design", "coding", "client-side"],
+    salaryGrowthCurve: (y) => 1 + 0.068 * y + 0.0065 * y * y,
+    promotionPace: 1,
+    skillsPerYear: 2,
+    roles: [
+      {
+        title: "Frontend Software Engineer",
+        seniority: 1,
+        companyArchetype: "modern SaaS / product platform",
+        requiredSkills: [
+          { name: "JavaScript", weight: 1.3 },
+          { name: "React", weight: 1.2 },
+          { name: "CSS", weight: 1.1 },
+          { name: "TypeScript", weight: 1.1 },
+          { name: "REST API", weight: 1.0 },
+        ],
+        milestones: {
+          0: [
+            {
+              quarter: 1,
+              title: "Deliver modular design system components",
+              category: "Craft",
+              description: "Build accessible, responsive UI primitives adhering to WCAG 2.1 AA standards.",
+            },
+            {
+              quarter: 3,
+              title: "State management & caching pipeline",
+              category: "Delivery",
+              description: "Implement normalized client caching and optimistic UI updates using Zustand/Redux.",
+            },
+          ],
+          1: [
+            {
+              quarter: 1,
+              title: "Core Web Vitals performance audit",
+              category: "Performance",
+              description: "Achieve sub-second LCP and zero CLS across mobile and desktop viewpoints.",
+            },
+            {
+              quarter: 3,
+              title: "Interactive data visualization dashboard",
+              category: "Delivery",
+              description: "Build canvas/SVG real-time chart pipelines for complex user analytics.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Senior Frontend Engineer",
+        seniority: 2,
+        companyArchetype: "tier-1 product unicorn / high-traffic consumer web",
+        requiredSkills: [
+          { name: "TypeScript", weight: 1.3 },
+          { name: "Next.js", weight: 1.2 },
+          { name: "Web Performance", weight: 1.2 },
+          { name: "Testing", weight: 1.0 },
+        ],
+        milestones: {
+          2: [
+            {
+              quarter: 1,
+              title: "Micro-frontend orchestration architecture",
+              category: "Architecture",
+              description: "Migrate legacy frontend into modular module-federation based micro-apps.",
+            },
+            {
+              quarter: 3,
+              title: "End-to-end automated testing matrix",
+              category: "Reliability",
+              description: "Establish automated Playwright and Cypress regression test pipelines.",
+            },
+          ],
+          3: [
+            {
+              quarter: 1,
+              title: "Cross-functional frontend mentoring",
+              category: "Mentoring",
+              description: "Lead frontend guilds, code review standards, and technical onboarding.",
+            },
+            {
+              quarter: 4,
+              title: "Server-side streaming & Edge rendering",
+              category: "Architecture",
+              description: "Implement Next.js streaming SSR and Edge caching for global sub-100ms TTFB.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Staff Frontend Architect",
+        seniority: 3,
+        companyArchetype: "global tech leader / consumer internet powerhouse",
+        requiredSkills: [
+          { name: "System Design", weight: 1.4 },
+          { name: "Architecture", weight: 1.3 },
+          { name: "Leadership", weight: 1.2 },
+          { name: "Accessibility", weight: 1.1 },
+        ],
+        milestones: {
+          4: [
+            {
+              quarter: 1,
+              title: "Company-wide web framework roadmap",
+              category: "Strategy",
+              description: "Standardize client telemetry, error monitoring, and global rendering infrastructure.",
+            },
+            {
+              quarter: 4,
+              title: "Cross-platform web/native unified experience",
+              category: "Leadership",
+              description: "Drive technical vision across mobile web, PWA, and desktop web applications.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+
+  "backend-developer": {
+    title: "Backend Developer & Distributed Systems Architect",
+    description:
+      "You architect mission-critical backend microservices, resilient distributed databases, high-throughput event queues, and fault-tolerant cloud APIs that power massive scale.",
+    riskLevel: 2,
+    divergent: false,
+    interests: ["backend", "systems", "databases", "architecture", "coding", "cloud", "distributed systems", "apis"],
+    salaryGrowthCurve: (y) => 1 + 0.075 * y + 0.0075 * y * y,
+    promotionPace: 1,
+    skillsPerYear: 2,
+    roles: [
+      {
+        title: "Backend Software Engineer",
+        seniority: 1,
+        companyArchetype: "high-scale cloud SaaS / fintech platform",
+        requiredSkills: [
+          { name: "Node.js", weight: 1.2 },
+          { name: "SQL", weight: 1.2 },
+          { name: "REST API", weight: 1.1 },
+          { name: "PostgreSQL", weight: 1.1 },
+          { name: "Docker", weight: 1.0 },
+        ],
+        milestones: {
+          0: [
+            {
+              quarter: 1,
+              title: "Build resilient REST & gRPC endpoints",
+              category: "Delivery",
+              description: "Implement typed API schemas with validation, rate-limiting, and error handling.",
+            },
+            {
+              quarter: 3,
+              title: "Relational database schema & indexing",
+              category: "Craft",
+              description: "Design normalized PostgreSQL schemas with optimized query execution plans.",
+            },
+          ],
+          1: [
+            {
+              quarter: 1,
+              title: "Asynchronous task queue & pub/sub pipeline",
+              category: "Reliability",
+              description: "Implement Redis/RabbitMQ message queues with dead-letter retries.",
+            },
+            {
+              quarter: 3,
+              title: "Backend API security & observability",
+              category: "DevOps",
+              description: "Add OpenTelemetry distributed tracing, structured logging, and Prometheus metrics.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Senior Backend Engineer",
+        seniority: 2,
+        companyArchetype: "hyper-growth fintech / mission-critical tier-1 infrastructure",
+        requiredSkills: [
+          { name: "Distributed Systems", weight: 1.4 },
+          { name: "System Design", weight: 1.3 },
+          { name: "Kubernetes", weight: 1.2 },
+          { name: "Kafka", weight: 1.1 },
+        ],
+        milestones: {
+          2: [
+            {
+              quarter: 1,
+              title: "Event-driven microservices transformation",
+              category: "Architecture",
+              description: "Migrate synchronous API bottlenecks to high-throughput Kafka streaming events.",
+            },
+            {
+              quarter: 3,
+              title: "Zero-data-loss database failover architecture",
+              category: "Reliability",
+              description: "Set up multi-region read replicas, automated failover, and disaster recovery.",
+            },
+          ],
+          3: [
+            {
+              quarter: 1,
+              title: "Backend team engineering mentorship",
+              category: "Mentoring",
+              description: "Mentor mid-level engineers on concurrency models, database isolation, and profiling.",
+            },
+            {
+              quarter: 4,
+              title: "Scale distributed API to 100K+ RPS",
+              category: "Performance",
+              description: "Eliminate N+1 bottlenecks, optimize memory buffers, and tune database connection pools.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Principal Backend Systems Architect",
+        seniority: 3,
+        companyArchetype: "global tier-1 cloud platform / enterprise infrastructure",
+        requiredSkills: [
+          { name: "System Design", weight: 1.5 },
+          { name: "Cloud Architecture", weight: 1.4 },
+          { name: "Distributed Systems", weight: 1.4 },
+          { name: "Leadership", weight: 1.2 },
+        ],
+        milestones: {
+          4: [
+            {
+              quarter: 1,
+              title: "Global multi-cloud distributed system blueprint",
+              category: "Strategy",
+              description: "Design active-active multi-region cloud topology with partitioned data stores.",
+            },
+            {
+              quarter: 4,
+              title: "Define enterprise backend engineering vision",
+              category: "Leadership",
+              description: "Drive architectural reviews, reliability SLOs (99.99%), and engineering standards.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+
   "deep-specialist": {
     title: "The Deep Specialist",
     description:
