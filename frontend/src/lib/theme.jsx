@@ -10,8 +10,32 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'dark') root.classList.add('dark');
-    else root.classList.remove('dark');
+    const body = document.body;
+
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+      root.style.colorScheme = 'dark';
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      root.style.colorScheme = 'light';
+    }
+
+    // Clear any accidental hardcoded inline styles
+    root.style.removeProperty('background-color');
+    root.style.removeProperty('color');
+    if (body) {
+      body.style.removeProperty('background-color');
+      body.style.removeProperty('color');
+    }
+
+    // Sync theme-color meta tag for mobile browser address bars
+    const metaThemeColor = document.getElementById('theme-color-meta') || document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', theme === 'dark' ? '#0e1014' : '#faf8f4');
+    }
+
     localStorage.setItem('cp-theme', theme);
   }, [theme]);
 

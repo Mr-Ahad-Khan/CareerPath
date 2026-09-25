@@ -3,8 +3,9 @@ import { User, SkillProfile, Simulation, SimulationPath, ConnectionRequest, Ment
 import { authRequired, roleRequired } from '../middleware/auth.js';
 
 const router = Router();
-router.use(authRequired, roleRequired('admin'));
+router.use(authRequired);
 
+// Aggregate trends and platform overview are accessible to all authenticated users for Market & Cohort Analytics
 router.get('/overview', async (_req, res, next) => {
   try {
     const [userCount, profileCount, simCount, mentorCount, pendingCount] = await Promise.all([
@@ -82,7 +83,7 @@ router.get('/trends', async (_req, res, next) => {
   }
 });
 
-router.get('/users', async (_req, res, next) => {
+router.get('/users', roleRequired('admin'), async (_req, res, next) => {
   try {
     const users = await User.find().select('name email role headline createdAt').sort({ createdAt: -1 });
     res.json({ users });

@@ -219,6 +219,23 @@ export function SimulationPage() {
         </div>
       </div>
 
+      {/* User Input & Outcome Responsibility Advisory */}
+      <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 sm:p-4.5 backdrop-blur-sm shadow-xs">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 rounded-lg bg-accent/15 p-1.5 text-accent shrink-0">
+            <ShieldCheck className="h-4 w-4" />
+          </div>
+          <div className="flex-1 text-xs leading-relaxed">
+            <p className="font-semibold text-foreground">
+              Personalized Output & Responsibility Notice
+            </p>
+            <p className="mt-1 text-muted">
+              All simulated 5-year trajectories, compensation milestones, and skill gap roadmaps are dynamically computed based on your entered education, experience, current CTC, and skill proficiencies. Please ensure your inputs are accurate to receive the most tailored and relevant results.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Continuous Field Work & City Compensation Calibration Banner */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-border/80 bg-surface-2/40 px-4 py-3 text-xs">
         <div className="flex items-center gap-2.5">
@@ -445,10 +462,13 @@ export function SimulationPage() {
               </h3>
               <div className="space-y-4">
                 <div>
-                  <label className="field-label">
+                  <label className="field-label" htmlFor="whatif-extra-learning">
                     Extra learning time: {whatIf.extraLearningMonths} months
                   </label>
                   <input
+                    id="whatif-extra-learning"
+                    name="extraLearningMonths"
+                    aria-label={`Extra learning time: ${whatIf.extraLearningMonths} months`}
                     type="range"
                     min="0"
                     max="12"
@@ -462,11 +482,14 @@ export function SimulationPage() {
                   />
                 </div>
                 <div>
-                  <label className="field-label">
+                  <label className="field-label" htmlFor="whatif-upskilling-intensity">
                     Upskilling intensity: {whatIf.upskillingHoursPerWeek}{" "}
                     hrs/week
                   </label>
                   <input
+                    id="whatif-upskilling-intensity"
+                    name="upskillingHoursPerWeek"
+                    aria-label={`Upskilling intensity: ${whatIf.upskillingHoursPerWeek} hours per week`}
                     type="range"
                     min="0"
                     max="30"
@@ -481,10 +504,12 @@ export function SimulationPage() {
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="field-label mb-0">City & Tech Hub</label>
+                    <label className="field-label mb-0" htmlFor="whatif-city-tier">City & Tech Hub</label>
                     <span className="text-[11px] font-medium text-accent">Local bands</span>
                   </div>
                   <select
+                    id="whatif-city-tier"
+                    name="cityTier"
                     className="field-select"
                     value={whatIf.cityTier}
                     onChange={(e) =>
@@ -501,8 +526,10 @@ export function SimulationPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="field-label">Network strength</label>
+                  <label className="field-label" htmlFor="whatif-network-strength">Network strength</label>
                   <select
+                    id="whatif-network-strength"
+                    name="networkStrength"
                     className="field-select"
                     value={whatIf.networkStrength}
                     onChange={(e) =>

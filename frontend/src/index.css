@@ -23,7 +23,8 @@
   --sar: env(safe-area-inset-right, 0px);
 }
 
-html:not(.dark) {
+html:not(.dark),
+html.light {
   --bg: 250 248 244;
   --surface: 255 255 255;
   --surface-2: 243 240 234;
@@ -38,6 +39,11 @@ html:not(.dark) {
   --error: 201 48 48;
   --info: 30 110 164;
   --grid-line: 0 0 0;
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 * {

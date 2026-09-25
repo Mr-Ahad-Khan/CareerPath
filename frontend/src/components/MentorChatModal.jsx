@@ -273,6 +273,9 @@ export function MentorChatModal({ isOpen, connection, onClose, onMessageSent }) 
         <div className="border-t border-border bg-surface p-3 sm:p-4">
           <div className="relative flex items-center gap-2">
             <input
+              id="mentor-chat-input"
+              name="chatMessage"
+              aria-label={`Message ${partnerName}`}
               type="text"
               className="field-input flex-1 pr-12 text-sm"
               placeholder={`Message ${partnerName}... (Press Enter to send)`}

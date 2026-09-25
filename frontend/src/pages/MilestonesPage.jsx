@@ -324,8 +324,10 @@ export function MilestonesPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="field-label">Title</label>
+                <label className="field-label" htmlFor="custom-ms-title">Title</label>
                 <input
+                  id="custom-ms-title"
+                  name="milestoneTitle"
                   className="field-input"
                   value={newMs.title}
                   onChange={(e) =>
@@ -335,8 +337,10 @@ export function MilestonesPage() {
                 />
               </div>
               <div>
-                <label className="field-label">Description</label>
+                <label className="field-label" htmlFor="custom-ms-desc">Description</label>
                 <textarea
+                  id="custom-ms-desc"
+                  name="milestoneDescription"
                   className="field-input min-h-[80px]"
                   value={newMs.description}
                   onChange={(e) =>
@@ -347,8 +351,10 @@ export function MilestonesPage() {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="field-label">Year</label>
+                  <label className="field-label" htmlFor="custom-ms-year">Year</label>
                   <select
+                    id="custom-ms-year"
+                    name="milestoneYear"
                     className="field-select"
                     value={newMs.year}
                     onChange={(e) =>
@@ -363,8 +369,10 @@ export function MilestonesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="field-label">Quarter</label>
+                  <label className="field-label" htmlFor="custom-ms-quarter">Quarter</label>
                   <select
+                    id="custom-ms-quarter"
+                    name="milestoneQuarter"
                     className="field-select"
                     value={newMs.quarter}
                     onChange={(e) =>
@@ -379,8 +387,10 @@ export function MilestonesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="field-label">Category</label>
+                  <label className="field-label" htmlFor="custom-ms-category">Category</label>
                   <select
+                    id="custom-ms-category"
+                    name="milestoneCategory"
                     className="field-select"
                     value={newMs.category}
                     onChange={(e) =>

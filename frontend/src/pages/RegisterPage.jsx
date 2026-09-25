@@ -54,6 +54,7 @@ export function RegisterPage() {
               <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
               <input
                 id="name"
+                name="name"
                 className="field-input pl-9"
                 value={form.name}
                 onChange={set('name')}
@@ -69,6 +70,7 @@ export function RegisterPage() {
               <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
               <input
                 id="email"
+                name="email"
                 type="email"
                 className="field-input pl-9"
                 value={form.email}
@@ -85,6 +87,7 @@ export function RegisterPage() {
               <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
               <input
                 id="password"
+                name="password"
                 type="password"
                 className="field-input pl-9"
                 value={form.password}

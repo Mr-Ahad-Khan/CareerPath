@@ -148,14 +148,36 @@ export function MentorsPage() {
       <div className="mb-6 flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-          <input className="field-input pl-9" placeholder="Search mentors, companies, specialties..." value={filters.q} onChange={(e) => setFilters({ ...filters, q: e.target.value })} />
+          <input
+            id="mentor-search-input"
+            name="mentorSearch"
+            aria-label="Search mentors by name, company, or specialty"
+            className="field-input pl-9"
+            placeholder="Search mentors, companies, specialties..."
+            value={filters.q}
+            onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+          />
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <select className="field-select flex-1 sm:w-auto" value={filters.industry} onChange={(e) => setFilters({ ...filters, industry: e.target.value })}>
+          <select
+            id="mentor-industry-select"
+            name="industryFilter"
+            aria-label="Filter by industry"
+            className="field-select flex-1 sm:w-auto"
+            value={filters.industry}
+            onChange={(e) => setFilters({ ...filters, industry: e.target.value })}
+          >
             <option value="all">All industries</option>
             {meta.industries.map((i) => <option key={i} value={i}>{i}</option>)}
           </select>
-          <select className="field-select flex-1 sm:w-auto" value={filters.specialty} onChange={(e) => setFilters({ ...filters, specialty: e.target.value })}>
+          <select
+            id="mentor-specialty-select"
+            name="specialtyFilter"
+            aria-label="Filter by specialty"
+            className="field-select flex-1 sm:w-auto"
+            value={filters.specialty}
+            onChange={(e) => setFilters({ ...filters, specialty: e.target.value })}
+          >
             <option value="all">All specialties</option>
             {meta.specialties.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
@@ -338,8 +360,16 @@ export function MentorsPage() {
             </div>
             <p className="mb-4 text-sm text-muted text-pretty">{selected.bio}</p>
             <div>
-              <label className="field-label"><MessageSquare className="mr-1 inline h-3.5 w-3.5" /> Your message</label>
-              <textarea className="field-input min-h-[100px] resize-none" value={message} onChange={(e) => setMessage(e.target.value)} placeholder={`Hi ${selected.name.split(' ')[0]}, I am exploring the ${selected.specialty.toLowerCase()} path and would value your perspective on...`} />
+              <label className="field-label" htmlFor="mentor-connect-message"><MessageSquare className="mr-1 inline h-3.5 w-3.5" /> Your message</label>
+              <textarea
+                id="mentor-connect-message"
+                name="mentorMessage"
+                aria-label="Message to mentor"
+                className="field-input min-h-[100px] resize-none"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={`Hi ${selected.name.split(' ')[0]}, I am exploring the ${selected.specialty.toLowerCase()} path and would value your perspective on...`}
+              />
             </div>
             <button onClick={sendRequest} disabled={sendingRequest} className="btn-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-60">
               {sendingRequest ? 'Sending…' : 'Send request'} <Send className="h-4 w-4" />

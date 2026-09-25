@@ -46,9 +46,9 @@ export function DashboardPage() {
     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
       <div className="mb-6 sm:mb-8">
         <h1 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">
-          Welcome back, {user.name.split(' ')[0]}.
+          Welcome back, {user?.name ? user.name.split(' ')[0] : 'Member'}.
         </h1>
-        <p className="mt-1 text-sm text-muted">{user.headline || 'Here is your career at a glance.'}</p>
+        <p className="mt-1 text-sm text-muted">{user?.headline || 'Here is your career at a glance.'}</p>
       </div>
 
       <div className="mb-6 sm:mb-8 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">

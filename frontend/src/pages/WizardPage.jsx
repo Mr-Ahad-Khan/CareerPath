@@ -192,12 +192,21 @@ export function WizardPage() {
         ))}
       </div>
 
+      {/* User Input & Result Responsibility Notice */}
+      <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 text-xs leading-relaxed text-muted flex items-start gap-3 shadow-xs">
+        <Sparkles className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+        <div>
+          <span className="font-semibold text-foreground">User Responsibility & Accurate Inputs Notice:</span>{' '}
+          All simulation recommendations, salary projections, and career milestones are calculated strictly based on your entered values. It is your responsibility to provide accurate details (education, real experience, skills, and current pay) to ensure relevant and realistic results.
+        </div>
+      </div>
+
       <div className="surface-card p-6 sm:p-8 animate-fade-in" key={step}>
         {step === 0 && (
           <div className="space-y-4">
             <div>
-              <label className="field-label">Education level</label>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <label className="field-label" id="label-education-level">Education level</label>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3" role="group" aria-labelledby="label-education-level">
                 {['Undergraduate', 'Postgraduate', 'Diploma'].map((l) => (
                   <button
                     key={l}
@@ -216,25 +225,53 @@ export function WizardPage() {
             </div>
 
             <div>
-              <label className="field-label">Field of study / Degree</label>
-              <input className="field-input" value={form.educationField} onChange={set('educationField')} placeholder="e.g. Computer Science, MCA, Software Engineering" />
+              <label className="field-label" htmlFor="wizard-education-field">Field of study / Degree</label>
+              <input
+                id="wizard-education-field"
+                name="educationField"
+                className="field-input"
+                value={form.educationField}
+                onChange={set('educationField')}
+                placeholder="e.g. Computer Science, MCA, Software Engineering"
+              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="field-label">Graduation year</label>
-                <input type="number" className="field-input" value={form.graduationYear} onChange={set('graduationYear')} placeholder="2026" />
+                <label className="field-label" htmlFor="wizard-graduation-year">Graduation year</label>
+                <input
+                  id="wizard-graduation-year"
+                  name="graduationYear"
+                  type="number"
+                  className="field-input"
+                  value={form.graduationYear}
+                  onChange={set('graduationYear')}
+                  placeholder="2026"
+                />
               </div>
               <div>
-                <label className="field-label">Total years of tech experience</label>
-                <input type="number" step="0.5" min="0" max="25" className="field-input" value={form.experienceYears} onChange={set('experienceYears')} placeholder="0" />
+                <label className="field-label" htmlFor="wizard-experience-years">Total years of tech experience</label>
+                <input
+                  id="wizard-experience-years"
+                  name="experienceYears"
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  max="25"
+                  className="field-input"
+                  value={form.experienceYears}
+                  onChange={set('experienceYears')}
+                  placeholder="0"
+                />
               </div>
             </div>
 
             {/* City & Tech Hub Selector */}
             <div>
-              <label className="field-label">City / Tech Hub Location</label>
+              <label className="field-label" htmlFor="wizard-location">City / Tech Hub Location</label>
               <select
+                id="wizard-location"
+                name="location"
                 className="field-select font-medium"
                 value={form.location || 'bangalore'}
                 onChange={set('location')}
@@ -250,8 +287,10 @@ export function WizardPage() {
             {/* Realistic Salary & Market Tier */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="field-label">Current annual CTC / Salary (optional)</label>
+                <label className="field-label" htmlFor="wizard-current-salary">Current annual CTC / Salary (optional)</label>
                 <input
+                  id="wizard-current-salary"
+                  name="currentSalary"
                   type="number"
                   className="field-input"
                   value={form.currentSalary}
@@ -261,8 +300,10 @@ export function WizardPage() {
               </div>
 
               <div>
-                <label className="field-label">Target software market tier</label>
+                <label className="field-label" htmlFor="wizard-market-tier">Target software market tier</label>
                 <select
+                  id="wizard-market-tier"
+                  name="marketTier"
                   className="field-select"
                   value={form.marketTier}
                   onChange={set('marketTier')}
@@ -286,8 +327,15 @@ export function WizardPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="field-label">Current title or role (optional)</label>
-                <input className="field-input" value={form.currentRole} onChange={set('currentRole')} placeholder="e.g. Full Stack Developer, Backend Engineer" />
+                <label className="field-label" htmlFor="wizard-current-role">Current title or role (optional)</label>
+                <input
+                  id="wizard-current-role"
+                  name="currentRole"
+                  className="field-input"
+                  value={form.currentRole}
+                  onChange={set('currentRole')}
+                  placeholder="e.g. Full Stack Developer, Backend Engineer"
+                />
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {['Full Stack Developer', 'Backend Developer', 'Frontend Developer', 'Software Engineer'].map((r) => (
                     <button
@@ -306,8 +354,15 @@ export function WizardPage() {
                 </div>
               </div>
               <div>
-                <label className="field-label">Target 5-year role (optional)</label>
-                <input className="field-input" value={form.targetRole} onChange={set('targetRole')} placeholder="e.g. Principal Full-Stack Architect, Staff Engineer" />
+                <label className="field-label" htmlFor="wizard-target-role">Target 5-year role (optional)</label>
+                <input
+                  id="wizard-target-role"
+                  name="targetRole"
+                  className="field-input"
+                  value={form.targetRole}
+                  onChange={set('targetRole')}
+                  placeholder="e.g. Principal Full-Stack Architect, Staff Engineer"
+                />
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {['The Full-Stack Developer', 'Staff Software Architect', 'Engineering Lead', 'Distinguished AI Engineer'].map((r) => (
                     <button
@@ -332,16 +387,18 @@ export function WizardPage() {
         {step === 1 && (
           <div className="space-y-4">
             <div>
-              <label className="field-label">Add a skill</label>
+              <label className="field-label" htmlFor="wizard-skill-input">Add a skill</label>
               <div className="flex gap-2">
                 <input
+                  id="wizard-skill-input"
+                  name="skillInput"
                   className="field-input"
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill(skillInput))}
                   placeholder="Type a skill and press Enter"
                 />
-                <button type="button" onClick={() => addSkill(skillInput)} className="btn-secondary px-4">
+                <button type="button" onClick={() => addSkill(skillInput)} className="btn-secondary px-4" aria-label="Add skill">
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
@@ -361,6 +418,9 @@ export function WizardPage() {
                   <div key={s.name} className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 p-3">
                     <span className="w-28 shrink-0 text-sm font-medium text-foreground truncate">{s.name}</span>
                     <input
+                      id={`wizard-prof-${s.name}`}
+                      name={`proficiency-${s.name}`}
+                      aria-label={`${s.name} proficiency`}
                       type="range"
                       min="1"
                       max="5"
@@ -369,7 +429,7 @@ export function WizardPage() {
                       className="flex-1"
                     />
                     <span className="w-8 shrink-0 text-center text-sm font-semibold tabular text-accent">{s.proficiency}</span>
-                    <button type="button" onClick={() => removeSkill(s.name)} className="text-muted hover:text-error">
+                    <button type="button" onClick={() => removeSkill(s.name)} className="text-muted hover:text-error" aria-label={`Remove skill ${s.name}`}>
                       <X className="h-4 w-4" />
                     </button>
                   </div>
@@ -411,20 +471,40 @@ export function WizardPage() {
         {step === 3 && (
           <div className="space-y-4">
             <div>
-              <label className="field-label">Monthly upskilling budget (INR)</label>
-              <input type="number" className="field-input" value={form.constraints.upskillingBudget} onChange={setConstraint('upskillingBudget')} placeholder="10000" />
+              <label className="field-label" htmlFor="wizard-upskilling-budget">Monthly upskilling budget (INR)</label>
+              <input
+                id="wizard-upskilling-budget"
+                name="upskillingBudget"
+                type="number"
+                className="field-input"
+                value={form.constraints.upskillingBudget}
+                onChange={setConstraint('upskillingBudget')}
+                placeholder="10000"
+              />
             </div>
             <div>
-              <label className="field-label">Time availability</label>
-              <select className="field-select" value={form.constraints.timeAvailability} onChange={setConstraint('timeAvailability')}>
+              <label className="field-label" htmlFor="wizard-time-availability">Time availability</label>
+              <select
+                id="wizard-time-availability"
+                name="timeAvailability"
+                className="field-select"
+                value={form.constraints.timeAvailability}
+                onChange={setConstraint('timeAvailability')}
+              >
                 {['5 hours/week', '10 hours/week', '15 hours/week', '20+ hours/week'].map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="field-label">Location flexibility</label>
-              <select className="field-select" value={form.constraints.locationFlexibility} onChange={setConstraint('locationFlexibility')}>
+              <label className="field-label" htmlFor="wizard-location-flexibility">Location flexibility</label>
+              <select
+                id="wizard-location-flexibility"
+                name="locationFlexibility"
+                className="field-select"
+                value={form.constraints.locationFlexibility}
+                onChange={setConstraint('locationFlexibility')}
+              >
                 {['open to relocate', 'remote only', 'city-bound'].map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}

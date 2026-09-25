@@ -16,14 +16,11 @@ try {
   console.warn("[CareerPath] Offline store initialization caught:", e);
 }
 
-// Register PWA service worker if supported
+// Register PWA service worker silently if supported
 if (typeof window !== "undefined" && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/sw.js")
-      .then((reg) => {
-        console.info("[PWA] Service Worker registered:", reg.scope);
-      })
       .catch((err) => {
         console.warn("[PWA] Service Worker registration failed:", err);
       });

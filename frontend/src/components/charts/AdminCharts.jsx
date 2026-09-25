@@ -34,6 +34,7 @@ export function RoleDistributionChart({ data }) {
               border: '1px solid rgb(var(--border))',
               borderRadius: '12px',
               fontSize: '12px',
+              color: 'rgb(var(--text))',
             }}
           />
           <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={16}>
@@ -74,6 +75,7 @@ export function SkillDemandChart({ data }) {
               border: '1px solid rgb(var(--border))',
               borderRadius: '12px',
               fontSize: '12px',
+              color: 'rgb(var(--text))',
             }}
           />
           <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={16} fill="rgb(var(--info))" />

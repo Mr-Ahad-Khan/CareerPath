@@ -248,6 +248,15 @@ export function ResumeCheckPage() {
           </p>
         </div>
 
+        {/* User Input & Outcome Responsibility Advisory */}
+        <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 text-xs leading-relaxed text-muted flex items-start gap-3 shadow-xs">
+          <FileCheck2 className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+          <div>
+            <span className="font-semibold text-foreground">User Responsibility & Input Quality Notice:</span>{' '}
+            Resume match scores and skill gap diagnoses are calculated directly from your entered resume text against your simulation model. It is your responsibility to upload an accurate, up-to-date resume to produce reliable and actionable skill gap results.
+          </div>
+        </div>
+
         {simError && (
           <EmptyState
             icon={AlertTriangle}
@@ -265,10 +274,12 @@ export function ResumeCheckPage() {
           {sims?.length > 0 ? (
             <div className="mb-4 grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="field-label">
+                <label className="field-label" htmlFor="resume-target-sim">
                   Compare against simulation
                 </label>
                 <select
+                  id="resume-target-sim"
+                  name="selectedSim"
                   className="field-select"
                   value={selectedSim || ""}
                   onChange={(e) => {
@@ -284,8 +295,10 @@ export function ResumeCheckPage() {
                 </select>
               </div>
               <div>
-                <label className="field-label">Path</label>
+                <label className="field-label" htmlFor="resume-target-path">Path</label>
                 <select
+                  id="resume-target-path"
+                  name="selectedPath"
                   className="field-select"
                   value={selectedPath}
                   onChange={(e) => {
@@ -311,12 +324,14 @@ export function ResumeCheckPage() {
 
           <div className="mb-4 surface-card p-5">
             <div className="mb-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <label className="field-label mb-0">Your resume</label>
+              <label className="field-label mb-0" htmlFor="resume-raw-text">Your resume</label>
               <div className="flex w-full gap-2 sm:w-auto">
-                <label className="btn-secondary cursor-pointer text-xs">
+                <label htmlFor="resume-upload-file" className="btn-secondary cursor-pointer text-xs">
                   <Upload className="h-3.5 w-3.5" />{" "}
                   {extracting ? "Reading file..." : "Upload resume"}
                   <input
+                    id="resume-upload-file"
+                    name="resumeFile"
                     type="file"
                     accept=".txt,.text,.md,.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
                     onChange={handleFile}
@@ -336,6 +351,9 @@ export function ResumeCheckPage() {
               </div>
             </div>
             <textarea
+              id="resume-raw-text"
+              name="resumeText"
+              aria-label="Your resume content"
               className="field-input min-h-[160px] resize-y font-mono text-xs"
               placeholder="Paste your resume text here..."
               value={resumeText}

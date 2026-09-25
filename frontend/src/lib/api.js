@@ -30,6 +30,17 @@ export function setToken(token) {
 }
 
 export function isOffline() {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('cp-token');
+    if (token && token.startsWith('cp-offline')) return true;
+    const rawUser = localStorage.getItem('cp-user');
+    if (rawUser) {
+      try {
+        const u = JSON.parse(rawUser);
+        if (u.isOffline) return true;
+      } catch (e) {}
+    }
+  }
   return typeof navigator !== 'undefined' && !navigator.onLine;
 }
 
@@ -313,8 +324,8 @@ async function request(path, options = {}) {
   const method = options.method || 'GET';
   const data = options.body ? JSON.parse(options.body) : {};
 
-  // If the browser/device explicitly knows it's offline, avoid waiting for fetch timeout
-  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+  // If offline or in guest/offline session mode, serve locally without making remote network calls
+  if (isOffline()) {
     return handleOfflineRequest(method, path, data);
   }
 
@@ -339,8 +350,7 @@ async function request(path, options = {}) {
     });
     clearTimeout(timeoutId);
   } catch (err) {
-    // Network failure / timeout / server unreachable -> Fallback smoothly to offline engine!
-    console.info(`[Offline Fallback] Network request failed for ${method} ${path}. Serving locally.`);
+    // Network failure / timeout / server unreachable -> Fallback smoothly to offline engine
     try {
       return handleOfflineRequest(method, path, data);
     } catch (offlineErr) {
@@ -351,7 +361,6 @@ async function request(path, options = {}) {
   const isJson = res.headers.get('content-type')?.includes('application/json');
   if (!isJson) {
     // If an HTML SPA fallback was returned (e.g. Vercel SPA rewrite), serve offline fallback
-    console.warn(`[API] Expected JSON but received ${res.headers.get('content-type') || 'HTML'} for ${method} ${path}. Serving offline fallback.`);
     return handleOfflineRequest(method, path, data);
   }
 
@@ -361,7 +370,6 @@ async function request(path, options = {}) {
     // If the backend is unavailable or rejects protected resources while the app is
     // running in an offline-capable mode, treat it as a graceful local fallback.
     if (shouldUseOfflineFallback(path, method, res.status)) {
-      console.warn(`[API] Server rejected ${method} ${path} with ${res.status}. Serving offline fallback.`);
       return handleOfflineRequest(method, path, data);
     }
 

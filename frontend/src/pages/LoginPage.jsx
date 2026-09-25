@@ -76,6 +76,7 @@ export function LoginPage() {
               <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
               <input
                 id="email"
+                name="email"
                 type="email"
                 className="field-input pl-9"
                 value={email}
@@ -92,6 +93,7 @@ export function LoginPage() {
               <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
               <input
                 id="password"
+                name="password"
                 type="password"
                 className="field-input pl-9"
                 value={password}

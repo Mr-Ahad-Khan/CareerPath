@@ -576,12 +576,13 @@ export const offlineStore = {
   },
 
   // Resume Reality Check
-  analyzeResume({ text, simulationId }) {
-    const parsed = parseResume(text || '');
-    let simulationSkillGaps = [];
+  analyzeResume(payload = {}) {
+    const rawText = payload.resumeText || payload.text || '';
+    const parsed = parseResume(rawText);
+    let simulationSkillGaps = Array.isArray(payload.skillGaps) ? payload.skillGaps : [];
 
-    if (simulationId) {
-      const sim = this.getSimulationById(simulationId);
+    if (simulationSkillGaps.length === 0 && payload.simulationId) {
+      const sim = this.getSimulationById(payload.simulationId);
       if (sim?.paths?.[0]?.skillGaps) {
         simulationSkillGaps = sim.paths[0].skillGaps;
       }
