@@ -199,8 +199,11 @@ export function ResumeCheckPage() {
             Does your resume match your target path?
           </h1>
           <p className="mt-1 text-muted">
-            Paste your resume or upload a PDF, DOCX, TXT, or image file (up to 15
-            MB). We’ll parse the skills you mention and cross-reference them
+            Paste your resume or upload a PDF, DOCX, TXT, or image file{' '}
+            <span className="inline-flex items-center gap-1 rounded-md border border-accent/40 bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">
+              Max 2 MB limit
+            </span>
+            . We’ll parse the skills you mention and cross-reference them
             against Full-Stack, Frontend, Backend, or custom simulated role gaps.
           </p>
         </div>
@@ -373,17 +376,22 @@ export function ResumeCheckPage() {
 
           <div className="mb-4 surface-card p-5">
             <div className="mb-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <label className="field-label mb-0" htmlFor="resume-raw-text">Your resume</label>
+              <div className="flex items-center gap-2">
+                <label className="field-label mb-0" htmlFor="resume-raw-text">Your resume</label>
+                <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-400">
+                  Max size: 2 MB
+                </span>
+              </div>
               <div className="flex w-full gap-2 sm:w-auto">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="btn-secondary cursor-pointer text-xs"
+                  className="btn-secondary cursor-pointer text-xs flex items-center gap-1.5 border-accent/40 hover:border-accent"
                   disabled={extracting}
                   id="resume-upload-btn"
                 >
-                  <Upload className="h-3.5 w-3.5" />{" "}
-                  {extracting ? "Reading file..." : "Upload resume"}
+                  <Upload className="h-3.5 w-3.5 text-accent" />{" "}
+                  {extracting ? "Reading file..." : "Upload resume (≤ 2MB)"}
                 </button>
                 <input
                   ref={fileInputRef}
@@ -754,7 +762,7 @@ function FileSizeDialog({ onClose }) {
               Resume file is too large
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Please choose a file smaller than 15 MB, or paste your resume
+              Please choose a file smaller than <strong className="text-foreground font-semibold">2 MB</strong>, or paste your resume
               text directly into the editor.
             </p>
           </div>

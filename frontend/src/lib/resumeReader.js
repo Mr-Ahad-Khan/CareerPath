@@ -1,7 +1,7 @@
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
-export const MAX_RESUME_FILE_SIZE = 15 * 1024 * 1024; // 15 MB
+export const MAX_RESUME_FILE_SIZE = 2 * 1024 * 1024; // 2 MB limit
 
 // Configure PDF.js worker URL
 try {

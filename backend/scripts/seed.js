@@ -1,4 +1,4 @@
-import { User, SkillProfile, Mentor } from "../models/index.js";
+import { User, SkillProfile, Mentor, ConnectionRequest } from "../models/index.js";
 
 const AVATAR_COLORS = [
   "#ffb340",
@@ -256,7 +256,36 @@ export async function seedIfEmpty() {
     });
   }
 
-  console.log("[seed] done — mentors, demo student, and admin created");
+  if (await ConnectionRequest.countDocuments() === 0) {
+    const studentUser = await User.findOne({ email: DEMO_PROFILE.email });
+    const firstMentor = mentors[0];
+    if (studentUser && firstMentor) {
+      await ConnectionRequest.create({
+        studentId: studentUser.id,
+        mentorId: firstMentor.id,
+        message: 'Hi Ananya, would love to review my 5-year trajectory!',
+        status: 'accepted',
+        messages: [
+          {
+            senderId: studentUser.id,
+            senderRole: 'student',
+            senderName: studentUser.name,
+            content: 'Hi Ananya, I would love your thoughts on my 5-year career roadmap and system design preparation.',
+            createdAt: new Date(Date.now() - 3600000),
+          },
+          {
+            senderId: firstMentor.userId || firstMentor.id,
+            senderRole: 'mentor',
+            senderName: firstMentor.name,
+            content: 'Hey Ishaan! Your trajectory looks very promising. Focus especially on distributed caching and trade-offs in Year 2. Let me know which topics you want to deep dive into!',
+            createdAt: new Date(Date.now() - 1800000),
+          },
+        ],
+      });
+    }
+  }
+
+  console.log("[seed] done — mentors, demo student, connections, and admin created");
 }
 
 export { DEMO_PROFILE, MENTOR_DEMO_ACCOUNTS, MENTOR_DEMO_PASSWORD };

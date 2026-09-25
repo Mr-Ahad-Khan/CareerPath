@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin, Star, Send, X, MessageSquare, Check, Clock, Bell, UserRound } from 'lucide-react';
+import { Search, MapPin, Star, Send, X, MessageSquare, Check, Clock, Bell, UserRound, Sparkles, ShieldCheck } from 'lucide-react';
 import { api } from '@/lib/api.js';
 import { useToast } from '@/lib/toast.jsx';
 import { LoadingOverlay } from '@/components/Spinner.jsx';
@@ -24,6 +24,29 @@ export function MentorsPage() {
   const reloadConnections = useCallback(() => {
     api.get('/connections').then((d) => setRequests(d.requests || [])).catch(() => {});
   }, []);
+
+  const handleStartChat = async (mentor) => {
+    try {
+      const res = await api.post('/connections/chat', { mentorId: mentor.id });
+      if (res?.connection) {
+        setActiveChatConnection(res.connection);
+        reloadConnections();
+        return;
+      }
+    } catch (err) {
+      console.warn('Could not start direct chat via API, falling back to local connection:', err);
+    }
+    const conn = requests.find((r) => (r.mentorId === mentor.id || r.mentor?.id === mentor.id)) || {
+      id: mentor.id,
+      _id: mentor.id,
+      mentor,
+      mentorId: mentor.id,
+      studentId: user?.id,
+      status: 'accepted',
+      messages: [],
+    };
+    setActiveChatConnection(conn);
+  };
 
   const loadMentors = async () => {
     const params = new URLSearchParams();
@@ -56,8 +79,8 @@ export function MentorsPage() {
     try {
       await api.patch(`/connections/${requestId}/${action}`);
       const d = await api.get('/connections');
-      setRequests(d.requests);
-      toast.success(action === 'accept' ? 'Connection accepted.' : 'Request declined.');
+      setRequests(d.requests || []);
+      toast.success(action === 'accept' ? 'Connection accepted. You can now chat.' : 'Request declined.');
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -78,12 +101,15 @@ export function MentorsPage() {
     try {
       const result = await api.post('/connections', { mentorId: selected.id, message });
       toast.success(result.alreadyExists
-        ? `You already have a pending request with ${selected.name}.`
+        ? `You are connected with ${selected.name}.`
         : `Connection request sent to ${selected.name}.`);
       setSelected(null);
       setMessage('');
       const d = await api.get('/connections');
-      setRequests(d.requests);
+      setRequests(d.requests || []);
+      if (result?.request) {
+        setActiveChatConnection(result.request);
+      }
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -93,18 +119,28 @@ export function MentorsPage() {
 
   if (!mentors) return <LoadingOverlay />;
 
-  const pendingMentorIds = new Set(requests.filter((r) => r.status === 'pending').map((r) => r.mentorId));
-  const acceptedMentorIds = new Set(requests.filter((r) => r.status === 'accepted').map((r) => r.mentorId));
   const isMentor = user?.role === 'mentor';
   const incomingPending = requests.filter((r) => r.status === 'pending');
   const connectedMentors = requests.filter((r) => r.status === 'accepted');
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div className="mb-6">
-        <span className="section-eyebrow">Mentor Matching</span>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-foreground">Find someone who has walked the path</h1>
-        <p className="mt-1 text-muted">Filter by industry, specialty, or search by name. Send a connection request to start a conversation.</p>
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <span className="section-eyebrow">Direct 1-on-1 Guidance</span>
+          <h1 className="mt-2 font-display text-2xl sm:text-3xl font-semibold text-foreground">
+            Find someone who has walked the path
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            Connect with verified engineering leaders, staff architects, and directors. Discuss roadmap milestones and system design.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 self-start md:self-auto">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            Verified Advisors Live
+          </span>
+        </div>
       </div>
 
       {/* Active Mentorship Chat Notification Banner */}
@@ -125,10 +161,10 @@ export function MentorsPage() {
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-sm font-semibold text-foreground">
-                  Active Mentorship Chat with {isMentor ? connectedMentors[0].student?.name : connectedMentors[0].mentor?.name}
+                  Active Mentorship Chat with {isMentor ? (connectedMentors[0].student?.name || 'Student') : (connectedMentors[0].mentor?.name || 'Mentor')}
                 </h3>
                 <span className="chip border-accent/40 bg-accent/20 text-accent text-[10px] font-semibold py-0 px-2">
-                  New Messages Active
+                  Session Active
                 </span>
               </div>
               <p className="text-xs text-muted truncate">
@@ -145,42 +181,62 @@ export function MentorsPage() {
         </div>
       )}
 
-      <div className="mb-6 flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-          <input
-            id="mentor-search-input"
-            name="mentorSearch"
-            aria-label="Search mentors by name, company, or specialty"
-            className="field-input pl-9"
-            placeholder="Search mentors, companies, specialties..."
-            value={filters.q}
-            onChange={(e) => setFilters({ ...filters, q: e.target.value })}
-          />
+      {/* Filter and Search Bar */}
+      <div className="mb-6 space-y-3">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+            <input
+              id="mentor-search-input"
+              name="mentorSearch"
+              aria-label="Search mentors by name, company, or specialty"
+              className="field-input pl-9 text-sm"
+              placeholder="Search mentors, companies, specialties..."
+              value={filters.q}
+              onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+            />
+          </div>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <select
+              id="mentor-industry-select"
+              name="industryFilter"
+              aria-label="Filter by industry"
+              className="field-select flex-1 sm:w-auto text-sm"
+              value={filters.industry}
+              onChange={(e) => setFilters({ ...filters, industry: e.target.value })}
+            >
+              <option value="all">All industries</option>
+              {meta.industries.map((i) => <option key={i} value={i}>{i}</option>)}
+            </select>
+            <select
+              id="mentor-specialty-select"
+              name="specialtyFilter"
+              aria-label="Filter by specialty"
+              className="field-select flex-1 sm:w-auto text-sm"
+              value={filters.specialty}
+              onChange={(e) => setFilters({ ...filters, specialty: e.target.value })}
+            >
+              <option value="all">All specialties</option>
+              {meta.specialties.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <select
-            id="mentor-industry-select"
-            name="industryFilter"
-            aria-label="Filter by industry"
-            className="field-select flex-1 sm:w-auto"
-            value={filters.industry}
-            onChange={(e) => setFilters({ ...filters, industry: e.target.value })}
-          >
-            <option value="all">All industries</option>
-            {meta.industries.map((i) => <option key={i} value={i}>{i}</option>)}
-          </select>
-          <select
-            id="mentor-specialty-select"
-            name="specialtyFilter"
-            aria-label="Filter by specialty"
-            className="field-select flex-1 sm:w-auto"
-            value={filters.specialty}
-            onChange={(e) => setFilters({ ...filters, specialty: e.target.value })}
-          >
-            <option value="all">All specialties</option>
-            {meta.specialties.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
+
+        {/* Quick Industry Filter Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+          <span className="text-[11px] font-semibold uppercase text-muted tracking-wider mr-1 shrink-0">Quick Filter:</span>
+          {['all', 'Engineering', 'Fintech', 'Product & Design', 'Infrastructure & SRE'].map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => setFilters({ ...filters, industry: tag })}
+              className={`chip shrink-0 capitalize text-xs transition-colors ${
+                filters.industry === tag ? 'border-accent bg-accent/15 text-accent font-semibold' : 'hover:border-accent/40'
+              }`}
+            >
+              {tag}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -291,55 +347,54 @@ export function MentorsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {mentors.map((m) => (
-            <div key={m.id} className="group surface-card p-5 transition-all duration-300 hover:border-accent/30">
-              <div className="flex items-start gap-3">
-                <Avatar name={m.name} color={m.avatarColor} size={48} />
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-display text-base font-semibold text-foreground">{m.name}</h3>
-                  <p className="text-sm text-muted">{m.title}</p>
-                  <p className="text-xs text-muted">{m.company} · {m.experienceYears} yrs</p>
+            <div key={m.id} className="group surface-card p-5 transition-all duration-300 hover:border-accent/30 flex flex-col justify-between">
+              <div>
+                <div className="flex items-start gap-3">
+                  <Avatar name={m.name} color={m.avatarColor} size={48} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <h3 className="font-display text-base font-semibold text-foreground truncate">{m.name}</h3>
+                      <span className="chip text-[10px] py-0 px-1.5 shrink-0 border-accent/20 bg-accent/5 text-accent">
+                        {m.specialty}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted truncate">{m.title}</p>
+                    <p className="text-xs text-muted">{m.company} · {m.experienceYears} yrs</p>
+                  </div>
                 </div>
-              </div>
-              <p className="mt-3 line-clamp-3 text-sm text-muted text-pretty">{m.bio}</p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {m.expertise.slice(0, 4).map((e) => <span key={e} className="chip text-[10px]">{e}</span>)}
-              </div>
-              <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center gap-3 text-xs text-muted">
+                <p className="mt-3 line-clamp-3 text-sm text-muted text-pretty">{m.bio}</p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {m.expertise.slice(0, 4).map((e) => <span key={e} className="chip text-[10px]">{e}</span>)}
+                </div>
+                <div className="mt-4 flex items-center justify-between text-xs text-muted">
                   <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 text-accent" fill="currentColor" /> {m.rating}</span>
                   <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {m.location}</span>
                   <span>{m.menteeCount} mentees</span>
                 </div>
               </div>
-              {!isMentor && (
-                acceptedMentorIds.has(m.id) ? (
-                  <button
-                    onClick={() => {
-                      const conn = requests.find((r) => (r.mentorId === m.id || r.mentor?.id === m.id) && r.status === 'accepted') || {
-                        id: 'conn-' + m.id,
-                        mentor: m,
-                        mentorId: m.id,
-                        status: 'accepted',
-                      };
-                      setActiveChatConnection(conn);
-                    }}
-                    className="mt-4 w-full btn-secondary text-accent hover:border-accent flex items-center justify-center gap-1.5"
-                  >
-                    <MessageSquare className="h-4 w-4 text-accent" /> Chat with {m.name.split(' ')[0]}
-                  </button>
-                ) : pendingMentorIds.has(m.id) ? (
-                  <button disabled className="mt-4 w-full btn-secondary cursor-default flex items-center justify-center gap-1.5">
-                    <Clock className="h-4 w-4" /> Request pending
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => { setSelected(m); setMessage(''); }}
-                    className="mt-4 w-full btn-primary flex items-center justify-center gap-1.5"
-                  >
-                    <Send className="h-4 w-4" /> Connect
-                  </button>
-                )
-              )}
+
+              {/* Action Buttons */}
+              <div className="mt-4 pt-3.5 border-t border-border/70 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleStartChat(m)}
+                  className="btn-primary flex-1 py-2 text-xs flex items-center justify-center gap-1.5 shadow-sm"
+                  aria-label={`Chat with ${m.name}`}
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  Chat with {m.name.split(' ')[0]}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setSelected(m); setMessage(''); }}
+                  className="btn-secondary py-2 px-3 text-xs flex items-center justify-center gap-1 shrink-0"
+                  aria-label={`View details or connect with ${m.name}`}
+                  title="Send introductory connection request"
+                >
+                  <Send className="h-3 w-3" />
+                  Intro
+                </button>
+              </div>
             </div>
           ))}
         </div>

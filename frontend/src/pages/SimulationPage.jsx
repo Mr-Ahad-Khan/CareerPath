@@ -249,9 +249,9 @@ export function SimulationPage() {
         </span>
       </div>
 
-      <div className="mb-8 surface-card p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold text-foreground">
+      <div className="mb-8 surface-card p-3.5 sm:p-6 min-w-0 overflow-hidden">
+        <div className="mb-3 sm:mb-4 flex items-center justify-between">
+          <h2 className="font-display text-base sm:text-lg font-semibold text-foreground">
             Salary trajectory across all paths
           </h2>
           {previewing && (

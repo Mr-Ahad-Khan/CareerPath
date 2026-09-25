@@ -336,22 +336,6 @@ export function WizardPage() {
                   onChange={set('currentRole')}
                   placeholder="e.g. Full Stack Developer, Backend Engineer"
                 />
-                <div className="mt-1.5 flex flex-wrap gap-1">
-                  {['Full Stack Developer', 'Backend Developer', 'Frontend Developer', 'Software Engineer'].map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setForm({ ...form, currentRole: r })}
-                      className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${
-                        form.currentRole === r
-                          ? 'border-accent bg-accent/15 text-accent font-semibold'
-                          : 'border-border/60 bg-surface-2/60 text-muted hover:text-foreground'
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
               </div>
               <div>
                 <label className="field-label" htmlFor="wizard-target-role">Target 5-year role (optional)</label>
@@ -363,22 +347,6 @@ export function WizardPage() {
                   onChange={set('targetRole')}
                   placeholder="e.g. Principal Full-Stack Architect, Staff Engineer"
                 />
-                <div className="mt-1.5 flex flex-wrap gap-1">
-                  {['Full-Stack Developer', 'Frontend Developer', 'Backend Developer', 'Staff Software Architect', 'Engineering Lead'].map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setForm({ ...form, targetRole: r })}
-                      className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${
-                        form.targetRole === r
-                          ? 'border-accent bg-accent/15 text-accent font-semibold'
-                          : 'border-border/60 bg-surface-2/60 text-muted hover:text-foreground'
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
           </div>

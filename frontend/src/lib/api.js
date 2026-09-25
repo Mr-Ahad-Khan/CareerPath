@@ -305,6 +305,38 @@ function handleOfflineRequest(method, path, data = {}) {
     };
   }
 
+  // 11. Mentor Connections & 1-on-1 Chat routes
+  if (cleanPath === '/connections') {
+    if (method === 'GET') {
+      return { requests: offlineStore.getConnections() };
+    }
+    if (method === 'POST') {
+      const request = offlineStore.createConnection(data.mentorId, data.message);
+      return { request };
+    }
+  }
+
+  if (cleanPath === '/connections/chat' && method === 'POST') {
+    const connection = offlineStore.getOrCreateConnection(data.mentorId);
+    return { connection };
+  }
+
+  if (cleanPath.startsWith('/connections/') && cleanPath.endsWith('/messages')) {
+    const connId = cleanPath.split('/')[2];
+    if (method === 'GET') {
+      return { messages: offlineStore.getMessages(connId) };
+    }
+    if (method === 'POST') {
+      return offlineStore.sendMessage(connId, data);
+    }
+  }
+
+  if (cleanPath.startsWith('/connections/') && cleanPath.endsWith('/accept')) {
+    const connId = cleanPath.split('/')[2];
+    const request = offlineStore.acceptConnection(connId);
+    return { request };
+  }
+
   // Default fallback object
   return { ok: true };
 }

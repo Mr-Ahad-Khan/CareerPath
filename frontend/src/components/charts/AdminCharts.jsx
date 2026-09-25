@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
@@ -9,14 +10,22 @@ function formatLabel(label, maxLen = 14) {
 
 export function RoleDistributionChart({ data }) {
   const chartData = (data || []).map((d) => ({ role: d.role, count: d.count }));
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="w-full min-w-0">
       <ResponsiveContainer width="100%" height={260}>
-        <BarChart data={chartData} layout="vertical" margin={{ left: isMobile ? -10 : 0, right: 10, top: 4, bottom: 4 }}>
+        <BarChart data={chartData} layout="vertical" margin={{ left: isMobile ? -14 : 0, right: 10, top: 4, bottom: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--border))" opacity={0.4} horizontal={false} />
-          <XAxis type="number" stroke="rgb(var(--text-muted))" fontSize={11} tickLine={false} axisLine={false} />
+          <XAxis type="number" stroke="rgb(var(--text-muted))" fontSize={10} tickLine={false} axisLine={false} />
           <YAxis
             type="category"
             dataKey="role"
@@ -24,8 +33,8 @@ export function RoleDistributionChart({ data }) {
             fontSize={isMobile ? 10 : 11}
             tickLine={false}
             axisLine={false}
-            width={isMobile ? 90 : 125}
-            tickFormatter={(v) => formatLabel(v, isMobile ? 12 : 18)}
+            width={isMobile ? 85 : 125}
+            tickFormatter={(v) => formatLabel(v, isMobile ? 11 : 18)}
           />
           <Tooltip
             cursor={{ fill: 'rgb(var(--accent) / 0.06)' }}
@@ -50,7 +59,15 @@ export function RoleDistributionChart({ data }) {
 
 export function SkillDemandChart({ data }) {
   const chartData = (data || []).map((d) => ({ skill: d.skill, count: d.count }));
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="w-full min-w-0">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
@@ -21,18 +21,33 @@ const PATH_COLORS = [
   '#f43f5e', // Rose Red
 ];
 
+function formatCompactAxisMoney(v, currency) {
+  if (typeof v !== 'number' || isNaN(v)) return '';
+  const isUSD = currency === 'USD';
+  if (isUSD) {
+    if (v >= 1e6) return `$${(v / 1e6).toFixed(1)}M`;
+    if (v >= 1e3) return `$${Math.round(v / 1e3)}k`;
+    return `$${v}`;
+  }
+  // INR
+  if (v >= 1e7) return `₹${(v / 1e7).toFixed(1)}Cr`;
+  if (v >= 1e5) return `₹${(v / 1e5).toFixed(1)}L`;
+  if (v >= 1e3) return `₹${Math.round(v / 1e3)}k`;
+  return `₹${v}`;
+}
+
 function CustomTooltip({ active, payload, label, currency }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-border/70 bg-surface/95 backdrop-blur-md px-3.5 py-2.5 shadow-lift max-w-xs sm:max-w-sm">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
+    <div className="rounded-xl border border-border/70 bg-surface/95 backdrop-blur-md px-3 py-2 sm:px-3.5 sm:py-2.5 shadow-lift max-w-[280px] sm:max-w-sm">
+      <p className="mb-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-muted">
         {label === 0 ? 'Current Baseline' : `Year ${label} Projection`}
       </p>
-      <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
         {payload.map((entry) => (
-          <div key={entry.dataKey} className="flex items-center gap-2 text-xs sm:text-sm">
+          <div key={entry.dataKey} className="flex items-center gap-2 text-xs">
             <span
-              className="h-2.5 w-2.5 rounded-full shrink-0"
+              className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full shrink-0"
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-foreground/90 font-medium truncate">{entry.name}</span>
@@ -51,6 +66,17 @@ export function SalaryTrajectoryChart({ paths, currency }) {
   const cur = currency || ctxCurrency;
   const safePaths = Array.isArray(paths) ? paths.filter(Boolean) : [];
   const [hoveredPath, setHoveredPath] = useState(null);
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const data = [];
   for (let y = 0; y <= 5; y++) {
@@ -63,11 +89,16 @@ export function SalaryTrajectoryChart({ paths, currency }) {
   }
 
   return (
-    <div className="relative">
-      <ResponsiveContainer width="100%" height={340}>
+    <div className="relative w-full min-w-0 overflow-hidden">
+      <ResponsiveContainer width="100%" height={isMobile ? 260 : 340}>
         <AreaChart
           data={data}
-          margin={{ top: 10, right: 12, left: -8, bottom: 0 }}
+          margin={{
+            top: 8,
+            right: isMobile ? 8 : 16,
+            left: isMobile ? -14 : -6,
+            bottom: isMobile ? 4 : 0,
+          }}
           onMouseLeave={() => setHoveredPath(null)}
         >
           <defs>
@@ -83,21 +114,25 @@ export function SalaryTrajectoryChart({ paths, currency }) {
             dataKey="year"
             tickFormatter={(v) => (v === 0 ? 'Now' : `Y${v}`)}
             stroke="rgb(var(--text-muted))"
-            fontSize={11}
+            fontSize={isMobile ? 10 : 11}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
-            tickFormatter={(v) => formatMoney(v, cur)}
+            tickFormatter={(v) => formatCompactAxisMoney(v, cur)}
             stroke="rgb(var(--text-muted))"
-            fontSize={11}
+            fontSize={isMobile ? 9 : 11}
             tickLine={false}
             axisLine={false}
-            width={64}
+            width={isMobile ? 46 : 62}
           />
           <Tooltip content={<CustomTooltip currency={cur} />} />
           <Legend
-            wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+            wrapperStyle={{
+              fontSize: isMobile ? '10px' : '12px',
+              paddingTop: isMobile ? '4px' : '10px',
+              lineHeight: isMobile ? '16px' : '20px',
+            }}
             iconType="circle"
             onMouseEnter={(e) => setHoveredPath(e.dataKey)}
             onMouseLeave={() => setHoveredPath(null)}
@@ -113,18 +148,18 @@ export function SalaryTrajectoryChart({ paths, currency }) {
                 type="monotone"
                 dataKey={p.title}
                 stroke={color}
-                strokeWidth={isHovered ? 3.5 : 2.2}
+                strokeWidth={isHovered ? 3.5 : isMobile ? 1.8 : 2.2}
                 strokeOpacity={isDimmed ? 0.3 : 1}
                 fill={`url(#grad-${i % PATH_COLORS.length})`}
                 fillOpacity={isDimmed ? 0.02 : 1}
                 dot={{
-                  r: isHovered ? 4.5 : 3,
+                  r: isHovered ? 4.5 : isMobile ? 2.5 : 3,
                   fill: 'rgb(var(--surface))',
                   stroke: color,
-                  strokeWidth: 2,
+                  strokeWidth: isMobile ? 1.5 : 2,
                   opacity: isDimmed ? 0.3 : 1,
                 }}
-                activeDot={{ r: 5.5, strokeWidth: 2 }}
+                activeDot={{ r: isMobile ? 4.5 : 5.5, strokeWidth: 2 }}
                 connectNulls
               />
             );

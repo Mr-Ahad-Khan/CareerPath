@@ -638,6 +638,149 @@ export const offlineStore = {
     };
   },
 
+  getConnections() {
+    let conns = read(STORAGE_KEYS.CONNECTIONS, []);
+    if (!conns || conns.length === 0) {
+      initOfflineStore();
+      conns = read(STORAGE_KEYS.CONNECTIONS, []);
+    }
+    return conns;
+  },
+
+  getOrCreateConnection(mentorId) {
+    let conns = this.getConnections();
+    const cleanId = String(mentorId || '').replace('conn-', '');
+    let conn = conns.find((c) => c.id === mentorId || c.id === cleanId || c.mentorId === cleanId);
+    if (!conn) {
+      const mentor = DEFAULT_MENTORS.find((m) => m.id === cleanId) || {
+        id: cleanId || 'm1',
+        name: 'Mentor Advisor',
+        title: 'Staff Architect',
+        company: 'CareerPath Tech',
+        avatarColor: '#ffb340',
+      };
+      conn = {
+        _id: `conn-${mentor.id}`,
+        id: `conn-${mentor.id}`,
+        mentorId: mentor.id,
+        mentor,
+        studentId: DEMO_STUDENT_PROFILE.userId,
+        student: {
+          id: DEMO_STUDENT_PROFILE.userId,
+          name: DEMO_STUDENT_PROFILE.fullName,
+          headline: 'MCA Student · Software & AI Aspirant',
+          avatarColor: '#3ddc97',
+        },
+        message: 'Direct mentorship session',
+        status: 'accepted',
+        statusText: 'Connected mentor',
+        createdAt: new Date().toISOString(),
+        messages: [
+          {
+            id: `msg-${Date.now()}-1`,
+            senderId: mentor.id,
+            senderRole: 'mentor',
+            senderName: mentor.name,
+            content: `Hi! Welcome to our 1-on-1 mentorship channel. How can I help guide your 5-year trajectory or skill progression?`,
+            createdAt: new Date(Date.now() - 60000).toISOString(),
+          },
+        ],
+      };
+      conns.unshift(conn);
+      write(STORAGE_KEYS.CONNECTIONS, conns);
+    }
+    return conn;
+  },
+
+  createConnection(mentorId, message) {
+    let conns = this.getConnections();
+    const cleanId = String(mentorId || '').replace('conn-', '');
+    let conn = conns.find((c) => c.mentorId === cleanId || c.id === mentorId);
+    if (conn) {
+      conn.status = 'accepted';
+      if (message) {
+        conn.messages = conn.messages || [];
+        conn.messages.push({
+          id: `msg-${Date.now()}`,
+          senderId: DEMO_STUDENT_PROFILE.userId,
+          senderRole: 'student',
+          senderName: DEMO_STUDENT_PROFILE.fullName,
+          content: message,
+          createdAt: new Date().toISOString(),
+        });
+      }
+    } else {
+      const mentor = DEFAULT_MENTORS.find((m) => m.id === cleanId) || DEFAULT_MENTORS[0];
+      conn = {
+        _id: `conn-${mentor.id}`,
+        id: `conn-${mentor.id}`,
+        mentorId: mentor.id,
+        mentor,
+        studentId: DEMO_STUDENT_PROFILE.userId,
+        student: {
+          id: DEMO_STUDENT_PROFILE.userId,
+          name: DEMO_STUDENT_PROFILE.fullName,
+          headline: 'MCA Student · Software & AI Aspirant',
+          avatarColor: '#3ddc97',
+        },
+        message: message || 'Direct mentorship session',
+        status: 'accepted',
+        statusText: 'Connected mentor',
+        createdAt: new Date().toISOString(),
+        messages: [
+          {
+            id: `msg-${Date.now()}`,
+            senderId: DEMO_STUDENT_PROFILE.userId,
+            senderRole: 'student',
+            senderName: DEMO_STUDENT_PROFILE.fullName,
+            content: message || 'Hi! Looking forward to connecting.',
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      };
+      conns.unshift(conn);
+    }
+    write(STORAGE_KEYS.CONNECTIONS, conns);
+    return conn;
+  },
+
+  getMessages(connectionId) {
+    const conn = this.getOrCreateConnection(connectionId);
+    return conn?.messages || [];
+  },
+
+  sendMessage(connectionId, { content, senderRole = 'student', senderName }) {
+    let conns = this.getConnections();
+    let conn = this.getOrCreateConnection(connectionId);
+    const newMsg = {
+      id: `msg-${Date.now()}`,
+      senderId: senderRole === 'mentor' ? (conn.mentorId || 'mentor') : DEMO_STUDENT_PROFILE.userId,
+      senderRole,
+      senderName: senderName || (senderRole === 'mentor' ? conn.mentor?.name : 'You'),
+      content: content ? content.trim() : '',
+      createdAt: new Date().toISOString(),
+    };
+    conn.messages = [...(conn.messages || []), newMsg];
+    conn.status = 'accepted';
+
+    const idx = conns.findIndex((c) => c.id === conn.id);
+    if (idx >= 0) conns[idx] = conn;
+    else conns.unshift(conn);
+    write(STORAGE_KEYS.CONNECTIONS, conns);
+
+    return { message: newMsg, messages: conn.messages };
+  },
+
+  acceptConnection(connectionId) {
+    let conns = this.getConnections();
+    let conn = this.getOrCreateConnection(connectionId);
+    conn.status = 'accepted';
+    const idx = conns.findIndex((c) => c.id === conn.id);
+    if (idx >= 0) conns[idx] = conn;
+    write(STORAGE_KEYS.CONNECTIONS, conns);
+    return conn;
+  },
+
   cacheServerData(type, data) {
     if (!data) return;
     try {
