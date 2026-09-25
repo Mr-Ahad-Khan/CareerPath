@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FileCheck,
   FileCheck2,
@@ -21,115 +21,11 @@ import { useToast } from "@/lib/toast.jsx";
 import { LoadingOverlay, Spinner } from "@/components/Spinner.jsx";
 import { EmptyState } from "@/components/EmptyState.jsx";
 import { pct } from "@/lib/format.js";
-
-const MAX_RESUME_FILE_SIZE = 100 * 1024;
-
-function isPdf(file) {
-  return (
-    file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")
-  );
-}
-
-function isImage(file) {
-  return (
-    ["image/jpeg", "image/png"].includes(file.type) ||
-    /\.(jpe?g|png)$/i.test(file.name)
-  );
-}
-
-async function extractPdfText(file) {
-  const { getDocument, GlobalWorkerOptions } = await import("pdfjs-dist");
-  GlobalWorkerOptions.workerSrc = new URL(
-    "pdfjs-dist/build/pdf.worker.mjs",
-    import.meta.url,
-  ).toString();
-
-  const pdfDocument = await getDocument({ data: await file.arrayBuffer() })
-    .promise;
-  try {
-    const pages = await Promise.all(
-      Array.from({ length: pdfDocument.numPages }, async (_, index) => {
-        const page = await pdfDocument.getPage(index + 1);
-        const content = await page.getTextContent();
-        return content.items.map((item) => item.str).join(" ");
-      }),
-    );
-    const text = pages
-      .join("\n\n")
-      .replace(/[ \t]+\n/g, "\n")
-      .trim();
-    if (text.length >= 40) return text;
-
-    // Scanned PDFs have no text layer, so render their pages for OCR.
-    const worker = await createOcrWorker();
-    try {
-      const ocrPages = await Promise.all(
-        Array.from({ length: pdfDocument.numPages }, async (_, index) => {
-          const page = await pdfDocument.getPage(index + 1);
-          const viewport = page.getViewport({ scale: 2 });
-          const canvas = document.createElement("canvas");
-          canvas.width = Math.ceil(viewport.width);
-          canvas.height = Math.ceil(viewport.height);
-          await page.render({
-            canvasContext: canvas.getContext("2d"),
-            viewport,
-          }).promise;
-          return (await worker.recognize(canvas)).data.text;
-        }),
-      );
-      return ocrPages.join("\n\n").trim();
-    } finally {
-      await worker.terminate();
-    }
-  } finally {
-    await pdfDocument.destroy();
-  }
-}
-
-async function createOcrWorker() {
-  const { createWorker } = await import("tesseract.js");
-  return createWorker("eng");
-}
-
-async function prepareImage(file) {
-  const image = await createImageBitmap(file);
-  const scale = Math.min(2.5, 2400 / Math.max(image.width, image.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(image.width * scale));
-  canvas.height = Math.max(1, Math.round(image.height * scale));
-  const context = canvas.getContext("2d", { willReadFrequently: true });
-  context.fillStyle = "#fff";
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  context.drawImage(image, 0, 0, canvas.width, canvas.height);
-  image.close();
-
-  const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
-  for (let index = 0; index < pixels.data.length; index += 4) {
-    const gray = Math.round(
-      pixels.data[index] * 0.299 +
-        pixels.data[index + 1] * 0.587 +
-        pixels.data[index + 2] * 0.114,
-    );
-    pixels.data[index] = gray;
-    pixels.data[index + 1] = gray;
-    pixels.data[index + 2] = gray;
-  }
-  context.putImageData(pixels, 0, 0);
-  return canvas;
-}
-
-async function extractImageText(file) {
-  const worker = await createOcrWorker();
-  try {
-    const { data } = await worker.recognize(await prepareImage(file));
-    return data.text;
-  } finally {
-    await worker.terminate();
-  }
-}
+import { readResumeFile, MAX_RESUME_FILE_SIZE } from "@/lib/resumeReader.js";
 
 export function ResumeCheckPage() {
   const toast = useToast();
+  const fileInputRef = useRef(null);
   const [sims, setSims] = useState(null);
   const [simError, setSimError] = useState(null);
   const [selectedSim, setSelectedSim] = useState(null);
@@ -167,6 +63,8 @@ export function ResumeCheckPage() {
           setSelectedPath(0);
         })
         .catch(() => setSimDetail(null));
+    } else {
+      setSimDetail(null);
     }
   }, [selectedSim]);
 
@@ -179,25 +77,20 @@ export function ResumeCheckPage() {
     }
     setExtracting(true);
     try {
-      const text = isPdf(file)
-        ? await extractPdfText(file)
-        : isImage(file)
-          ? await extractImageText(file)
-          : await file.text();
-      if (!text.trim()) {
-        toast.error("No readable text was found in that file.");
-        return;
-      }
-      setResumeText(text.trim());
+      const text = await readResumeFile(file);
+      setResumeText(text);
       setResult(null);
-      toast.success(`Loaded ${file.name}.`);
-    } catch {
+      const sizeKb = (file.size / 1024).toFixed(0);
+      toast.success(`Loaded ${file.name} (${sizeKb} KB).`);
+    } catch (err) {
+      console.error("[ResumeCheck] File extraction error:", err);
       toast.error(
-        "Could not read that file. Try a clearer image or a text-based PDF.",
+        err.message ||
+          "Could not read that file. Try a clearer image, PDF, or paste your text directly."
       );
     } finally {
       setExtracting(false);
-      e.target.value = "";
+      if (e.target) e.target.value = "";
     }
   };
 
@@ -206,25 +99,21 @@ export function ResumeCheckPage() {
       toast.error("Paste your resume text or upload a file first.");
       return;
     }
-    if (!simDetail) {
-      toast.error("Select a simulation to compare against.");
-      return;
-    }
-    const path = (simDetail.paths || [])[selectedPath];
-    if (!path) {
-      toast.error("Select a valid simulation path first.");
-      return;
-    }
+    const path = simDetail
+      ? (simDetail.paths || [])[selectedPath] || (simDetail.paths || [])[0] || null
+      : null;
+
     setAnalyzing(true);
     try {
       const data = await api.post("/resume/analyze", {
         resumeText,
-        skillGaps: path.skillGaps,
+        skillGaps: path?.skillGaps || [],
+        simulationId: selectedSim || null,
       });
       setResult(data);
       toast.success("Resume analysed.");
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to analyze resume.");
     } finally {
       setAnalyzing(false);
     }
@@ -243,8 +132,8 @@ export function ResumeCheckPage() {
             Does your resume match your target path?
           </h1>
           <p className="mt-1 text-muted">
-            Paste your resume or upload a TXT, PDF, JPG, or PNG file (up to 100
-            KB). We’ll parse the skills you mention and cross-reference them
+            Paste your resume or upload a PDF, DOCX, TXT, or image file (up to 15
+            MB). We’ll parse the skills you mention and cross-reference them
             against the gaps identified in your simulation.
           </p>
         </div>
@@ -327,19 +216,27 @@ export function ResumeCheckPage() {
             <div className="mb-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
               <label className="field-label mb-0" htmlFor="resume-raw-text">Your resume</label>
               <div className="flex w-full gap-2 sm:w-auto">
-                <label htmlFor="resume-upload-file" className="btn-secondary cursor-pointer text-xs">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn-secondary cursor-pointer text-xs"
+                  disabled={extracting}
+                  id="resume-upload-btn"
+                >
                   <Upload className="h-3.5 w-3.5" />{" "}
                   {extracting ? "Reading file..." : "Upload resume"}
-                  <input
-                    id="resume-upload-file"
-                    name="resumeFile"
-                    type="file"
-                    accept=".txt,.text,.md,.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
-                    onChange={handleFile}
-                    className="hidden"
-                    disabled={extracting}
-                  />
-                </label>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  id="resume-upload-file"
+                  name="resumeFile"
+                  type="file"
+                  accept=".pdf,.txt,.text,.md,.rtf,.doc,.docx,.png,.jpg,.jpeg,.webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,image/*"
+                  onChange={handleFile}
+                  className="sr-only"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
                 <button
                   onClick={() => {
                     setResumeText("");
@@ -698,7 +595,7 @@ function FileSizeDialog({ onClose }) {
               Resume file is too large
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Please choose a file smaller than 100 KB, or paste your resume
+              Please choose a file smaller than 15 MB, or paste your resume
               text directly into the editor.
             </p>
           </div>

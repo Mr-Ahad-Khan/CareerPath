@@ -15,7 +15,17 @@ router.post('/analyze', (req, res, next) => {
       return res.status(400).json({ error: 'That looks too short to parse. Paste your full resume text.' });
     }
     const parsed = parseResume(resumeText);
-    const check = realityCheck(parsed.skills, skillGaps || []);
+    const effectiveSkillGaps = (Array.isArray(skillGaps) && skillGaps.length > 0)
+      ? skillGaps
+      : [
+          { skill: 'System Design', demand: 0.85, category: 'Architecture' },
+          { skill: 'Docker', demand: 0.78, category: 'Cloud' },
+          { skill: 'Kubernetes', demand: 0.74, category: 'Cloud' },
+          { skill: 'TypeScript', demand: 0.89, category: 'Technical' },
+          { skill: 'Distributed Systems', demand: 0.82, category: 'Architecture' },
+          { skill: 'CI/CD', demand: 0.80, category: 'DevOps' },
+        ];
+    const check = realityCheck(parsed.skills, effectiveSkillGaps);
     res.json({ parsed, realityCheck: check });
   } catch (err) {
     next(err);

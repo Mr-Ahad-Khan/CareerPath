@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" class="dark" style="background-color: #0e1014; color: #f2f4f8;">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0e1014" />
+    <meta id="theme-color-meta" name="theme-color" content="#0e1014" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -18,16 +18,31 @@
       content="CareerPath simulates your next five years across multiple career branches — role progression, salary trajectory, skill gaps, and milestones. Part career counselor, part financial projection, part game."
     />
     <title>CareerPath v5.0 — The 5-Year Simulator</title>
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem('cp-theme') || 'dark';
+          const root = document.documentElement;
+          if (theme === 'dark') {
+            root.classList.add('dark');
+            root.classList.remove('light');
+          } else {
+            root.classList.remove('dark');
+            root.classList.add('light');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Sora:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-DeGmCZn5.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Cw_aFUsa.css">
+    <script type="module" crossorigin src="/assets/index-kqACST3_.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-ymZV1nq1.css">
   </head>
-  <body style="margin: 0; padding: 0; background-color: #0e1014; color: #f2f4f8; font-family: system-ui, -apple-system, sans-serif;">
+  <body style="margin: 0; padding: 0; font-family: 'Sora', system-ui, -apple-system, sans-serif;">
     <div id="root">
       <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #0e1014; color: #f2f4f8;">
         <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 179, 64, 0.15); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 179, 64, 0.3);">
