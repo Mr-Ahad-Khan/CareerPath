@@ -61,6 +61,8 @@ export function Navbar() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
 
+  const [navHeight, setNavHeight] = useState(0);
+  const headerRef = useRef(null);
   const userDropdownRef = useRef(null);
   const moreDropdownRef = useRef(null);
 
@@ -71,12 +73,29 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
+    if (!headerRef.current) return;
+    const updateHeight = () => {
+      if (headerRef.current) {
+        setNavHeight(headerRef.current.offsetHeight);
+      }
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(headerRef.current);
+    window.addEventListener('resize', updateHeight);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, []);
+
+  useEffect(() => {
     setMobileOpen(false);
     setUserDropdownOpen(false);
     setMoreDropdownOpen(false);
   }, [location.pathname]);
 
-  // Click outside listener for dropdowns
+  // Click outside listener for dropdowns and mobile drawer
   useEffect(() => {
     function handleClickOutside(event) {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
@@ -84,6 +103,9 @@ export function Navbar() {
       }
       if (moreDropdownRef.current && !moreDropdownRef.current.contains(event.target)) {
         setMoreDropdownOpen(false);
+      }
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setMobileOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -108,19 +130,21 @@ export function Navbar() {
       : rawFirstName;
 
   return (
-    <header
-      className={`sticky top-0 z-50 border-b pt-safe transition-all duration-300 relative ${
-        scrolled
-          ? 'border-border/80 bg-background/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)]'
-          : 'border-border/40 bg-background/70 backdrop-blur-md'
-      }`}
-    >
-      {/* Subtle top ambient hairline glow */}
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-accent/35 to-transparent pointer-events-none" />
+    <>
+      <header
+        ref={headerRef}
+        className={`fixed top-0 left-0 right-0 z-50 border-b pt-safe transition-colors duration-200 ${
+          scrolled
+            ? 'border-border/80 bg-background/95 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]'
+            : 'border-border/40 bg-background/85 backdrop-blur-md'
+        }`}
+      >
+        {/* Subtle top ambient hairline glow */}
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-accent/35 to-transparent pointer-events-none" />
 
-      <OfflineBanner />
+        <OfflineBanner />
 
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2.5 px-3 sm:px-6 relative">
+        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2.5 px-3 sm:px-6 relative">
         {/* Left: Brand Logo & Sub-tag */}
         <div className="flex items-center justify-start gap-3 shrink-0">
           <Link
@@ -392,7 +416,7 @@ export function Navbar() {
 
       {/* Mobile Drawer Panel */}
       {user && mobileOpen && (
-        <div className="border-t border-border/80 bg-background/95 backdrop-blur-xl px-4 py-4 lg:hidden animate-fade-in shadow-2xl">
+        <div className="absolute top-full left-0 right-0 border-t border-border/80 bg-background/95 backdrop-blur-xl px-4 py-4 lg:hidden animate-fade-in shadow-2xl max-h-[calc(100dvh-5rem)] overflow-y-auto">
           {/* User Status Bar */}
           <div className="flex items-center justify-between rounded-xl bg-surface-2/80 p-3 mb-3 border border-border/60">
             <div className="flex items-center gap-2.5">
@@ -474,6 +498,14 @@ export function Navbar() {
         </div>
       )}
     </header>
+
+    {/* Dynamic spacer to keep page content beneath fixed navbar */}
+    <div
+      style={navHeight ? { height: `${navHeight}px` } : undefined}
+      className="h-16 pt-safe pointer-events-none select-none"
+      aria-hidden="true"
+    />
+  </>
   );
 }
 
