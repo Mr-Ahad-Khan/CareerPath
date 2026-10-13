@@ -1,4 +1,4 @@
-# CareerPath — The 5-Year Simulator
+# CareerPath AI Simulator
 
 > **Simulate the Future of Your Career.** An AI-powered career simulation and trajectory engine that transforms your current skills, education, and interests into realistic, divergent 5-year career roadmaps. Compare alternate futures side-by-side, analyze skill gaps, adjust real-time "what-if" market scenarios, track quarterly milestones, and connect with mentors — across **Web**, **iOS**, and **Android**, with **100% Offline-First support**.
 
@@ -37,18 +37,18 @@
 
 ## System Architecture & Tech Stack
 
-| Layer | Technology | Details |
-|---|---|---|
-| **Frontend Web** | React 18, Vite 5, Tailwind CSS | Single-Page Application (SPA) with React Router v6 |
-| **Mobile Runtime** | Capacitor 6 (`@capacitor/android`, `@capacitor/ios`) | Native wrapper with native plugins (`@capacitor/status-bar`, `@capacitor/splash-screen`) |
-| **Mobile UI** | Custom Mobile Bottom Nav & Quick Sheet | Docked 4-tab bar, slide-up drawers, safe-area inset (`pb-safe`) styling |
-| **Offline Engine** | Pure JavaScript Weighted Scoring Engine | 100% client-side deterministic career simulator running without network |
-| **Offline Storage** | Browser `localStorage` Store (`offlineStore.js`) | Local storage for simulations, milestones, journal, profiles, and queued outbox |
-| **Data Visualization** | Recharts & Lucide Icons | Responsive area charts, radar charts, comparative diff cards |
-| **Resume & OCR** | PDF.js + Tesseract.js | In-browser PDF extraction and OCR text recognition |
-| **Backend API** | Node.js, Express.js (REST API) | Clean MVC architecture with JWT auth via httpOnly cookies & bearer tokens |
-| **Database** | MongoDB Atlas | Mongoose ODM with automated seeder for demo accounts & mentors |
-| **CI/CD Pipeline** | GitHub Actions (`build-apk.yml`) | Automated build and signing of Android release APKs |
+| Layer                  | Technology                                           | Details                                                                                  |
+| ---------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **Frontend Web**       | React 18, Vite 5, Tailwind CSS                       | Single-Page Application (SPA) with React Router v6                                       |
+| **Mobile Runtime**     | Capacitor 6 (`@capacitor/android`, `@capacitor/ios`) | Native wrapper with native plugins (`@capacitor/status-bar`, `@capacitor/splash-screen`) |
+| **Mobile UI**          | Custom Mobile Bottom Nav & Quick Sheet               | Docked 4-tab bar, slide-up drawers, safe-area inset (`pb-safe`) styling                  |
+| **Offline Engine**     | Pure JavaScript Weighted Scoring Engine              | 100% client-side deterministic career simulator running without network                  |
+| **Offline Storage**    | Browser `localStorage` Store (`offlineStore.js`)     | Local storage for simulations, milestones, journal, profiles, and queued outbox          |
+| **Data Visualization** | Recharts & Lucide Icons                              | Responsive area charts, radar charts, comparative diff cards                             |
+| **Resume & OCR**       | PDF.js + Tesseract.js                                | In-browser PDF extraction and OCR text recognition                                       |
+| **Backend API**        | Node.js, Express.js (REST API)                       | Clean MVC architecture with JWT auth via httpOnly cookies & bearer tokens                |
+| **Database**           | MongoDB Atlas                                        | Mongoose ODM with automated seeder for demo accounts & mentors                           |
+| **CI/CD Pipeline**     | GitHub Actions (`build-apk.yml`)                     | Automated build and signing of Android release APKs                                      |
 
 ---
 
@@ -57,11 +57,14 @@
 CareerPath is engineered to work reliably whether you are on high-speed internet, in a spotty network zone, or completely offline on an airplane or subway.
 
 ### 1. Dual-Mode Simulation Engine
+
 - **Server Mode**: Connected to Express and MongoDB Atlas for permanent cloud synchronization and multi-device access.
 - **Client Engine (`frontend/src/lib/offline/simulation.js`)**: A complete in-browser simulation engine that calculates role progressions, non-linear salary growth curves, demand coefficients, and skill-gap radars entirely on the client.
 
 ### 2. Local Persistence (`frontend/src/lib/offline/offlineStore.js`)
+
 When offline, all user interactions are stored locally in the browser/mobile storage:
+
 - **Simulations**: Create, save, and star simulated career trajectories.
 - **What-If Scenarios**: Dynamically tweak city tier, upskilling hours, learning months, and network strength with instant offline recalculations.
 - **Milestone Kanban**: Create, edit, and advance career milestones (`todo`, `in_progress`, `complete`).
@@ -70,6 +73,7 @@ When offline, all user interactions are stored locally in the browser/mobile sto
 - **Resume Reality-Check**: Parse resumes and match extracted skills against offline simulated paths.
 
 ### 3. Transparent Network Resilience (`frontend/src/lib/api.js` & `useOnlineStatus.js`)
+
 - **Live Status Monitoring**: Real-time network detection via `useOnlineStatus` hook.
 - **Visual Status Banners**: Non-intrusive animated `OfflineBanner` alerts the user when operating offline, confirming local data safety, and displays a celebration toast when reconnected.
 - **Automatic Fallback**: The API client detects network failures or offline states and automatically routes queries to `offlineStore`, while transparently caching online server data for future offline use.
@@ -81,6 +85,7 @@ When offline, all user interactions are stored locally in the browser/mobile sto
 CareerPath features dedicated native mobile apps for **Android** and **iOS** powered by Capacitor 6.
 
 ### Mobile Features & UX
+
 - **Docked Mobile Bottom Navigation**: Quick 1-tap switching between **Dashboard**, **Simulate**, **Milestones**, and **Mentors**.
 - **Slide-Up Action Sheet ("More")**: Instant access to Resume Reality-Check, Market Trends, How it Works, Currency switcher (`INR ₹` / `USD $`), Theme toggle (`Dark` / `Light`), and Profile.
 - **Native Status Bar**: Dark styling (`#0e1014`) configured via `@capacitor/status-bar` to match the application's sleek dark theme.
@@ -88,12 +93,14 @@ CareerPath features dedicated native mobile apps for **Android** and **iOS** pow
 - **Zero-Latency Interactions**: Bundled web assets provide near-instant page transitions and smooth 60fps animations.
 
 ### Android Release APK
+
 - Package Identifier: `com.careerpath.app`
 - Min SDK: Android 22 (Lollipop 5.1) | Target SDK: Android 34
 - Build System: Gradle 8.2 + Java 17
 - Pre-configured release keystore signing support.
 
 ### iOS Xcode Workspace
+
 - Target: iOS 13.0+
 - Platform: Capacitor iOS with Swift runtime
 - Responsive viewport mode with content insets.
@@ -103,6 +110,7 @@ CareerPath features dedicated native mobile apps for **Android** and **iOS** pow
 ## Key Features
 
 ### Career Simulation & Exploration
+
 - **Skill Intake Wizard**: Multi-step onboarding collecting skills, proficiencies (sliders), education level, target roles, and constraints.
 - **5-Year Simulation Engine**: Generates 2–3 divergent career trajectories (e.g., Specialized Depth vs. Management vs. Domain Pivot).
 - **Salary Trajectory Charts**: Interactive Recharts area chart comparing annual compensation across branches.
@@ -111,6 +119,7 @@ CareerPath features dedicated native mobile apps for **Android** and **iOS** pow
 - **What-If Scenario Sliders**: Live adjustments for upskilling hours, location multipliers (Tier-1 / Tier-2 / Remote), and network strength.
 
 ### Career Execution & Growth
+
 - **Milestone Roadmap Board**: Kanban-style roadmap grouping objectives by year and quarter with status toggling.
 - **Upskilling Journal**: Daily learning logger calculating active streaks and total hours invested.
 - **Resume Reality-Check**: Upload a PDF or paste text; parses technical skills and calculates match percentages against target roles.
@@ -189,6 +198,7 @@ npm install
 ```
 
 Create `backend/.env`:
+
 ```env
 API_PORT=5050
 CLIENT_ORIGIN=http://localhost:5173
@@ -272,11 +282,13 @@ In Xcode, select your simulator or connected iPhone device and press **Cmd + R**
 CareerPath includes a dedicated GitHub Actions workflow (`.github/workflows/build-apk.yml`) to automatically compile and sign Android release APKs on GitHub.
 
 ### Workflow Triggers
+
 - Automatic run on `push` to `main` / `master`
 - Pull requests targeting `main` / `master`
 - Manual trigger via **Workflow Dispatch** in the GitHub Actions tab
 
 ### Workflow Steps
+
 1. Checks out repository and configures Node.js 22.
 2. Installs dependencies in `frontend/` and `careerpath-mobile/`.
 3. Sets up Java 17 (Temurin) and Android SDK.
@@ -292,13 +304,13 @@ CareerPath includes a dedicated GitHub Actions workflow (`.github/workflows/buil
 
 For presentations, academic evaluations, or quick testing, pre-seeded demo accounts are available:
 
-| Role | Email | Password | Access Level |
-|---|---|---|---|
-| **Student** | `ishaan.verma@demo.careerpath.app` | `demo1234` | Full access to Wizard, Simulations, Milestones, Mentors |
-| **Mentor (AI / ML)** | `ananya.iyer@demo.careerpath.app` | `mentor1234` | Mentor profile, connection management |
-| **Mentor (Fintech)** | `rohan.mehta@demo.careerpath.app` | `mentor1234` | Mentor profile, student inquiries |
-| **Mentor (Cloud)** | `sara.cherian@demo.careerpath.app` | `mentor1234` | Mentor profile, reviews |
-| **Admin / Faculty** | `admin@careerpath.app` | `admin1234` | Admin analytics dashboard, platform telemetry |
+| Role                 | Email                              | Password     | Access Level                                            |
+| -------------------- | ---------------------------------- | ------------ | ------------------------------------------------------- |
+| **Student**          | `ishaan.verma@demo.careerpath.app` | `demo1234`   | Full access to Wizard, Simulations, Milestones, Mentors |
+| **Mentor (AI / ML)** | `ananya.iyer@demo.careerpath.app`  | `mentor1234` | Mentor profile, connection management                   |
+| **Mentor (Fintech)** | `rohan.mehta@demo.careerpath.app`  | `mentor1234` | Mentor profile, student inquiries                       |
+| **Mentor (Cloud)**   | `sara.cherian@demo.careerpath.app` | `mentor1234` | Mentor profile, reviews                                 |
+| **Admin / Faculty**  | `admin@careerpath.app`             | `admin1234`  | Admin analytics dashboard, platform telemetry           |
 
 > 💡 **One-Click Demo**: You can also click **"Load demo profile"** directly on the Login page or Intake Wizard for instant evaluation with zero typing.
 
@@ -307,6 +319,7 @@ For presentations, academic evaluations, or quick testing, pre-seeded demo accou
 ## Deployment
 
 ### Backend (Render)
+
 - Root directory: `backend`
 - Build command: `npm install`
 - Start command: `npm start`
@@ -316,6 +329,7 @@ For presentations, academic evaluations, or quick testing, pre-seeded demo accou
   - `CLIENT_ORIGIN`: Deployed frontend URL (e.g. `https://careerpath.vercel.app`)
 
 ### Frontend (Vercel)
+
 - Root directory: `frontend`
 - Framework Preset: `Vite`
 - Build command: `npm run build`
