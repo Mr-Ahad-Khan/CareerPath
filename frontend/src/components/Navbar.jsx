@@ -145,7 +145,7 @@ export function Navbar() {
         <OfflineBanner />
 
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2.5 px-3 sm:px-6 relative">
-        {/* Left: Brand Logo & Sub-tag */}
+        {/* Left: Brand Logo */}
         <div className="flex items-center justify-start gap-3 shrink-0">
           <Link
             to={user ? '/dashboard' : '/'}
@@ -154,13 +154,6 @@ export function Navbar() {
           >
             <Logo />
           </Link>
-
-          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent/10 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-accent whitespace-nowrap shadow-xs">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-            <span>v5.0</span>
-            <span className="text-muted/60">•</span>
-            <span className="text-foreground/80 font-normal">Tech Simulator</span>
-          </span>
         </div>
 
         {/* Center: Desktop Navigation Links */}
